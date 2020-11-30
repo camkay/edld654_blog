@@ -1,0 +1,16 @@
+name: EDLD654
+output_dir: "."
+navbar:
+  title: EDLD654
+  right:
+  - text: Our blog
+    icon: glyphicon-list-alt
+    href: index.html
+  - text: GitHub
+    icon: fa-github
+    href: https://github.com/camkay/edld654_blog
+output:
+  html_document:
+    css: custom.css
+    lib_dir: site_libs
+    self_contained: no

@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Tensor Flo Ridas: A Journey in Machine Learning</title>
+
+<script src="site_libs/header-attrs-2.5/header-attrs.js"></script>
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
+<script src="site_libs/anchor-sections-1.0/anchor-sections.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+<link rel="stylesheet" href="custom.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">EDLD654</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="index.html">
+    <span class="glyphicon glyphicon-list-alt"></span>
+     
+    Our blog
+  </a>
+</li>
+<li>
+  <a href="https://github.com/camkay/edld654_blog">
+    <span class="fa fa-github"></span>
+     
+    GitHub
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Tensor Flo Ridas: A Journey in Machine Learning</h1>
+
+</div>
+
+
+<hr />
+<div class="column-left">
+<p><strong>Instructor</strong></p>
+<p>Name: Cameron S. Kay</p>
+<p>Pronouns: he/him/his</p>
+<p>Email: <a href="mailto:ckay@uoregon.edu" class="email">ckay@uoregon.edu</a></p>
+<p>Office Hours: By appointment.</p>
+</div>
+<div class="column-right">
+<p><strong>Class Materials</strong></p>
+<p>All required readings will be posted to the Modules tab on <a href="https://canvas.uoregon.edu">Canvas</a>.</p>
+</div>
+<div class="column-center">
+<p><strong>Class Information</strong></p>
+<p>Term: Fall, 2020</p>
+<p>Location: <a href="https://canvas.uoregon.edu">Canvas</a></p>
+<p>Time: 10:15 am to 12:15 pm on Tuesdays.</p>
+</div>
+<p><br /></p>
+<hr />
+<!-- ![](/Users/cameronkay/Documents/Academia/UO 2020-2021/2020-2021_term1_fall/EDLD 654 - Machine Learning/edld654_blog/resources/videos/syllabus_crawl.mp4){width="100%"} -->
+<div id="course-description" class="section level1" number="1">
+<h1 number="1"><span class="header-section-number">1</span> Course Description</h1>
+<p>This course aims to complement existing courses on personality by taking an in-depth look at a number of aversive personality traits. The first half of the course will be spent exploring Machiavellianism, narcissism, psychopathy, and sadism. We will discuss these traits in terms of their history, structure, measurement, and potential etiology. The second half of the course will be dedicated to examining aversive personality traits with respect to personality disorders, criminality, the workplace, morality, and internet behaviours. This course is not intended as a comprehensive review of aversive personality traits. Rather, I have chosen papers that I believe provide an accessible introduction to the respective topics. Hopefully, they will inspire you to engage in future self-directed study.</p>
+<p><br /></p>
+</div>
+<div id="course-format" class="section level1" number="2">
+<h1 number="2"><span class="header-section-number">2</span> Course Format</h1>
+<p>Because of COVID-19, we will, unfortunately, be unable to meet for in-person discussions. Although this is unfortunate, it is, without a doubt, the correct decision.</p>
+<p>I’ve reworked the course format to hopefully make the switch as minimally disruptive to the stated objectives of the course as possible. The restructured course is now as follows:</p>
+<ul>
+<li>Every Monday, I will post a recorded lecture to <a href="https://canvas.uoregon.edu">Canvas</a> to provide background on the readings and a summary of the current state of the field.</li>
+<li>By the end of the first week (Friday, October 2<sup>nd</sup>, at 11:59 pm), I will ask you to complete a <a href="#pe">precourse exercise</a> on Canvas. The <a href="#pe">precourse exercise</a> assesses your familiarity with the topics to be covered in the course and assesses certain aspects of your psychological and behavioural profiles.</li>
+<li>During the first half of class time every Tuesday (10:15 am to 11:15 am), a <a href="#db">discussion board</a> will open on <a href="https://canvas.uoregon.edu">Canvas</a>. You will write one response to the discussion board prompt and respond to at least one of your classmates. The <a href="#db">discussion board</a> will expire at the end of the class period (12:15 pm).</li>
+<li>During the second half of class time every Tuesday (11:15 am to 12:15 pm), you are invited to a virtual meetup on Zoom. The virtual meetup will be whatever the class wants it to be. It could end up serving as a time to ask me questions, have in-person discussions with other students, share anecdotes, work on constructing dark personality measures, talk about new findings, or work on your profile papers. Attendance at the virtual meetup is optional.</li>
+<li>There will be a <a href="#qz">quiz</a> due every Sunday at 11:59 pm. The <a href="#qz">quizzes</a> will test you on the material covered in the readings and lectures for the preceding week.</li>
+<li>By the end of Week 10 (Friday, December 4<sup>th</sup>, at 11:59 pm), you will upload a <a href="#pp">profile paper</a> to <a href="https://canvas.uoregon.edu">Canvas</a>.</li>
+</ul>
+<p><br /></p>
+</div>
+<div id="learning-objectives" class="section level1" number="3">
+<h1 number="3"><span class="header-section-number">3</span> Learning Objectives</h1>
+<ul>
+<li>Identify and describe aversive personality traits at the level of the concept, construct, and subconstruct.</li>
+<li>Explore relations among the traits.</li>
+<li>Describe a current theory for the presence of these traits in humans.</li>
+<li>Distinguish between subclinical and clinical variations of these traits.</li>
+<li>Examine the relationship between morality and each of the traits.</li>
+<li>Apply an understanding of the traits to relationship and occupational contexts.</li>
+<li>Develop skills in consuming and critically evaluating research and measurement methods that can be applied to topics beyond the scope of the course.</li>
+</ul>
+<p><br /></p>
+</div>
+<div id="estimated-student-workload" class="section level1" number="4">
+<h1 number="4"><span class="header-section-number">4</span> Estimated Student Workload</h1>
+<p>According to federal policy, a single course credit is equivalent to 30 hours of real student work. This includes (a) time spent physically in the classroom and (b) time spent outside of the classroom working on classwork. A two-credit course, such as this, expects 60 hours of real student work.<!--with 20 of those hours spent in the classroom and 40 of those hours spent working outside of the classroom. We will, however, not be meeting in-person this term. One solution would be to increase the number of readings and assignments to make up the difference. A second solution (and the solution I've chosen to go with) is to simply encourage you to spend more time with the readings and the assignments than you would have otherwise. --> Over the current course, it is expected that you will spend approximately 1 hour completing the precourse survey; 10 hours listening to lectures; 15 hours reading course materials; 9 hours responding to the discussion prompts; 10 hours studying for and completing the quizzes; and 15 hours writing the profile paper.</p>
+<p><br /></p>
+</div>
+<div id="assignments" class="section level1" number="5">
+<h1 number="5"><span class="header-section-number">5</span> Assignments</h1>
+<table>
+<colgroup>
+<col width="24%" />
+<col width="20%" />
+<col width="55%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Component</th>
+<th>Percent of Grade</th>
+<th>Date Due</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="#pe">Precourse Exercise</a></td>
+<td>3%</td>
+<td>Completed by 11:59 pm on Friday of Week 1 (10/02/2020).</td>
+</tr>
+<tr class="even">
+<td><a href="#db">Discussions Boards</a></td>
+<td>27% (9 x 3%)</td>
+<td>Completed during class time on Tuesdays.</td>
+</tr>
+<tr class="odd">
+<td><a href="#qz">Quizzes</a></td>
+<td>30% (10 x 3%)</td>
+<td>Completed by 11:59 pm every Sunday.</td>
+</tr>
+<tr class="even">
+<td><a href="#pp">Profile Paper</a></td>
+<td>40%</td>
+<td>Uploaded to Canvas by 11:59 pm on Friday of Week 10 (12/04/2020).</td>
+</tr>
+<tr class="odd">
+<td><a href="#ec">Extra Credit</a></td>
+<td>+3%</td>
+<td>Completed by 11:59 pm on Friday of Week 10 (12/04/2020).</td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<div id="pe" class="section level2" number="5.1">
+<h2 number="5.1"><span class="header-section-number">5.1</span> Precourse Exercise</h2>
+<ul>
+<li>Percent of total grade: 3.00%</li>
+<li>Due: Completed by 11:59 pm on Friday of Week 1 (10/02/2020).</li>
+<li>Requirements: The <em>Precourse Exercise</em> assesses your preconceptions regarding the content to be covered in the course. It will also contain scales measuring aspects of your personality and behavioural tendencies. This data may be presented to the rest of the class to illustrate key course concepts. The data will be collected using an anonymous link so that I (and the rest of the class) will be unable to link your answers to you. Still, you are free to skip any question that makes you feel uncomfortable. I will grade the survey on a “pass versus no-pass” basis.</li>
+<li><em>Note.</em> For students joining the class after Sunday of Week 1, send me an email before the end of the second week of classes. I will assign you an alternative exercise of comparable length to the precourse exercise.</li>
+</ul>
+</div>
+<div id="db" class="section level2" number="5.2">
+<h2 number="5.2"><span class="header-section-number">5.2</span> Discussion Boards</h2>
+<ul>
+<li>Percent of total grade: 27.00% (9 x 3.00%)</li>
+<li>Due: Completed during class time on Tuesdays.</li>
+<li>Requirements: On Tuesdays at 10:15 am, a discussion board will become available on Canvas. You will write one response to the prompt (about 100 words) and respond to at least one of your classmates (about 60 words). The discussion board activities should take you about 1 hour to complete. Of the 3.00% per discussion board, 2.00% will be awarded for your original post and 1.00% will be awarded for your response to the other classmate. No points will be awarded if responses are disrespectful or dismissive to other students in the class. The discussion board will expire at the end of the class period (11:15 am).</li>
+<li><em>Note.</em> If you are unavailable from 10:15 am to 11:15 am on Tuesdays, please contact me as soon as possible so that we can set up a different time for you to complete the discussion boards.</li>
+</ul>
+</div>
+<div id="qz" class="section level2" number="5.3">
+<h2 number="5.3"><span class="header-section-number">5.3</span> Quizzes</h2>
+<ul>
+<li>Percent of total grade: 30.00% (10 x 3.00%)</li>
+<li>Due: Completed before 11:59 pm on Canvas each week.</li>
+<li>Requirements: It’s important to keep up with the readings and lecture videos to get the most out of this course, so you will be tested with a weekly quiz available on Canvas. The quizzes will be made available on Tuesdays and will be due Sunday at 11:59 pm. The quizzes will be 6 questions and will be timed (10 minutes or about 1.5 minutes per question). You may use your notes and the textbook during the quiz.</li>
+</ul>
+</div>
+<div id="pp" class="section level2" number="5.4">
+<h2 number="5.4"><span class="header-section-number">5.4</span> Profile Paper</h2>
+<ul>
+<li>Percent of total grade: 40.00%</li>
+<li>Due: Uploaded to Canvas by 11:59pm on Friday of Week 10 (12/04/2020).</li>
+<li>Requirements: <a href="https://github.com/camkay/psy407_darkside/blob/master/resources/profile_paper_description.pdf">A full description of the profile paper assignment can be found here</a>. The Profile Paper aims to assess your ability to critically and creatively apply course content to describe the personality of a fictional character of your choosing. I suggest that you choose either a villain (e.g., Wicked Witch of the West; Emperor Palpatine; Dolores Umbridge) or an antihero (e.g., Harley Quinn; Deadpool; Selina Meyer) to ensure your character of interest exhibits sufficient levels of the dark personality traits. The paper should be 8-12 double-spaced pages in length, excluding the title page and references, with Times New Roman 12-point font and 1-inch margins. You must include at least 8 references to peer-reviewed journal articles and at least 4 of those references must be readings that were not assigned in class.</li>
+<li>Examples: Two students from the previous offering of this course have graciously allowed me to share their work as examples of successful profile papers: <a href="https://github.com/camkay/psy407_darkside/blob/master/resources/genova_example_paper.pdf">Azula: The downfall of Avatar’s ultimate villain</a> (by Spring 2020 student Gianna Genova) and <a href="https://github.com/camkay/psy407_darkside/blob/master/resources/richwald_example_paper.pdf">A dark personality analysis of Malcolm Bright</a> (by Spring 2020 student Anja Richwald). Other previous students of Psychology 407 - Dark Personalities have written papers on <em>Damon Salvatore</em> (from The Vampire Diaries), <em>Elizabeth Stonem</em> (from Skins), <em>Eric Cartman</em> (from South Park), <em>Evelyn Deavor</em> (from The Incredibles 2), <em>Hannibal Lecter</em> (from The Silence of the Lambs), <em>The Joker</em> (from The Joker), <em>Mother Gothel</em> (from Tangled), <em>Patrick Bateman</em> (from American Psycho), <em>Regina George</em> (from Mean Girls), <em>Tony Soprano</em> (from The Sopranos), <em>Villanelle</em> (from Killing Eve), <em>Lord Voldemort</em> (from the Harry Potter books), and <em>Walter White</em> (from Breaking Bad).</li>
+<li><em>Note.</em> This assignment was inspired by a similar assignment designed by Sunaina Assanand (2017) at the University of British Columbia.</li>
+</ul>
+</div>
+<div id="ec" class="section level2" number="5.5">
+<h2 number="5.5"><span class="header-section-number">5.5</span> Extra Credit</h2>
+<ul>
+<li>Percent of total grade: +3.00%</li>
+<li>Due: Completed by 11:59 pm on Friday of Week 10 (12/04/2020).</li>
+<li>Requirements: You can earn up to 3% extra credit by participating in 3 credits of research through the Human Subjects Pool. You will receive 1% extra credit for every 1 credit of participation completed. <a href="https://blogs.uoregon.edu/researchwithhumanparticipants/instructions-for-participants/">Click here to learn how to participate in the Human Subjects Pool</a>.</li>
+</ul>
+<!-- ## Reading Responses {#rr} -->
+<!-- + Percent of total grade: 36.00% -->
+<!-- + Due: Posted to Canvas Discussions by 5:00 pm every Wednesday. -->
+<!-- + Requirements: The night before each class, students will submit responses to one of the assigned readings on Canvas Discussions. These reading responses will be viewable by other students in the class. The purpose of the responses is to prepare students for a productive discussion on Canvas. You are free to comment on any aspects of the paper you wish: You could discuss an idea you think is important, critique an idea that you think is questionable, or include an anecdote that relates to a finding. It is completely up to you! The responses are evaluated on the basis of perceived effort and thoroughness. The responses **will not** be evaluated on the basis of spelling, grammar, and compositional structure, as long as they are generally understandable (i.e., I can't grade something I can't understand). The responses should not merely be summaries of the papers, nor should they rely on long quotes. I advise you to aim for at least 150 words. -->
+<!-- ## Participation {#participation} -->
+<!-- + Percent of total grade: 18.00% -->
+<!-- + Due: Posted to Canvas Discussions by 5:00 pm every Sunday. -->
+<!-- + Requirements: At any time between the lecture video being posted on Thursday and Sunday at 5:00 pm, students should log onto Canvas and comment on the [reading response](#rr) of at least one other student (although you are certainly welcome to comment on more than one). This comment must be substantive (i.e., you must critically engage with the response using knowledge gained through the given week's readings and the lecture). As with the [reading responses](#rr), I will grade the comments on the basis of perceived effort and thoroughness. I would aim for at least 60 words.  -->
+<!-- + *Note.* Making your writing public---especially on a topic that you may not be familiar with---can be daunting. These comments are meant to help us learn from each other. If I feel your comment is negative or inappropriate, I will delete it and assign you a score of zero for the week. Constructive feedback is okay, but remember that we are all still learning.  -->
+<p><br /></p>
+</div>
+</div>
+<div id="percentage-to-letter-grades" class="section level1" number="6">
+<h1 number="6"><span class="header-section-number">6</span> Percentage to Letter Grades</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Letter</th>
+<th>Percent</th>
+<th>Letter</th>
+<th>Percent</th>
+<th>Letter</th>
+<th>Percent</th>
+<th>Letter</th>
+<th>Percent</th>
+<th>Letter</th>
+<th>Percent</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A</td>
+<td>93.00-100.00%</td>
+<td>B+</td>
+<td>87.00-89.99%</td>
+<td>C+</td>
+<td>77.00-79.99%</td>
+<td>D+</td>
+<td>67.00-69.99%</td>
+<td>F</td>
+<td>&lt; 59.99%</td>
+</tr>
+<tr class="even">
+<td>A-</td>
+<td>90.00-92.99%</td>
+<td>B</td>
+<td>83.00-86.99%</td>
+<td>C</td>
+<td>73.00-76.99%</td>
+<td>D</td>
+<td>63.00-66.99%</td>
+<td>P*</td>
+<td>&gt;= 70.00%</td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td>B-</td>
+<td>80.00-82.99%</td>
+<td>C-</td>
+<td>70.00-72.99%</td>
+<td>D-</td>
+<td>60.00-62.99%</td>
+<td>N*</td>
+<td>&lt; 70.00%</td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<!-- I expect the average grade received for this course to be ~85% with a standard deviation of 8. To avoid potential grade inflation and to maintain fairness across different courses at the University of Oregon, I reserve the right to scale grades to conform to this distribution. -->
+<!--
+
+```r
+set.seed(1)
+
+hist(rnorm(25, 85, 8), breaks = seq(60, 110, 3))
+```
+
+<img src="index_files/figure-html/unnamed-chunk-1-1.png" width="672" />
+-->
+<p><br /></p>
+</div>
+<div id="course-policies-and-acknowledgements" class="section level1" number="7">
+<h1 number="7"><span class="header-section-number">7</span> Course Policies and Acknowledgements</h1>
+<div id="classroom-etiquette" class="section level2" number="7.1">
+<h2 number="7.1"><span class="header-section-number">7.1</span> Classroom Etiquette</h2>
+<p>I ask that you help foster a (virtual) classroom that is free from distractions, respectful of others, and inclusive. If I feel that you have failed to support this effort in any way, I will ask you to leave the (virtual) classroom. If you feel that someone else has failed to support these efforts, I ask that you contact me (<a href="mailto:ckay@uoregon.edu" class="email">ckay@uoregon.edu</a>) or, if the issue is serious, the Office of the Dean of Students (541-346-3216).</p>
+<!--
+## Technology Use
+
+Note-taking by hand---even for those who do not have a diagnosed learning disability---can often be difficult for students who write slower than their peers. Laptops and cellphones can also be a helpful way to organize your thoughts and to look-up course concepts. I do allow the use of cellphones and laptops in the classroom, but users of these devices should sit near the walls so as to avoid the bright screens distracting other students. I do also reserve the right to prohibit laptop and cellphone use for anyone who distracts other students.
+-->
+</div>
+<div id="late-assignments" class="section level2" number="7.2">
+<h2 number="7.2"><span class="header-section-number">7.2</span> Late Assignments</h2>
+<p>Late exercises and papers will be docked 10% for each day that they are late. This means, if you turn in the profile paper two days late, you would receive a maximum of 80% for your work. If you need an extension on an assignment, please contact me at least one week in advance of the due date.</p>
+</div>
+<div id="email-policy" class="section level2" number="7.3">
+<h2 number="7.3"><span class="header-section-number">7.3</span> Email Policy</h2>
+<p>I tend to check my email twice per day: Once in the morning and once in the evening. However, if you send an email at 7:00 am on the day of class, I may not respond to it before the class. Please allow at least 24 hours for a response. If I do not respond within 24 hours, it is safe to assume that I did not receive your email, it was erroneously archived, or it was sent to my spam folder. You should resend the email.</p>
+</div>
+<div id="accessibility" class="section level2" number="7.4">
+<h2 number="7.4"><span class="header-section-number">7.4</span> Accessibility</h2>
+<p>If you require accommodations due to a documented disability, please contact me as soon as possible. You will also need to use the <a href="https://aec.uoregon.edu/content/using-aec-connect">Accessible Education Center portal</a> to have a notification letter sent to me. If you do not know how to use the portal, please phone 541-346-1155 or email <a href="mailto:uoaec@uoregon.edu" class="email">uoaec@uoregon.edu</a>.</p>
+</div>
+<div id="academic-integrity" class="section level2" number="7.5">
+<h2 number="7.5"><span class="header-section-number">7.5</span> Academic Integrity</h2>
+<p>Cheating or plagiarism will result in a grade of F for the course, and UO’s student conduct coordinator will be notified. Cheating includes, but is not necessarily limited to, providing or accepting information during quizzes an exams. Plagiarism includes, but is not necessarily limited to, quoting or paraphrasing someone else’s ideas without acknowledging the source. If you are unsure of whether a particular behaviour counts as cheating or plagiarism, you should contact me (<a href="mailto:ckay@uoregon.edu" class="email">ckay@uoregon.edu</a>) or the Office of the Dean of Students (phone: 541-346-3216; email: <a href="mailto:conduct@uoregon.edu" class="email">conduct@uoregon.edu</a>).</p>
+</div>
+<div id="land-acknowledgement" class="section level2" number="7.6">
+<h2 number="7.6"><span class="header-section-number">7.6</span> Land Acknowledgement</h2>
+<p>We acknowledge that the University of Oregon is situated on Kalapuya Iliʔi—the ancestral territory of the Kalapuya people. As a University, we should honour the traditional stewards of this land and pay respect to the elders, both past and present.</p>
+<hr />
+<center>
+<em>Last updated: September 29th, 2020.</em>
+</center>
+</div>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
