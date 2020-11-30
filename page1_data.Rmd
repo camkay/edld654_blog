@@ -116,15 +116,41 @@ data_train_cv <- vfold_cv(data_train)
 ### Exploring the data
 
 ```{r histograms}
+theme_407 <- function() { 
+    theme_bw(base_size = 25) %+replace% 
+        theme(
+          legend.direction = "horizontal",
+          legend.background = element_rect(fill = "#1b1d22",
+                                           colour = "#1b1d22"),
+          panel.background = element_rect(fill = "#171f24",
+                              colour = "#1b1d22",
+                              size = 0.5, linetype = "solid"),
+          panel.grid.major = element_line(size = 0.2, 
+                                          linetype = 'solid', 
+                                          colour = "gray40"), 
+          panel.grid.minor = element_line(size = 0.0, 
+                                          linetype = 'solid',
+                                          colour = "gray40"),
+          axis.line = element_line(colour = "white"),
+          plot.background = element_rect(fill = "#171f24"),
+          text  = element_text(color = "white", size = 20),
+          axis.text  = element_text(color = "white"),
+          axis.ticks = element_line(color = "white"),
+          strip.background = element_rect(fill = "white",
+                                          colour = "white")
+        )
+}
+
 data_train %>%
   select(where(is.numeric),
          -contains("id"),
          -ncessch) %>%
   gather("variable") %>%
   ggplot(aes(x = value)) +
-    geom_histogram(color = "white", fill = "cyan3") +
+    geom_histogram(color = "#171f24", fill = "cyan3") +
     facet_wrap(~variable, scales = "free") +
-    theme_bw()
+    theme_bw() +
+    theme_407()
 ```
 
 ```{r zo}
