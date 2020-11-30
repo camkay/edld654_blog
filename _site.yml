@@ -2,10 +2,26 @@ name: EDLD654
 output_dir: "."
 navbar:
   title: EDLD654
-  right:
-  - text: Our blog
-    icon: glyphicon-list-alt
+  left:
+  - text: Home
+    icon: fa-home
     href: index.html
+  - text: The Data
+    icon: fa-database
+    href: page1_data.html
+  - text: Linear Model
+    icon: fa-chart-line
+    href: page2_linear.html
+  - text: Random Forest
+    icon: fa-tree
+    href: page3_rf.html
+  - text: Boosted Tree
+    icon: fa-rocket
+    href: page4_xgboost.html
+  - text: Model Comparisons
+    icon: fa-balance-scale
+    href: page5_comparison.html
+  right:
   - text: GitHub
     icon: fa-github
     href: https://github.com/camkay/edld654_blog
