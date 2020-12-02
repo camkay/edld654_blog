@@ -11,7 +11,7 @@
 
 
 
-<title>Tensor Flo Ridas: A Journey in Machine Learning</title>
+<title>Tensor Flo Ridas: A Journey in ML</title>
 
 <script src="site_libs/header-attrs-2.5/header-attrs.js"></script>
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
@@ -24,8 +24,11 @@
 <link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
 <script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
 <link href="site_libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
 <script src="site_libs/anchor-sections-1.0/anchor-sections.js"></script>
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
@@ -263,6 +266,9 @@ $(document).ready(function () {
 </style>
 
 <!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
 
 
 
@@ -420,271 +426,68 @@ div.tocify {
 
 <div class="fluid-row" id="header">
 
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
 
 
-<h1 class="title toc-ignore">Tensor Flo Ridas: A Journey in Machine Learning</h1>
+
+<h1 class="title toc-ignore">Tensor Flo Ridas: A Journey in ML</h1>
 
 </div>
 
 
 <hr />
-<!-- ![](/Users/cameronkay/Documents/Academia/UO 2020-2021/2020-2021_term1_fall/EDLD 654 - Machine Learning/edld654_blog/resources/videos/syllabus_crawl.mp4){width="100%"} -->
-<div id="course-description" class="section level1" number="1">
-<h1 number="1"><span class="header-section-number">1</span> Course Description</h1>
-<p>This course aims to complement existing courses on personality by taking an in-depth look at a number of aversive personality traits. The first half of the course will be spent exploring Machiavellianism, narcissism, psychopathy, and sadism. We will discuss these traits in terms of their history, structure, measurement, and potential etiology. The second half of the course will be dedicated to examining aversive personality traits with respect to personality disorders, criminality, the workplace, morality, and internet behaviours. This course is not intended as a comprehensive review of aversive personality traits. Rather, I have chosen papers that I believe provide an accessible introduction to the respective topics. Hopefully, they will inspire you to engage in future self-directed study.</p>
-<p><br /></p>
+<div id="create-the-model" class="section level1" number="1">
+<h1 number="1"><span class="header-section-number">1</span> Create the model</h1>
+<pre class="r"><code>model_rf &lt;- rand_forest() %&gt;% 
+  set_mode(&quot;regression&quot;) %&gt;% 
+  set_engine(engine      = &quot;ranger&quot;,
+             num.threads = parallel::detectCores() - 2,
+             importance  = &quot;permutation&quot;,
+             verbose     = TRUE) %&gt;% 
+  set_args(trees = 1000)</code></pre>
 </div>
-<div id="course-format" class="section level1" number="2">
-<h1 number="2"><span class="header-section-number">2</span> Course Format</h1>
-<p>Because of COVID-19, we will, unfortunately, be unable to meet for in-person discussions. Although this is unfortunate, it is, without a doubt, the correct decision.</p>
-<p>I’ve reworked the course format to hopefully make the switch as minimally disruptive to the stated objectives of the course as possible. The restructured course is now as follows:</p>
-<ul>
-<li>Every Monday, I will post a recorded lecture to <a href="https://canvas.uoregon.edu">Canvas</a> to provide background on the readings and a summary of the current state of the field.</li>
-<li>By the end of the first week (Friday, October 2<sup>nd</sup>, at 11:59 pm), I will ask you to complete a <a href="#pe">precourse exercise</a> on Canvas. The <a href="#pe">precourse exercise</a> assesses your familiarity with the topics to be covered in the course and assesses certain aspects of your psychological and behavioural profiles.</li>
-<li>During the first half of class time every Tuesday (10:15 am to 11:15 am), a <a href="#db">discussion board</a> will open on <a href="https://canvas.uoregon.edu">Canvas</a>. You will write one response to the discussion board prompt and respond to at least one of your classmates. The <a href="#db">discussion board</a> will expire at the end of the class period (12:15 pm).</li>
-<li>During the second half of class time every Tuesday (11:15 am to 12:15 pm), you are invited to a virtual meetup on Zoom. The virtual meetup will be whatever the class wants it to be. It could end up serving as a time to ask me questions, have in-person discussions with other students, share anecdotes, work on constructing dark personality measures, talk about new findings, or work on your profile papers. Attendance at the virtual meetup is optional.</li>
-<li>There will be a <a href="#qz">quiz</a> due every Sunday at 11:59 pm. The <a href="#qz">quizzes</a> will test you on the material covered in the readings and lectures for the preceding week.</li>
-<li>By the end of Week 10 (Friday, December 4<sup>th</sup>, at 11:59 pm), you will upload a <a href="#pp">profile paper</a> to <a href="https://canvas.uoregon.edu">Canvas</a>.</li>
-</ul>
-<p><br /></p>
+<div id="create-workflow-object" class="section level1" number="2">
+<h1 number="2"><span class="header-section-number">2</span> Create workflow object</h1>
+<pre class="r"><code># create workflow object
+workflow_rf &lt;- workflow() %&gt;% 
+  add_recipe(recipe_1) %&gt;% 
+  add_model(model_rf)</code></pre>
 </div>
-<div id="learning-objectives" class="section level1" number="3">
-<h1 number="3"><span class="header-section-number">3</span> Learning Objectives</h1>
-<ul>
-<li>Identify and describe aversive personality traits at the level of the concept, construct, and subconstruct.</li>
-<li>Explore relations among the traits.</li>
-<li>Describe a current theory for the presence of these traits in humans.</li>
-<li>Distinguish between subclinical and clinical variations of these traits.</li>
-<li>Examine the relationship between morality and each of the traits.</li>
-<li>Apply an understanding of the traits to relationship and occupational contexts.</li>
-<li>Develop skills in consuming and critically evaluating research and measurement methods that can be applied to topics beyond the scope of the course.</li>
-</ul>
-<p><br /></p>
-</div>
-<div id="estimated-student-workload" class="section level1" number="4">
-<h1 number="4"><span class="header-section-number">4</span> Estimated Student Workload</h1>
-<p>According to federal policy, a single course credit is equivalent to 30 hours of real student work. This includes (a) time spent physically in the classroom and (b) time spent outside of the classroom working on classwork. A two-credit course, such as this, expects 60 hours of real student work.<!--with 20 of those hours spent in the classroom and 40 of those hours spent working outside of the classroom. We will, however, not be meeting in-person this term. One solution would be to increase the number of readings and assignments to make up the difference. A second solution (and the solution I've chosen to go with) is to simply encourage you to spend more time with the readings and the assignments than you would have otherwise. --> Over the current course, it is expected that you will spend approximately 1 hour completing the precourse survey; 10 hours listening to lectures; 15 hours reading course materials; 9 hours responding to the discussion prompts; 10 hours studying for and completing the quizzes; and 15 hours writing the profile paper.</p>
-<p><br /></p>
-</div>
-<div id="assignments" class="section level1" number="5">
-<h1 number="5"><span class="header-section-number">5</span> Assignments</h1>
-<table>
-<colgroup>
-<col width="24%" />
-<col width="20%" />
-<col width="55%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th>Component</th>
-<th>Percent of Grade</th>
-<th>Date Due</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><a href="#pe">Precourse Exercise</a></td>
-<td>3%</td>
-<td>Completed by 11:59 pm on Friday of Week 1 (10/02/2020).</td>
-</tr>
-<tr class="even">
-<td><a href="#db">Discussions Boards</a></td>
-<td>27% (9 x 3%)</td>
-<td>Completed during class time on Tuesdays.</td>
-</tr>
-<tr class="odd">
-<td><a href="#qz">Quizzes</a></td>
-<td>30% (10 x 3%)</td>
-<td>Completed by 11:59 pm every Sunday.</td>
-</tr>
-<tr class="even">
-<td><a href="#pp">Profile Paper</a></td>
-<td>40%</td>
-<td>Uploaded to Canvas by 11:59 pm on Friday of Week 10 (12/04/2020).</td>
-</tr>
-<tr class="odd">
-<td><a href="#ec">Extra Credit</a></td>
-<td>+3%</td>
-<td>Completed by 11:59 pm on Friday of Week 10 (12/04/2020).</td>
-</tr>
-<tr class="even">
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<div id="pe" class="section level2" number="5.1">
-<h2 number="5.1"><span class="header-section-number">5.1</span> Precourse Exercise</h2>
-<ul>
-<li>Percent of total grade: 3.00%</li>
-<li>Due: Completed by 11:59 pm on Friday of Week 1 (10/02/2020).</li>
-<li>Requirements: The <em>Precourse Exercise</em> assesses your preconceptions regarding the content to be covered in the course. It will also contain scales measuring aspects of your personality and behavioural tendencies. This data may be presented to the rest of the class to illustrate key course concepts. The data will be collected using an anonymous link so that I (and the rest of the class) will be unable to link your answers to you. Still, you are free to skip any question that makes you feel uncomfortable. I will grade the survey on a “pass versus no-pass” basis.</li>
-<li><em>Note.</em> For students joining the class after Sunday of Week 1, send me an email before the end of the second week of classes. I will assign you an alternative exercise of comparable length to the precourse exercise.</li>
-</ul>
-</div>
-<div id="db" class="section level2" number="5.2">
-<h2 number="5.2"><span class="header-section-number">5.2</span> Discussion Boards</h2>
-<ul>
-<li>Percent of total grade: 27.00% (9 x 3.00%)</li>
-<li>Due: Completed during class time on Tuesdays.</li>
-<li>Requirements: On Tuesdays at 10:15 am, a discussion board will become available on Canvas. You will write one response to the prompt (about 100 words) and respond to at least one of your classmates (about 60 words). The discussion board activities should take you about 1 hour to complete. Of the 3.00% per discussion board, 2.00% will be awarded for your original post and 1.00% will be awarded for your response to the other classmate. No points will be awarded if responses are disrespectful or dismissive to other students in the class. The discussion board will expire at the end of the class period (11:15 am).</li>
-<li><em>Note.</em> If you are unavailable from 10:15 am to 11:15 am on Tuesdays, please contact me as soon as possible so that we can set up a different time for you to complete the discussion boards.</li>
-</ul>
-</div>
-<div id="qz" class="section level2" number="5.3">
-<h2 number="5.3"><span class="header-section-number">5.3</span> Quizzes</h2>
-<ul>
-<li>Percent of total grade: 30.00% (10 x 3.00%)</li>
-<li>Due: Completed before 11:59 pm on Canvas each week.</li>
-<li>Requirements: It’s important to keep up with the readings and lecture videos to get the most out of this course, so you will be tested with a weekly quiz available on Canvas. The quizzes will be made available on Tuesdays and will be due Sunday at 11:59 pm. The quizzes will be 6 questions and will be timed (10 minutes or about 1.5 minutes per question). You may use your notes and the textbook during the quiz.</li>
-</ul>
-</div>
-<div id="pp" class="section level2" number="5.4">
-<h2 number="5.4"><span class="header-section-number">5.4</span> Profile Paper</h2>
-<ul>
-<li>Percent of total grade: 40.00%</li>
-<li>Due: Uploaded to Canvas by 11:59pm on Friday of Week 10 (12/04/2020).</li>
-<li>Requirements: <a href="https://github.com/camkay/psy407_darkside/blob/master/resources/profile_paper_description.pdf">A full description of the profile paper assignment can be found here</a>. The Profile Paper aims to assess your ability to critically and creatively apply course content to describe the personality of a fictional character of your choosing. I suggest that you choose either a villain (e.g., Wicked Witch of the West; Emperor Palpatine; Dolores Umbridge) or an antihero (e.g., Harley Quinn; Deadpool; Selina Meyer) to ensure your character of interest exhibits sufficient levels of the dark personality traits. The paper should be 8-12 double-spaced pages in length, excluding the title page and references, with Times New Roman 12-point font and 1-inch margins. You must include at least 8 references to peer-reviewed journal articles and at least 4 of those references must be readings that were not assigned in class.</li>
-<li>Examples: Two students from the previous offering of this course have graciously allowed me to share their work as examples of successful profile papers: <a href="https://github.com/camkay/psy407_darkside/blob/master/resources/genova_example_paper.pdf">Azula: The downfall of Avatar’s ultimate villain</a> (by Spring 2020 student Gianna Genova) and <a href="https://github.com/camkay/psy407_darkside/blob/master/resources/richwald_example_paper.pdf">A dark personality analysis of Malcolm Bright</a> (by Spring 2020 student Anja Richwald). Other previous students of Psychology 407 - Dark Personalities have written papers on <em>Damon Salvatore</em> (from The Vampire Diaries), <em>Elizabeth Stonem</em> (from Skins), <em>Eric Cartman</em> (from South Park), <em>Evelyn Deavor</em> (from The Incredibles 2), <em>Hannibal Lecter</em> (from The Silence of the Lambs), <em>The Joker</em> (from The Joker), <em>Mother Gothel</em> (from Tangled), <em>Patrick Bateman</em> (from American Psycho), <em>Regina George</em> (from Mean Girls), <em>Tony Soprano</em> (from The Sopranos), <em>Villanelle</em> (from Killing Eve), <em>Lord Voldemort</em> (from the Harry Potter books), and <em>Walter White</em> (from Breaking Bad).</li>
-<li><em>Note.</em> This assignment was inspired by a similar assignment designed by Sunaina Assanand (2017) at the University of British Columbia.</li>
-</ul>
-</div>
-<div id="ec" class="section level2" number="5.5">
-<h2 number="5.5"><span class="header-section-number">5.5</span> Extra Credit</h2>
-<ul>
-<li>Percent of total grade: +3.00%</li>
-<li>Due: Completed by 11:59 pm on Friday of Week 10 (12/04/2020).</li>
-<li>Requirements: You can earn up to 3% extra credit by participating in 3 credits of research through the Human Subjects Pool. You will receive 1% extra credit for every 1 credit of participation completed. <a href="https://blogs.uoregon.edu/researchwithhumanparticipants/instructions-for-participants/">Click here to learn how to participate in the Human Subjects Pool</a>.</li>
-</ul>
-<!-- ## Reading Responses {#rr} -->
-<!-- + Percent of total grade: 36.00% -->
-<!-- + Due: Posted to Canvas Discussions by 5:00 pm every Wednesday. -->
-<!-- + Requirements: The night before each class, students will submit responses to one of the assigned readings on Canvas Discussions. These reading responses will be viewable by other students in the class. The purpose of the responses is to prepare students for a productive discussion on Canvas. You are free to comment on any aspects of the paper you wish: You could discuss an idea you think is important, critique an idea that you think is questionable, or include an anecdote that relates to a finding. It is completely up to you! The responses are evaluated on the basis of perceived effort and thoroughness. The responses **will not** be evaluated on the basis of spelling, grammar, and compositional structure, as long as they are generally understandable (i.e., I can't grade something I can't understand). The responses should not merely be summaries of the papers, nor should they rely on long quotes. I advise you to aim for at least 150 words. -->
-<!-- ## Participation {#participation} -->
-<!-- + Percent of total grade: 18.00% -->
-<!-- + Due: Posted to Canvas Discussions by 5:00 pm every Sunday. -->
-<!-- + Requirements: At any time between the lecture video being posted on Thursday and Sunday at 5:00 pm, students should log onto Canvas and comment on the [reading response](#rr) of at least one other student (although you are certainly welcome to comment on more than one). This comment must be substantive (i.e., you must critically engage with the response using knowledge gained through the given week's readings and the lecture). As with the [reading responses](#rr), I will grade the comments on the basis of perceived effort and thoroughness. I would aim for at least 60 words.  -->
-<!-- + *Note.* Making your writing public---especially on a topic that you may not be familiar with---can be daunting. These comments are meant to help us learn from each other. If I feel your comment is negative or inappropriate, I will delete it and assign you a score of zero for the week. Constructive feedback is okay, but remember that we are all still learning.  -->
-<p><br /></p>
-</div>
-</div>
-<div id="percentage-to-letter-grades" class="section level1" number="6">
-<h1 number="6"><span class="header-section-number">6</span> Percentage to Letter Grades</h1>
-<table>
-<thead>
-<tr class="header">
-<th>Letter</th>
-<th>Percent</th>
-<th>Letter</th>
-<th>Percent</th>
-<th>Letter</th>
-<th>Percent</th>
-<th>Letter</th>
-<th>Percent</th>
-<th>Letter</th>
-<th>Percent</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>A</td>
-<td>93.00-100.00%</td>
-<td>B+</td>
-<td>87.00-89.99%</td>
-<td>C+</td>
-<td>77.00-79.99%</td>
-<td>D+</td>
-<td>67.00-69.99%</td>
-<td>F</td>
-<td>&lt; 59.99%</td>
-</tr>
-<tr class="even">
-<td>A-</td>
-<td>90.00-92.99%</td>
-<td>B</td>
-<td>83.00-86.99%</td>
-<td>C</td>
-<td>73.00-76.99%</td>
-<td>D</td>
-<td>63.00-66.99%</td>
-<td>P*</td>
-<td>&gt;= 70.00%</td>
-</tr>
-<tr class="odd">
-<td></td>
-<td></td>
-<td>B-</td>
-<td>80.00-82.99%</td>
-<td>C-</td>
-<td>70.00-72.99%</td>
-<td>D-</td>
-<td>60.00-62.99%</td>
-<td>N*</td>
-<td>&lt; 70.00%</td>
-</tr>
-<tr class="even">
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<!-- I expect the average grade received for this course to be ~85% with a standard deviation of 8. To avoid potential grade inflation and to maintain fairness across different courses at the University of Oregon, I reserve the right to scale grades to conform to this distribution. -->
-<!--
+<div id="run-random-forest-model" class="section level1" number="3">
+<h1 number="3"><span class="header-section-number">3</span> Run random forest model</h1>
+<pre class="r"><code># start timer
+tictoc::tic()
 
-```r
-set.seed(1)
+# fit model
+fit_rf &lt;- fit_resamples(
+  object    = workflow_rf,
+  resamples = data_train_cv,
+  metrics   = yardstick::metric_set(rmse, rsq, huber_loss),
+  control   = control_resamples(verbose   = TRUE,
+                                save_pred = TRUE,
+                                extract   = function(x) extract_model(x)))
 
-hist(rnorm(25, 85, 8), breaks = seq(60, 110, 3))
-```
-
-<img src="page3_rf_files/figure-html/unnamed-chunk-1-1.png" width="672" />
--->
-<p><br /></p>
+# end timer
+tictoc::toc()</code></pre>
+<pre><code>## 6.919 sec elapsed</code></pre>
 </div>
-<div id="course-policies-and-acknowledgements" class="section level1" number="7">
-<h1 number="7"><span class="header-section-number">7</span> Course Policies and Acknowledgements</h1>
-<div id="classroom-etiquette" class="section level2" number="7.1">
-<h2 number="7.1"><span class="header-section-number">7.1</span> Classroom Etiquette</h2>
-<p>I ask that you help foster a (virtual) classroom that is free from distractions, respectful of others, and inclusive. If I feel that you have failed to support this effort in any way, I will ask you to leave the (virtual) classroom. If you feel that someone else has failed to support these efforts, I ask that you contact me (<a href="mailto:ckay@uoregon.edu" class="email">ckay@uoregon.edu</a>) or, if the issue is serious, the Office of the Dean of Students (541-346-3216).</p>
-<!--
-## Technology Use
-
-Note-taking by hand---even for those who do not have a diagnosed learning disability---can often be difficult for students who write slower than their peers. Laptops and cellphones can also be a helpful way to organize your thoughts and to look-up course concepts. I do allow the use of cellphones and laptops in the classroom, but users of these devices should sit near the walls so as to avoid the bright screens distracting other students. I do also reserve the right to prohibit laptop and cellphone use for anyone who distracts other students.
--->
-</div>
-<div id="late-assignments" class="section level2" number="7.2">
-<h2 number="7.2"><span class="header-section-number">7.2</span> Late Assignments</h2>
-<p>Late exercises and papers will be docked 10% for each day that they are late. This means, if you turn in the profile paper two days late, you would receive a maximum of 80% for your work. If you need an extension on an assignment, please contact me at least one week in advance of the due date.</p>
-</div>
-<div id="email-policy" class="section level2" number="7.3">
-<h2 number="7.3"><span class="header-section-number">7.3</span> Email Policy</h2>
-<p>I tend to check my email twice per day: Once in the morning and once in the evening. However, if you send an email at 7:00 am on the day of class, I may not respond to it before the class. Please allow at least 24 hours for a response. If I do not respond within 24 hours, it is safe to assume that I did not receive your email, it was erroneously archived, or it was sent to my spam folder. You should resend the email.</p>
-</div>
-<div id="accessibility" class="section level2" number="7.4">
-<h2 number="7.4"><span class="header-section-number">7.4</span> Accessibility</h2>
-<p>If you require accommodations due to a documented disability, please contact me as soon as possible. You will also need to use the <a href="https://aec.uoregon.edu/content/using-aec-connect">Accessible Education Center portal</a> to have a notification letter sent to me. If you do not know how to use the portal, please phone 541-346-1155 or email <a href="mailto:uoaec@uoregon.edu" class="email">uoaec@uoregon.edu</a>.</p>
-</div>
-<div id="academic-integrity" class="section level2" number="7.5">
-<h2 number="7.5"><span class="header-section-number">7.5</span> Academic Integrity</h2>
-<p>Cheating or plagiarism will result in a grade of F for the course, and UO’s student conduct coordinator will be notified. Cheating includes, but is not necessarily limited to, providing or accepting information during quizzes an exams. Plagiarism includes, but is not necessarily limited to, quoting or paraphrasing someone else’s ideas without acknowledging the source. If you are unsure of whether a particular behaviour counts as cheating or plagiarism, you should contact me (<a href="mailto:ckay@uoregon.edu" class="email">ckay@uoregon.edu</a>) or the Office of the Dean of Students (phone: 541-346-3216; email: <a href="mailto:conduct@uoregon.edu" class="email">conduct@uoregon.edu</a>).</p>
-</div>
-<div id="land-acknowledgement" class="section level2" number="7.6">
-<h2 number="7.6"><span class="header-section-number">7.6</span> Land Acknowledgement</h2>
-<p>We acknowledge that the University of Oregon is situated on Kalapuya Iliʔi—the ancestral territory of the Kalapuya people. As a University, we should honour the traditional stewards of this land and pay respect to the elders, both past and present.</p>
+<div id="extract-important-predictors" class="section level1" number="4">
+<h1 number="4"><span class="header-section-number">4</span> Extract important predictors</h1>
+<pre class="r"><code>pluck(fit_rf, &quot;.extracts&quot;, 1, &quot;.extracts&quot;, 1) %&gt;%
+  vip(aesthetics = list(fill = &quot;cyan3&quot;)) +
+  labs(x = &quot;Predictor&quot;) + 
+  theme_407()</code></pre>
+<p><img src="page3_rf_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
 <hr />
 <center>
-<em>Last updated: September 29th, 2020.</em>
+<em>Last updated: December 2nd, 2020.</em>
 </center>
-</div>
 </div>
 
 
@@ -722,6 +525,11 @@ $(document).ready(function () {
 </script>
 
 <!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
 
 <script>
 $(document).ready(function ()  {
