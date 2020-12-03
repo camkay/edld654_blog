@@ -444,6 +444,7 @@ div.tocify {
 <hr />
 <div id="create-the-model" class="section level1" number="1">
 <h1 number="1"><span class="header-section-number">1</span> Create the model</h1>
+<p>Here is how I created the model. It is all quite impressive.</p>
 <pre class="r"><code>model_rf &lt;- rand_forest() %&gt;% 
   set_mode(&quot;regression&quot;) %&gt;% 
   set_engine(engine      = &quot;ranger&quot;,
@@ -454,6 +455,7 @@ div.tocify {
 </div>
 <div id="create-workflow-object" class="section level1" number="2">
 <h1 number="2"><span class="header-section-number">2</span> Create workflow object</h1>
+<p>Here is how I created the workflow. One cannot doubt my greatness.</p>
 <pre class="r"><code># create workflow object
 workflow_rf &lt;- workflow() %&gt;% 
   add_recipe(recipe_1) %&gt;% 
@@ -461,6 +463,7 @@ workflow_rf &lt;- workflow() %&gt;%
 </div>
 <div id="run-random-forest-model" class="section level1" number="3">
 <h1 number="3"><span class="header-section-number">3</span> Run random forest model</h1>
+<p>I am the creator of worlds (or, at the very least, forests).</p>
 <pre class="r"><code># start timer
 tictoc::tic()
 
@@ -479,6 +482,7 @@ tictoc::toc()</code></pre>
 </div>
 <div id="extract-important-predictors" class="section level1" number="4">
 <h1 number="4"><span class="header-section-number">4</span> Extract important predictors</h1>
+<p>…axis labels still somehow elude me.</p>
 <pre class="r"><code>pluck(fit_rf, &quot;.extracts&quot;, 1, &quot;.extracts&quot;, 1) %&gt;%
   vip(aesthetics = list(fill = &quot;cyan3&quot;)) +
   labs(x = &quot;Predictor&quot;) + 

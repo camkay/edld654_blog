@@ -90,6 +90,8 @@ recipe_1 <- recipe(score ~ ., data_train) %>%
 
 # Create the model
 
+Here is how I created the model. It is all quite impressive. 
+
 ```{r}
 model_rf <- rand_forest() %>% 
   set_mode("regression") %>% 
@@ -102,6 +104,8 @@ model_rf <- rand_forest() %>%
 
 # Create workflow object
 
+Here is how I created the workflow. One cannot doubt my greatness.
+
 ```{r}
 # create workflow object
 workflow_rf <- workflow() %>% 
@@ -110,6 +114,8 @@ workflow_rf <- workflow() %>%
 ```
 
 # Run random forest model
+
+I am the creator of worlds (or, at the very least, forests). 
 
 ```{r}
 # start timer
@@ -130,6 +136,8 @@ tictoc::toc()
 ```
 
 # Extract important predictors
+
+...axis labels still somehow elude me. 
 
 ```{r}
 pluck(fit_rf, ".extracts", 1, ".extracts", 1) %>%
