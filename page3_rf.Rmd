@@ -45,7 +45,7 @@ theme_407 <- function() {
                                           colour = "gray40"),
           axis.line = element_line(colour = "white"),
           plot.background = element_rect(fill = "#171f24"),
-          text  = element_text(color = "white", size = 1),
+          text  = element_text(color = "white", size = 10),
           axis.text  = element_text(color = "white"),
           axis.ticks = element_line(color = "white"),
           strip.background = element_rect(fill = "white",
@@ -90,6 +90,8 @@ recipe_1 <- recipe(score ~ ., data_train) %>%
 
 # Create the model
 
+Here is how I created the model. It is all quite impressive. 
+
 ```{r}
 model_rf <- rand_forest() %>% 
   set_mode("regression") %>% 
@@ -102,6 +104,8 @@ model_rf <- rand_forest() %>%
 
 # Create workflow object
 
+Here is how I created the workflow. One cannot doubt my greatness.
+
 ```{r}
 # create workflow object
 workflow_rf <- workflow() %>% 
@@ -110,6 +114,8 @@ workflow_rf <- workflow() %>%
 ```
 
 # Run random forest model
+
+I am the creator of worlds (or, at the very least, forests). 
 
 ```{r}
 # start timer
@@ -131,6 +137,8 @@ tictoc::toc()
 
 # Extract important predictors
 
+...axis labels still somehow elude me. 
+
 ```{r}
 pluck(fit_rf, ".extracts", 1, ".extracts", 1) %>%
   vip(aesthetics = list(fill = "cyan3")) +
@@ -139,6 +147,11 @@ pluck(fit_rf, ".extracts", 1, ".extracts", 1) %>%
 
 ```
 
+# Tune model
+
+```{r}
+
+```
 
 ***
 

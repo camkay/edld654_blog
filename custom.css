@@ -1164,7 +1164,7 @@ pre {
 }
 
 pre:not([class]) {
-    background-color: #101519; /* code output background colour */
+    background-color: #222e36; /* code output background colour */ 
 }
 
 pre code {
@@ -3398,7 +3398,7 @@ textarea.input-group-sm>.form-control, textarea.input-group-sm>.input-group-addo
     margin-right: 0;
 }
 }.navbar-default {
-    background-color: #222e36; /* NAVBAR COLOUR */
+    background-color: #222e36; /* NAVBAR COLOUR (navigation bar) */
     border-color: #000000;
 }
 .navbar-default .navbar-brand {
