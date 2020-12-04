@@ -45,7 +45,7 @@ theme_407 <- function() {
                                           colour = "gray40"),
           axis.line = element_line(colour = "white"),
           plot.background = element_rect(fill = "#171f24"),
-          text  = element_text(color = "white", size = 1),
+          text  = element_text(color = "white", size = 10),
           axis.text  = element_text(color = "white"),
           axis.ticks = element_line(color = "white"),
           strip.background = element_rect(fill = "white",
@@ -147,6 +147,11 @@ pluck(fit_rf, ".extracts", 1, ".extracts", 1) %>%
 
 ```
 
+# Tune model
+
+```{r}
+
+```
 
 ***
 
