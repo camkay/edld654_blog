@@ -14,7 +14,7 @@ output:
 # set chunk options
 knitr::opts_chunk$set(message = FALSE,
                       warning = FALSE,
-                      cache = TRUE)
+                      cache   = FALSE)
 
 # load packages
 library(tidyverse)
@@ -184,7 +184,7 @@ num_preds <- sum(recipe_1$var_info$role == "predictor")
 # create grid
 grid_rf <- grid_regular(#mtry(range  = c(2, num_preds)), 
                         min_n(range = c(1, 10)), 
-                        levels      = c(5))
+                        levels      = 5)
 ```
 
 ### Fitting the model
@@ -233,7 +233,7 @@ fit_rf_tune %>%
 # create grid
 grid_rf_2 <- grid_regular(#mtry(range  = c(10, 25)), 
                           min_n(range = c(10, 20)), 
-                          levels      = c(5))
+                          levels      = 5)
 ```
 
 #### Fitting the model
@@ -259,7 +259,7 @@ time3 <- tictoc::toc()
 #### Checking model metrics
 
 ```{r}
-show_best(fit_rf_tune_2, metric = "rmse", n = 10) # top is 84.9
+show_best(fit_rf_tune_2, metric = "rmse", n = 10) # top is 85.4
 ```
 
 #### Plotting the tuned values
@@ -267,7 +267,8 @@ show_best(fit_rf_tune_2, metric = "rmse", n = 10) # top is 84.9
 ```{r}
 fit_rf_tune_2 %>%
   autoplot() +
-  geom_line() +
+  geom_line(color = "cyan3") +
+  geom_point(color = "cyan3") +
   theme_407()
 ```
 
@@ -298,7 +299,7 @@ time4 <- tictoc::tic()
 ## Checking model metrics
 
 ```{r}
-collect_metrics(fit_rf_final) # 90.2
+collect_metrics(fit_rf_final) # 87.4
 ```
 
 ***

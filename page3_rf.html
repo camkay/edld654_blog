@@ -442,8 +442,10 @@ div.tocify {
 
 
 <hr />
-<div id="create-the-model" class="section level1" number="1">
-<h1 number="1"><span class="header-section-number">1</span> Create the model</h1>
+<div id="fitting-an-untuned-random-forest-model" class="section level1" number="1">
+<h1 number="1"><span class="header-section-number">1</span> Fitting an untuned random forest model</h1>
+<div id="creating-the-model" class="section level2" number="1.1">
+<h2 number="1.1"><span class="header-section-number">1.1</span> Creating the model</h2>
 <p>Here is how I created the model. It is all quite impressive.</p>
 <pre class="r"><code>model_rf &lt;- rand_forest() %&gt;% 
   set_mode(&quot;regression&quot;) %&gt;% 
@@ -453,16 +455,16 @@ div.tocify {
              verbose     = TRUE) %&gt;% 
   set_args(trees = 1000)</code></pre>
 </div>
-<div id="create-workflow-object" class="section level1" number="2">
-<h1 number="2"><span class="header-section-number">2</span> Create workflow object</h1>
+<div id="creating-the-workflow" class="section level2" number="1.2">
+<h2 number="1.2"><span class="header-section-number">1.2</span> Creating the workflow</h2>
 <p>Here is how I created the workflow. One cannot doubt my greatness.</p>
 <pre class="r"><code># create workflow object
 workflow_rf &lt;- workflow() %&gt;% 
   add_recipe(recipe_1) %&gt;% 
   add_model(model_rf)</code></pre>
 </div>
-<div id="run-random-forest-model" class="section level1" number="3">
-<h1 number="3"><span class="header-section-number">3</span> Run random forest model</h1>
+<div id="fitting-the-model" class="section level2" number="1.3">
+<h2 number="1.3"><span class="header-section-number">1.3</span> Fitting the model</h2>
 <p>I am the creator of worlds (or, at the very least, forests).</p>
 <pre class="r"><code># start timer
 tictoc::tic()
@@ -477,24 +479,181 @@ fit_rf &lt;- fit_resamples(
                                 extract   = function(x) extract_model(x)))
 
 # end timer
-tictoc::toc()</code></pre>
-<pre><code>## 6.919 sec elapsed</code></pre>
+time1 &lt;- tictoc::toc()</code></pre>
+<pre><code>## 305.063 sec elapsed</code></pre>
 </div>
-<div id="extract-important-predictors" class="section level1" number="4">
-<h1 number="4"><span class="header-section-number">4</span> Extract important predictors</h1>
+<div id="checking-model-metrics" class="section level2" number="1.4">
+<h2 number="1.4"><span class="header-section-number">1.4</span> Checking model metrics</h2>
+<pre class="r"><code>show_best(fit_rf, metric = &quot;rmse&quot;, n = 10) # 86.1</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[".metric"],"name":[1],"type":["chr"],"align":["left"]},{"label":[".estimator"],"name":[2],"type":["chr"],"align":["left"]},{"label":["mean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["n"],"name":[4],"type":["int"],"align":["right"]},{"label":["std_err"],"name":[5],"type":["dbl"],"align":["right"]}],"data":[{"1":"rmse","2":"standard","3":"86.14596","4":"10","5":"0.5853451"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div id="extracting-important-predictors" class="section level2" number="1.5">
+<h2 number="1.5"><span class="header-section-number">1.5</span> Extracting important predictors</h2>
 <p>…axis labels still somehow elude me.</p>
 <pre class="r"><code>pluck(fit_rf, &quot;.extracts&quot;, 1, &quot;.extracts&quot;, 1) %&gt;%
   vip(aesthetics = list(fill = &quot;cyan3&quot;)) +
   labs(x = &quot;Predictor&quot;) + 
   theme_407()</code></pre>
-<p><img src="page3_rf_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p><img src="page3_rf_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
 </div>
-<div id="tune-model" class="section level1" number="5">
-<h1 number="5"><span class="header-section-number">5</span> Tune model</h1>
+</div>
+<div id="fitting-a-tuned-random-forest-model" class="section level1" number="2">
+<h1 number="2"><span class="header-section-number">2</span> Fitting a tuned random forest model</h1>
+<div id="creating-the-model-1" class="section level2" number="2.1">
+<h2 number="2.1"><span class="header-section-number">2.1</span> Creating the model</h2>
+<pre class="r"><code>model_rf_tune &lt;- rand_forest() %&gt;% 
+  set_mode(&quot;regression&quot;) %&gt;% 
+  set_engine(engine      = &quot;ranger&quot;,
+             num.threads = parallel::detectCores() - 2,
+             importance  = &quot;permutation&quot;,
+             verbose     = TRUE) %&gt;% 
+  set_args(trees = 500,
+           # mtry  = tune(),
+           min_n = tune())</code></pre>
+</div>
+<div id="updating-the-workflow-object" class="section level2" number="2.2">
+<h2 number="2.2"><span class="header-section-number">2.2</span> Updating the workflow object</h2>
+<pre class="r"><code>workflow_rf_tune &lt;- workflow_rf %&gt;%
+  update_model(model_rf_tune)</code></pre>
+</div>
+<div id="initial-tuning" class="section level2" number="2.3">
+<h2 number="2.3"><span class="header-section-number">2.3</span> Initial tuning</h2>
+<div id="creating-the-tuning-grid" class="section level3" number="2.3.1">
+<h3 number="2.3.1"><span class="header-section-number">2.3.1</span> Creating the tuning grid</h3>
+<pre class="r"><code># extract number of predictors
+num_preds &lt;- sum(recipe_1$var_info$role == &quot;predictor&quot;)
+
+# create grid
+grid_rf &lt;- grid_regular(#mtry(range  = c(2, num_preds)), 
+                        min_n(range = c(1, 10)), 
+                        levels      = 5)</code></pre>
+</div>
+<div id="fitting-the-model-1" class="section level3" number="2.3.2">
+<h3 number="2.3.2"><span class="header-section-number">2.3.2</span> Fitting the model</h3>
+<pre class="r"><code># start timer
+tictoc::tic()
+
+# fit model
+fit_rf_tune &lt;- tune_grid(
+  object    = workflow_rf_tune,
+  resamples = data_train_cv,
+  grid      = grid_rf,
+  metrics   = yardstick::metric_set(rmse, rsq, huber_loss),
+  control   = control_resamples(verbose   = TRUE,
+                                save_pred = TRUE,
+                                extract   = function(x) extract_model(x)))
+
+# end timer
+time2 &lt;- tictoc::toc()</code></pre>
+<pre><code>## 757.052 sec elapsed</code></pre>
+</div>
+<div id="checking-model-metrics-1" class="section level3" number="2.3.3">
+<h3 number="2.3.3"><span class="header-section-number">2.3.3</span> Checking model metrics</h3>
+<pre class="r"><code>show_best(fit_rf_tune, metric = &quot;rmse&quot;, n = 10) # 85.8</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["min_n"],"name":[1],"type":["int"],"align":["right"]},{"label":[".metric"],"name":[2],"type":["chr"],"align":["left"]},{"label":[".estimator"],"name":[3],"type":["chr"],"align":["left"]},{"label":["mean"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["n"],"name":[5],"type":["int"],"align":["right"]},{"label":["std_err"],"name":[6],"type":["dbl"],"align":["right"]},{"label":[".config"],"name":[7],"type":["chr"],"align":["left"]}],"data":[{"1":"10","2":"rmse","3":"standard","4":"85.76636","5":"10","6":"0.5799668","7":"Model5"},{"1":"7","2":"rmse","3":"standard","4":"85.98384","5":"10","6":"0.5916483","7":"Model4"},{"1":"5","2":"rmse","3":"standard","4":"86.20442","5":"10","6":"0.5866762","7":"Model3"},{"1":"3","2":"rmse","3":"standard","4":"86.39005","5":"10","6":"0.5752793","7":"Model2"},{"1":"1","2":"rmse","3":"standard","4":"86.58000","5":"10","6":"0.5888000","7":"Model1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div id="plotting-the-tuned-values" class="section level3" number="2.3.4">
+<h3 number="2.3.4"><span class="header-section-number">2.3.4</span> Plotting the tuned values</h3>
+<pre class="r"><code>fit_rf_tune %&gt;%
+  autoplot() +
+  geom_line(color = &quot;cyan3&quot;) +
+  geom_point(color = &quot;cyan3&quot;) +
+  theme_407()</code></pre>
+<p><img src="page3_rf_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+</div>
+</div>
+<div id="further-tuning" class="section level2" number="2.4">
+<h2 number="2.4"><span class="header-section-number">2.4</span> Further tuning</h2>
+<div id="grid-respecification-1" class="section level3" number="2.4.1">
+<h3 number="2.4.1"><span class="header-section-number">2.4.1</span> Grid respecification 1</h3>
+<div id="create-new-tuning-grid" class="section level4" number="2.4.1.1">
+<h4 number="2.4.1.1"><span class="header-section-number">2.4.1.1</span> Create new tuning grid</h4>
+<pre class="r"><code># create grid
+grid_rf_2 &lt;- grid_regular(#mtry(range  = c(10, 25)), 
+                          min_n(range = c(10, 20)), 
+                          levels      = 5)</code></pre>
+</div>
+<div id="fitting-the-model-2" class="section level4" number="2.4.1.2">
+<h4 number="2.4.1.2"><span class="header-section-number">2.4.1.2</span> Fitting the model</h4>
+<pre class="r"><code># start timer
+tictoc::tic()
+
+# fit model
+fit_rf_tune_2 &lt;- tune_grid(
+  object    = workflow_rf_tune,
+  resamples = data_train_cv,
+  grid      = grid_rf_2,
+  metrics   = yardstick::metric_set(rmse, rsq, huber_loss),
+  control   = control_resamples(verbose   = TRUE,
+                                save_pred = TRUE,
+                                extract   = function(x) extract_model(x)))
+
+# end timer
+time3 &lt;- tictoc::toc()</code></pre>
+<pre><code>## 644.524 sec elapsed</code></pre>
+</div>
+<div id="checking-model-metrics-2" class="section level4" number="2.4.1.3">
+<h4 number="2.4.1.3"><span class="header-section-number">2.4.1.3</span> Checking model metrics</h4>
+<pre class="r"><code>show_best(fit_rf_tune_2, metric = &quot;rmse&quot;, n = 10) # top is 85.4</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["min_n"],"name":[1],"type":["int"],"align":["right"]},{"label":[".metric"],"name":[2],"type":["chr"],"align":["left"]},{"label":[".estimator"],"name":[3],"type":["chr"],"align":["left"]},{"label":["mean"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["n"],"name":[5],"type":["int"],"align":["right"]},{"label":["std_err"],"name":[6],"type":["dbl"],"align":["right"]},{"label":[".config"],"name":[7],"type":["chr"],"align":["left"]}],"data":[{"1":"20","2":"rmse","3":"standard","4":"85.43869","5":"10","6":"0.6044460","7":"Model5"},{"1":"17","2":"rmse","3":"standard","4":"85.55417","5":"10","6":"0.5927124","7":"Model4"},{"1":"15","2":"rmse","3":"standard","4":"85.60528","5":"10","6":"0.5898729","7":"Model3"},{"1":"12","2":"rmse","3":"standard","4":"85.74440","5":"10","6":"0.6066713","7":"Model2"},{"1":"10","2":"rmse","3":"standard","4":"85.79995","5":"10","6":"0.5947083","7":"Model1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div id="plotting-the-tuned-values-1" class="section level4" number="2.4.1.4">
+<h4 number="2.4.1.4"><span class="header-section-number">2.4.1.4</span> Plotting the tuned values</h4>
+<pre class="r"><code>fit_rf_tune_2 %&gt;%
+  autoplot() +
+  geom_line(color = &quot;cyan3&quot;) +
+  geom_point(color = &quot;cyan3&quot;) +
+  theme_407()</code></pre>
+<p><img src="page3_rf_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+</div>
+</div>
+</div>
+</div>
+<div id="finalizing-the-model" class="section level1" number="3">
+<h1 number="3"><span class="header-section-number">3</span> Finalizing the model</h1>
+<div id="finalizing-the-workflow" class="section level2" number="3.1">
+<h2 number="3.1"><span class="header-section-number">3.1</span> Finalizing the workflow</h2>
+<pre class="r"><code>workflow_rf_final &lt;- finalize_workflow(
+  workflow_rf_tune,
+  select_best(fit_rf_tune_2, metric = &quot;rmse&quot;)
+)</code></pre>
+</div>
+<div id="fitting-the-final-model" class="section level2" number="3.2">
+<h2 number="3.2"><span class="header-section-number">3.2</span> Fitting the final model</h2>
+<pre class="r"><code># start timer
+tictoc::tic()
+
+# produce final fit
+fit_rf_final &lt;- last_fit(workflow_rf_final, split = data_split)
+
+# end timer
+time4 &lt;- tictoc::tic()</code></pre>
+</div>
+<div id="checking-model-metrics-3" class="section level2" number="3.3">
+<h2 number="3.3"><span class="header-section-number">3.3</span> Checking model metrics</h2>
+<pre class="r"><code>collect_metrics(fit_rf_final) # 87.4</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[".metric"],"name":[1],"type":["chr"],"align":["left"]},{"label":[".estimator"],"name":[2],"type":["chr"],"align":["left"]},{"label":[".estimate"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"rmse","2":"standard","3":"87.4178467"},{"1":"rsq","2":"standard","3":"0.4338397"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 <hr />
 <center>
-<em>Last updated: December 2nd, 2020.</em>
+<em>Last updated: December 5th, 2020.</em>
 </center>
+</div>
 </div>
 
 
