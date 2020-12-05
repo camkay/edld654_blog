@@ -31,7 +31,7 @@ library(magrittr)
 theme_407 <- function() { 
     theme_bw(base_size = 5) %+replace% 
         theme(
-          legend.direction = "horizontal",
+          # legend.direction = "horizontal",
           legend.background = element_rect(fill = "#1b1d22",
                                            colour = "#1b1d22"),
           panel.background = element_rect(fill = "#171f24",
@@ -58,12 +58,10 @@ set.seed(3000)
 
 data <- import(here::here("data", "data.csv"), setclass = "tibble") %>%
   janitor::clean_names() %>%
-  sample_frac(.001)
+  sample_frac(.10)
 
 # split data
-set.seed(3000)
-
-data_split    <- initial_split(data)
+data_split    <- initial_split(data, strata = "score")
 
 data_train    <- training(data_split)
 
@@ -88,7 +86,9 @@ recipe_1 <- recipe(score ~ ., data_train) %>%
 
 ***
 
-# Create the model
+# Fitting an untuned random forest model
+
+## Creating the model
 
 Here is how I created the model. It is all quite impressive. 
 
@@ -102,7 +102,7 @@ model_rf <- rand_forest() %>%
   set_args(trees = 1000)
 ```
 
-# Create workflow object
+## Creating the workflow
 
 Here is how I created the workflow. One cannot doubt my greatness.
 
@@ -113,7 +113,7 @@ workflow_rf <- workflow() %>%
   add_model(model_rf)
 ```
 
-# Run random forest model
+## Fitting the model
 
 I am the creator of worlds (or, at the very least, forests). 
 
@@ -131,11 +131,16 @@ fit_rf <- fit_resamples(
                                 extract   = function(x) extract_model(x)))
 
 # end timer
-tictoc::toc()
-
+time1 <- tictoc::toc()
 ```
 
-# Extract important predictors
+## Checking model metrics
+
+```{r}
+show_best(fit_rf, metric = "rmse", n = 10) # 86.1
+```
+
+## Extracting important predictors
 
 ...axis labels still somehow elude me. 
 
@@ -144,17 +149,160 @@ pluck(fit_rf, ".extracts", 1, ".extracts", 1) %>%
   vip(aesthetics = list(fill = "cyan3")) +
   labs(x = "Predictor") + 
   theme_407()
-
 ```
 
-# Tune model
+# Fitting a tuned random forest model
+
+## Creating the model
+```{r}
+model_rf_tune <- rand_forest() %>% 
+  set_mode("regression") %>% 
+  set_engine(engine      = "ranger",
+             num.threads = parallel::detectCores() - 2,
+             importance  = "permutation",
+             verbose     = TRUE) %>% 
+  set_args(trees = 500,
+           # mtry  = tune(),
+           min_n = tune())
+```
+
+## Updating the workflow object
 
 ```{r}
+workflow_rf_tune <- workflow_rf %>%
+  update_model(model_rf_tune)
+```
 
+## Initial tuning
+
+### Creating the tuning grid
+
+```{r}
+# extract number of predictors
+num_preds <- sum(recipe_1$var_info$role == "predictor")
+
+# create grid
+grid_rf <- grid_regular(#mtry(range  = c(2, num_preds)), 
+                        min_n(range = c(1, 10)), 
+                        levels      = c(5))
+```
+
+### Fitting the model
+
+```{r}
+# start timer
+tictoc::tic()
+
+# fit model
+fit_rf_tune <- tune_grid(
+  object    = workflow_rf_tune,
+  resamples = data_train_cv,
+  grid      = grid_rf,
+  metrics   = yardstick::metric_set(rmse, rsq, huber_loss),
+  control   = control_resamples(verbose   = TRUE,
+                                save_pred = TRUE,
+                                extract   = function(x) extract_model(x)))
+
+# end timer
+time2 <- tictoc::toc()
+```
+
+### Checking model metrics
+
+```{r}
+show_best(fit_rf_tune, metric = "rmse", n = 10) # 85.8
+```
+
+### Plotting the tuned values
+
+```{r}
+fit_rf_tune %>%
+  autoplot() +
+  geom_line(color = "cyan3") +
+  geom_point(color = "cyan3") +
+  theme_407()
+```
+
+## Further tuning 
+
+### Grid respecification 1
+
+#### Create new tuning grid
+
+```{r}
+# create grid
+grid_rf_2 <- grid_regular(#mtry(range  = c(10, 25)), 
+                          min_n(range = c(10, 20)), 
+                          levels      = c(5))
+```
+
+#### Fitting the model
+
+```{r}
+# start timer
+tictoc::tic()
+
+# fit model
+fit_rf_tune_2 <- tune_grid(
+  object    = workflow_rf_tune,
+  resamples = data_train_cv,
+  grid      = grid_rf_2,
+  metrics   = yardstick::metric_set(rmse, rsq, huber_loss),
+  control   = control_resamples(verbose   = TRUE,
+                                save_pred = TRUE,
+                                extract   = function(x) extract_model(x)))
+
+# end timer
+time3 <- tictoc::toc()
+```
+
+#### Checking model metrics
+
+```{r}
+show_best(fit_rf_tune_2, metric = "rmse", n = 10) # top is 84.9
+```
+
+#### Plotting the tuned values
+
+```{r}
+fit_rf_tune_2 %>%
+  autoplot() +
+  geom_line() +
+  theme_407()
+```
+
+# Finalizing the model
+
+## Finalizing the workflow
+
+```{r}
+workflow_rf_final <- finalize_workflow(
+  workflow_rf_tune,
+  select_best(fit_rf_tune_2, metric = "rmse")
+)
+```
+
+## Fitting the final model
+
+```{r}
+# start timer
+tictoc::tic()
+
+# produce final fit
+fit_rf_final <- last_fit(workflow_rf_final, split = data_split)
+
+# end timer
+time4 <- tictoc::tic()
+```
+
+## Checking model metrics
+
+```{r}
+collect_metrics(fit_rf_final) # 90.2
 ```
 
 ***
 
 <center>
-*Last updated: December 2nd, 2020.*
+*Last updated: December 5th, 2020.*
 </center>
