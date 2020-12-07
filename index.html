@@ -13,7 +13,6 @@
 
 <title>Tensor Flo Ridas: A Journey in Machine Learning</title>
 
-<script src="site_libs/header-attrs-2.5/header-attrs.js"></script>
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
@@ -428,15 +427,42 @@ div.tocify {
 
 
 <hr />
-<!-- ![](/Users/cameronkay/Documents/Academia/UO 2020-2021/2020-2021_term1_fall/EDLD 654 - Machine Learning/edld654_blog/resources/videos/syllabus_crawl.mp4){width="100%"} -->
+<!-- ![](/Users/amiller/Documents/Machine Learning/edld654_blog/resources/videos/syllabus_crawl.mp4){width="100%"} -->
 <div id="welcome" class="section level1">
 <h1>Welcome!</h1>
 <p>This blog was created as our final project for <a href="https://uo-datasci-specialization.github.io/c4-ml-fall-2020/index.html">EDLD 654</a>. This course focused on applied machine learning techniques for educational data scientists, with an emphasis on supervised learning methods. Considering the primary goal of these methods is to create models capable of making accurate predictions, we had to work together as a team to build a predictive model for unseen data. Here, we provide a description of the data used and our analysis procedure, along with an analysis of model performance and a description of why we chose the final model we did.</p>
 <p><br /></p>
 </div>
 <div id="about-us" class="section level1">
-<h1>About us :)</h1>
-<p><br /></p>
+<h1>About us</h1>
+<p><strong>Cameron S. Kay, M.S., M.A.</strong></p>
+<p>Email: <a href="mailto:ckay@uoregon.edu" class="email">ckay@uoregon.edu</a></p>
+<p><img src="images/Cam.png" width="9%" style="float:left;padding-right:07px" /></p>
+<p>Cameron is a doctoral candidate studying personality and social psychology at the University of Oregon. He is interested in incorporating new technologies and methodologies into the study of personality. He is the creator and maintainer of the R packages <a href="https://github.com/camkay/panoply">panoply</a> and <a href="https://github.com/camkay/iccImpact">iccImpact</a>, as well as the <a href="https://github.com/camkay/outRun">outRun</a> RStudio Editor Theme.</p>
+<div style="clear: both;">
+
+</div>
+<p><span class="math inline">\(~\)</span></p>
+<p><strong>Lea Frank, M.S.</strong></p>
+<p>Email: <a href="mailto:lfrank@uoregon.edu" class="email">lfrank@uoregon.edu</a></p>
+<p><img src="images/Lea.png" width="9%" style="float:left;padding-right:07px" /></p>
+<p>Lea is a doctoral student studying cognitive neuroscience at the University of Oregon. Her research examines how memories are used to help guide novel decisions. She is interested in combining machine learning and neuroimaging methods to understand the neural processes underlying memory-guided decisions.</p>
+<div style="clear: both;">
+
+</div>
+<p><span class="math inline">\(~\)</span></p>
+<p><strong>Ashley L. Miller, M.S.</strong></p>
+<p>Email: <a href="mailto:amiller8@uoregon.edu" class="email">amiller8@uoregon.edu</a></p>
+<p><img src="images/Ash.png" width="9%" style="float:left;padding-right:07px" /></p>
+<p>Ashley is a doctoral candidate studying memory and attention processes. Specifically, Ashley’s research seeks to identify sources of limitations in learning abilities–and cognitive abilities more broadly–by focusing on how individuals control attention in a goal directed manner. Ashley leverages behavioral and physiological techniques (pupillometry and eye-tracking) to address these questions.</p>
+<div style="clear: both;">
+
+</div>
+<p><span class="math inline">\(~\)</span></p>
+<p><strong>Stephanie Gluck, M.S.</strong></p>
+<p>Email: <a href="mailto:sgluck@uoregon.edu" class="email">sgluck@uoregon.edu</a></p>
+<p>BLURB GOES HEREEEEEEEE.</p>
+<p><span class="math inline">\(~\)</span></p>
 <div id="land-acknowledgement" class="section level2">
 <h2>Land Acknowledgement</h2>
 <p>We acknowledge that the University of Oregon is situated on Kalapuya Iliʔi—the ancestral territory of the Kalapuya people. As a University, we should honour the traditional stewards of this land and pay respect to the elders, both past and present.</p>
@@ -493,7 +519,7 @@ $(document).ready(function ()  {
 
     // establish options
     var options = {
-      selectors: "h1",
+      selectors: "h1,h2,h3",
       theme: "bootstrap3",
       context: '.toc-content',
       hashGenerator: function (text) {

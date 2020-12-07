@@ -3,13 +3,15 @@ title: "Tensor Flo Ridas: A Journey in Machine Learning"
 output: 
   html_document:
     toc: TRUE
-    toc_depth: 1
+    toc_depth: 3
     toc_float: TRUE
     number_sections: FALSE
 ---
 
 ```{r load_libraries, include = FALSE}
 library(here)
+library(png)
+library(grid)
 ```
 
 ***
@@ -22,10 +24,57 @@ This blog was created as our final project for [EDLD 654](https://uo-datasci-spe
 
 <br />
 
-# About us :)
+# About us
 
+**Cameron S. Kay, M.S., M.A.**
 
-<br />
+Email: ckay@uoregon.edu
+
+```{r out.width="9%",echo=FALSE,out.extra='style="float:left;padding-right:07px"'}
+knitr::include_graphics("images/Cam.png")
+```
+
+Cameron is a doctoral candidate studying personality and social psychology at the University of Oregon. He is interested in incorporating new technologies and methodologies into the study of personality. He is the creator and maintainer of the R packages [panoply](https://github.com/camkay/panoply) and [iccImpact](https://github.com/camkay/iccImpact), as well as the [outRun](https://github.com/camkay/outRun) RStudio Editor Theme. 
+
+<div style="clear: both;"></div> 
+
+$~$
+
+**Lea Frank, M.S.**
+
+Email: lfrank@uoregon.edu
+
+```{r out.width="9%",echo=FALSE,out.extra='style="float:left;padding-right:07px"'}
+knitr::include_graphics("images/Lea.png")
+```
+
+Lea is a doctoral student studying cognitive neuroscience at the University of Oregon. Her research examines how memories are used to help guide novel decisions. She is interested in combining machine learning and neuroimaging methods to understand the neural processes underlying memory-guided decisions. 
+
+<div style="clear: both;"></div> 
+
+$~$
+
+**Ashley L. Miller, M.S.**
+
+Email: amiller8@uoregon.edu
+
+```{r out.width="9%",echo=FALSE,out.extra='style="float:left;padding-right:07px"'}
+knitr::include_graphics("images/Ash.png")
+```
+
+Ashley is a doctoral candidate studying memory and attention processes. Specifically, Ashley’s research seeks to identify sources of limitations in learning abilities--and cognitive abilities more broadly--by focusing on how individuals control attention in a goal directed manner. Ashley leverages behavioral and physiological techniques (pupillometry and eye-tracking) to address these questions.
+
+<div style="clear: both;"></div> 
+
+$~$
+
+**Stephanie Gluck, M.S.**
+
+Email: sgluck@uoregon.edu
+
+BLURB GOES HEREEEEEEEE.
+
+$~$
 
 ## Land Acknowledgement
 
