@@ -5,7 +5,7 @@ output:
     toc: TRUE
     toc_depth: 1
     toc_float: TRUE
-    number_sections: TRUE
+    number_sections: FALSE
     code_folding: hide
     df_print: paged
 editor_options: 
@@ -22,14 +22,16 @@ library(tidymodels)
 library(xgboost)
 library(tictoc)
 
-set.seed(2020)
+set.seed(3000)
 ```
 
-```{r}
+```{r include=FALSE, message=FALSE}
 theme_407 <- function() { 
-    theme_bw(base_size = 25) %+replace% 
+    theme_bw(base_size = 15) %+replace% 
         theme(
           legend.background = element_rect(fill = "#171f24",
+                                           color = "#171f24"),
+          legend.key = element_rect(fill = "#171f24",
                                            color = "#171f24"),
           panel.background = element_rect(fill = "#171f24",
                               colour = "#1b1d22",
@@ -42,21 +44,22 @@ theme_407 <- function() {
                                           colour = "gray40"),
           axis.line = element_line(colour = "white"),
           plot.background = element_rect(fill = "#171f24"),
-          text  = element_text(color = "white", size = 20),
+          text  = element_text(color = "white", size = 10),
           axis.text  = element_text(color = "white"),
           axis.ticks = element_line(color = "white"),
           strip.background = element_rect(fill = "white",
-                                          colour = "white")
+                                          colour = "white"),
+          
         )
 }
 ```
 
 
-## Data
+# Data
 
-#### Import data
+## Import data
 
-Only 5% of the training data was used was used so the model tuning wasn't too computationally demanding. 
+Only 1% of the training data was used was used so the model tuning wasn't too computationally demanding. 
 
 ```{r import_data}
 # Import joined data file
@@ -73,7 +76,7 @@ train <- training(splits)
 test <- testing(splits)
 ```
 
-#### Specify recipe
+## Specify recipe
 
 Note the recipe is based off the entire set of training data, but only applied to the subset. This is so imputations are not specific to just a sample of the training data.
 
@@ -91,7 +94,7 @@ rec <- recipe(score ~ ., train) %>%
     step_zv(all_predictors())
 ```
 
-#### Preprocess data
+## Preprocess data
 
 For the boosted tree model, the `xgboost` package was used. Since `tidymodels` was not used, the data had to be preprocessed before fitting the model. Additional steps were also required, including transforming the preprocessed data into a "feature matrix." This matrix is the input for the model, which only includes predictors. The scores associated with each row were saved separately into a vector called `outcome`. 
 
@@ -116,13 +119,12 @@ outcome <- train_baked$score
 ```
 
 
-## Model Tuning
+# Model Tuning
 
-### Basic model without any tuning
+## Basic model without any tuning
 
 Before tuning the boosted tree model, a single-cross validated model with default hyperparameters was run to estimate the timing.
 
-#### Fit model
 The default boosted 
 * 100 trees
 * early stop after 20 iterations of no learning
@@ -137,22 +139,19 @@ fit_def_xgb <- xgb.cv(
   nrounds = 100,
   objective = "reg:squarederror",
   early_stopping_rounds = 20,
-  nfold = 10
+  nfold = 10,
+  verbose = 0
 )
 
-toc()
+time_default <- toc()
 ```
 
-Note the cross-validated boosted tree model with default parameters took about 50s. Will proceed with caution.
-
-
-#### Assess fit metrics
+Note the cross-validated boosted tree model with default parameters took about `r time_default$toc[[1]]` s. Will proceed with caution.
 
 Below are the mean train and test metrics from each iteration (i.e. tree). 
 
 ```{r}
 fit_def_xgb$evaluation_log
-
 ```
 
 ```{r}
@@ -161,11 +160,13 @@ fit_def_log <- fit_def_xgb$evaluation_log %>%
                names_to = c("set","metric","measure"),
                names_sep = "_") %>% 
   pivot_wider(names_from = "measure",
-              values_from = "value")
+              values_from = "value") %>% 
+  filter(iter > 5)
 
 ggplot(fit_def_log, aes(iter, mean)) +
-  geom_line(aes(color = set)) +
-  theme_bw() +
+  geom_line(aes(color = set), size = 1) +
+  labs(x = "Tree Iteration", y = "Mean RMSE") +
+  scale_color_manual(values = c("#FFDB6D", "#00AFBB")) +
   theme_407()
 
 ```
@@ -181,54 +182,14 @@ mt_rmse <- fit_def_xgb$evaluation_log %>%
   select(test_rmse_mean)
 ```
 
-Even with the default parameters, the mean RMSE across the test sets is relatively good (`r mt_rmse$test_rmse_mean`). Let's see how well the model will do with some tuning!
+Even with the default parameters, the mean RMSE across the test sets is relatively good (`r round(mt_rmse$test_rmse_mean,2)`). Let's see how well the model will do with some tuning!
 
-### Model tuning
-
-#### Tune number of trees
+## Tune number of trees
 
 * start at high learning rate (shrinkage = .1)
 
 ```{r}
-grid_learn <- expand.grid(learn_rate = seq(.001, .3, length.out = 10))
-
-tic()
-fit_tune_learn1 <- map(grid_learn$learn_rate, ~ {
- xgb.cv(
-   data = features,
-   label = outcome,
-   nrounds = 100, # number of trees
-   objective = "reg:squarederror",
-   early_stopping_rounds = 20, 
-   nfold = 10,
-   params = list(eta = .x)
- ) 
-})
-toc()
-```
-
-
-```{r}
-(tune_learn1_best <- map_df(fit_tune_learn1, ~{
-  .x$evaluation_log %>% 
-  dplyr::slice(.x$best_iteration)
-}) %>% 
-  mutate(learning_rate = grid_learn$learn_rate) %>% 
-  arrange(test_rmse_mean) %>% 
-  select(learning_rate, iter, test_rmse_mean, test_rmse_std))
-
-best_learnrate1 <- tune_learn1_best$learning_rate[1]
-```
-
-
-#### Tune learning rate (pt. 1)
-
-Typical learning rate is .001 - .3
-
-* use optimal number of trees
-
-```{r}
-grid_tree = expand.grid(num_tree = seq(50, 500, length.out = 5))
+grid_tree = expand.grid(num_tree = seq(100, 1000, length.out = 5))
 
 tic()
 fit_tune_trees <- map(grid_tree$num_tree, ~ {
@@ -239,10 +200,36 @@ fit_tune_trees <- map(grid_tree$num_tree, ~ {
    objective = "reg:squarederror", 
    early_stopping_rounds = 20, 
    nfold = 10,
-   params = list(eta = best_learnrate1)
+   params = list(eta = .1),
+   verbose = 0
  ) 
 })
 toc()
+```
+
+Below are the results of the tuned models:
+
+```{r}
+fit_tune_tree_log <- map_df(fit_tune_trees, ~{
+  .x$evaluation_log %>% 
+  pivot_longer(-iter,
+               names_to = c("set","metric","measure"),
+               names_sep = "_") %>% 
+  pivot_wider(names_from = "measure",
+              values_from = "value")
+}, .id = "num_tree") %>% 
+  mutate(num_tree = factor(num_tree, 
+                           labels = str_c(as.character(grid_tree$num_tree), "trees", sep = " "))) %>% 
+  filter(iter > 30)
+
+ggplot(fit_tune_tree_log, aes(iter, mean)) +
+  geom_line(aes(color = set), size = 1) +
+  labs(x = "Tree Iteration", y = "Mean RMSE") +
+  scale_color_manual(values = c("#FFDB6D", "#00AFBB")) +
+  theme_407() +
+  facet_grid(~num_tree) +
+  theme(axis.text.x = element_text(size = 8))
+
 ```
 
 ```{r}
@@ -257,15 +244,76 @@ toc()
 best_numtrees <- tune_tree_best$num_trees[1]
 ```
 
-#### Tune tree parameters
+
+## Tune learning rate (pt. 1)
+
+Typical learning rate is .001 - .3
+
+* use optimal number of trees
+
+```{r}
+grid_learn <- expand.grid(learn_rate = seq(.001, .3, length.out = 10))
+
+tic()
+fit_tune_learn1 <- map(grid_learn$learn_rate, ~ {
+ xgb.cv(
+   data = features,
+   label = outcome,
+   nrounds = 100, # number of trees
+   objective = "reg:squarederror",
+   early_stopping_rounds = 20, 
+   nfold = 10,
+   params = list(eta = .x),
+   verbose = 0
+ ) 
+})
+toc()
+```
+
+
+Below are the results of the tuned models:
+
+```{r}
+fit_tune_learn1_log <- map_df(fit_tune_learn1, ~{
+  .x$evaluation_log %>% 
+  pivot_longer(-iter,
+               names_to = c("set","metric","measure"),
+               names_sep = "_") %>% 
+  pivot_wider(names_from = "measure",
+              values_from = "value")
+}, .id = "learn_rate") %>% 
+  mutate(learn_rate = factor(learn_rate, 
+                             levels = as.character(seq(1,10)),
+                             labels = as.character(round(grid_learn$learn_rate,3)))) %>% 
+  filter(iter > 10)
+
+ggplot(fit_tune_learn1_log, aes(iter, mean)) +
+  geom_line(aes(color = set), size = 1) +
+  labs(x = "Tree Iteration", y = "Mean RMSE") +
+  scale_color_manual(values = c("#FFDB6D", "#00AFBB")) +
+  theme_407() +
+  facet_wrap(~learn_rate, nrow = 2)
+
+```
+
+```{r}
+(tune_learn1_best <- map_df(fit_tune_learn1, ~{
+  .x$evaluation_log %>% 
+  dplyr::slice(.x$best_iteration)
+}) %>% 
+  mutate(learning_rate = grid_learn$learn_rate) %>% 
+  arrange(test_rmse_mean) %>% 
+  select(learning_rate, iter, test_rmse_mean, test_rmse_std))
+
+best_learnrate1 <- tune_learn1_best$learning_rate[1]
+```
+
+## Tune tree depth 
 
 * use optimal number of trees
 * use optimal learning rate
 
-
-##### Tree depth 
-
-Defined as `max_depth` in XGBoost
+Defined as `max_depth` in `XGBoost`
 
 ```{r}
 grid_depth <- expand.grid(tree_depth = seq(1,6))
@@ -280,10 +328,34 @@ fit_tune_depth <- map(grid_depth$tree_depth, ~ {
    early_stopping_rounds = 20, 
    nfold = 10,
    params = list(eta = best_learnrate1,
-                 max_depth = .x)
+                 max_depth = .x),
+   verbose = 0
  ) 
 })
 toc()
+```
+
+Below are the results of the tuned models:
+
+```{r}
+fit_tune_depth_log <- map_df(fit_tune_depth, ~{
+  .x$evaluation_log %>% 
+  pivot_longer(-iter,
+               names_to = c("set","metric","measure"),
+               names_sep = "_") %>% 
+  pivot_wider(names_from = "measure",
+              values_from = "value")
+}, .id = "tree_depth") %>% 
+  filter(iter > 20)
+
+ggplot(fit_tune_depth_log, aes(iter, mean)) +
+  geom_line(aes(color = set), size = 1) +
+  labs(x = "Tree Iteration", y = "Mean RMSE") +
+  scale_color_manual(values = c("#FFDB6D", "#00AFBB")) +
+  theme_407() +
+  facet_grid(~tree_depth) +
+  theme(axis.text.x = element_text(size = 8))
+
 ```
 
 ```{r}
@@ -298,9 +370,13 @@ toc()
 best_depth<- tune_depth_best$tree_depth[1]
 ```
 
-##### Randomness 
+## Tune randomness 
 
-Defined as `colsample_bytree`
+* use optimal number of trees
+* use optimal learning rate
+* use optimal tree depth
+
+Defined as `colsample_bytree` in `XGBoost`
 This parameter will tune the number of features to sample for each new tree, similar to `mtry` in `tidymodels`.
 
 ```{r}
@@ -317,10 +393,36 @@ fit_tune_randcol <- map(grid_randcol$colsample, ~ {
    nfold = 10,
    params = list(eta = best_learnrate1,
                  max_depth = best_depth,
-                 colsample_bytree = .x)
+                 colsample_bytree = .x),
+   verbose = 0
  ) 
 })
 toc()
+```
+
+Below are the results of the tuned models:
+
+```{r}
+fit_tune_randcol_log <- map_df(fit_tune_randcol, ~{
+  .x$evaluation_log %>% 
+  pivot_longer(-iter,
+               names_to = c("set","metric","measure"),
+               names_sep = "_") %>% 
+  pivot_wider(names_from = "measure",
+              values_from = "value")
+}, .id = "col_sample") %>% 
+  mutate(col_sample = factor(col_sample, 
+                             labels = as.character(grid_randcol$colsample))) %>% 
+  filter(iter > 25)
+
+ggplot(fit_tune_randcol_log, aes(iter, mean)) +
+  geom_line(aes(color = set), size = 1) +
+  labs(x = "Tree Iteration", y = "Mean RMSE") +
+  scale_color_manual(values = c("#FFDB6D", "#00AFBB")) +
+  theme_407() +
+  facet_grid(~col_sample) +
+  theme(axis.text.x = element_text(size = 8))
+
 ```
 
 ```{r}
@@ -335,15 +437,14 @@ toc()
 best_colsample <- tune_randcol_best$colsample[1]
 ```
 
-
-#### Tune learning rate (pt. 2)
+## Tune learning rate (pt. 2)
 
 * use optimal tree parameters
 * use optimal number of trees
 * tune using lower learning rates
 
 ```{r}
-grid_learn <- expand.grid(learn_rate = seq(.001, .1, length.out = 5))
+grid_learn <- expand.grid(learn_rate = seq(.001, .15, length.out = 5))
 
 tic()
 fit_tune_learn2 <- map(grid_learn$learn_rate, ~ {
@@ -356,12 +457,37 @@ fit_tune_learn2 <- map(grid_learn$learn_rate, ~ {
    nfold = 10,
    params = list(eta = .x,
                  max_depth = best_depth,
-                 colsample_bytree = best_colsample)
+                 colsample_bytree = best_colsample),
+   verbose = 0
  ) 
 })
 toc()
 ```
 
+Below are the results of the tuned models:
+
+```{r}
+fit_tune_learn2_log <- map_df(fit_tune_learn2, ~{
+  .x$evaluation_log %>% 
+  pivot_longer(-iter,
+               names_to = c("set","metric","measure"),
+               names_sep = "_") %>% 
+  pivot_wider(names_from = "measure",
+              values_from = "value")
+}, .id = "learn_rate") %>% 
+  mutate(learn_rate = factor(learn_rate,                              
+                             labels = as.character(round(grid_learn$learn_rate,3)))) %>% 
+  filter(iter > 10)
+
+ggplot(fit_tune_learn2_log, aes(iter, mean)) +
+  geom_line(aes(color = set), size = 1) +
+  labs(x = "Tree Iteration", y = "Mean RMSE") +
+  scale_color_manual(values = c("#FFDB6D", "#00AFBB")) +
+  theme_407() +
+  facet_grid(~learn_rate) +
+  theme(axis.text.x = element_text(size = 8))
+
+```
 
 ```{r}
 (tune_learn2_best <- map_df(fit_tune_learn2, ~{
@@ -375,9 +501,9 @@ toc()
 best_learnrate2 <- tune_learn2_best$learning_rate[1]
 ```
 
-## Fit the final model
+# Fit the final model
 
-#### Finalize model
+## Finalize model
 
 ```{r}
 fit_final_xgb <- xgboost(
@@ -386,13 +512,14 @@ fit_final_xgb <- xgboost(
    nrounds = best_numtrees, # number of trees
    objective = "reg:squarederror",
    early_stopping_rounds = 20, 
-   params = list(eta = best_learnrate2,
-                 max_depth = best_depth,
-                 colsample_bytree = best_colsample)
+   #params = list(eta = best_learnrate2,
+  #               max_depth = best_depth,
+   #              colsample_bytree = best_colsample),
+   verbose = 0
  ) 
 ```
 
-#### Preprocess test split
+## Preprocess test split
 
 ```{r}
 # Preprocess data
@@ -412,7 +539,7 @@ test_data <- test_baked %>%
 test_outcome <- test_baked$score
 ```
 
-#### Test final model
+## Test final model
 
 ```{r}
 # Make predictions
@@ -420,8 +547,12 @@ predictions <- predict(fit_final_xgb, test_data)
 
 # Calculate RMSE
 pred_tbl <- tibble(predictions, test_outcome)
-yardstick::rmse(pred_tbl, predictions, test_outcome)
+(test_rmse <- yardstick::rmse(pred_tbl, predictions, test_outcome))
+
 ```
 
+# Final thoughts
+
+The final RMSE on the assessment set was relatively good at `r round(test_rmse$.estimate,2)`. However, this isn't far off from the mean RMSE when cross-validating a boosted tree model using the default parameters, `r round(mt_rmse$test_rmse_mean,2)`. This finding suggests tuning did not add any predictive power to our model. Given that each tuning step took about 3 - 10 minutes, the change in RMSE does not seem worth the additional effort. Overall, though the boosted tree model demonstrated low variance and had relatively good predictive power, it was computationally inefficient.
 
 ***
