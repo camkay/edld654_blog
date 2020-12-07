@@ -88,8 +88,6 @@ To obtain a general understanding of how our predictor variables fit our data, w
 
 We will use the following recipe (for more information, see our Data section) to fit our model. 
 
-As shown in our recipe summary, our recipe contains 7 id variables (variables will not be used in our prediction), 1 outcome (test score) and 45 predictors. 
-
 ```{r recipe} 
 rec <- recipe(score ~ ., data_train) %>%  
     step_mutate(tst_dt = lubridate::mdy_hm(tst_dt)) %>%
@@ -105,6 +103,9 @@ rec <- recipe(score ~ ., data_train) %>%
 
 rec
 ```
+
+As shown in our recipe summary, our recipe contains 7 id variables (variables will not be used in our prediction), 1 outcome (test score) and 45 predictors. 
+
 
 ## Build Linear Model 
 
@@ -177,7 +178,7 @@ The average RMSE for our linear model on the 10-fold CV was `r round(train_rmse$
 
 # Make Prediction on Withheld Test Set
 
-To further evaluate our linear model, We will now make predictions on our left out dataset from our initial split. 
+To further evaluate our linear model, we will now make predictions on our left out dataset from our initial split. 
 
 ```{r, message = FALSE}
 #run the model on the withheld test set from the initial split 
@@ -191,7 +192,7 @@ end_rf <- Sys.time()
 lin_final_time <- end_rf - start_rf
 ```
 
-Applying the linear model to our left out dataset from our initial split was much faster (took only `r round(lin_final_time, 2)` seconds to run!) compared to our 10-fold cv training data where the model was fitted across multiple folds.  
+Applying the linear model to our left out dataset from our initial split was much faster (took only `r round(lin_final_time, 2)` seconds to run!) compared to our 10-fold cv training data (`r round(lin_time, 2)` min) where the model was fitted across multiple folds. It should be mentioned that overall the linear model was extremely quick to run computationally as there were no tuning involved at the most basic level.   
 
 
 ## Collect Metrics 
@@ -205,7 +206,7 @@ mod_lin_final %>%
 holdout_rmse <- mod_lin_final %>% collect_metrics(summarize = TRUE) %>% filter(.metric == "rmse")
 ```
 
-The average RMSE for our linear model on the withheld test data was `r round(holdout_rmse$.estimate,2)`. This is a slight improvement in RMSE compared to the RMSE of `r round(train_rmse$mean,2)` obtained in our 10-fold cv training data. 
+The average RMSE for our linear model on the withheld test data was `r round(holdout_rmse$.estimate,2)`. This is a very slight improvement in RMSE compared to the RMSE of `r round(train_rmse$mean,2)` obtained in our 10-fold cv training data. 
 
 # Plot - Important Predictors 
 
@@ -223,9 +224,9 @@ mod_lin_final %>%
   theme(plot.title.position = "plot") 
 ```
 
-From the plot, we can see that the variable `sp_ed_fg_N` which indicates whether a student participates in an Individualized Education Plan was one of the most important predictor of students' test score. Other important predictors include Limited English Proficiency status and ethnicity. 
+From the plot, we can see that the variable `sp_ed_fg_N` which indicates whether a student participates in an Individualized Education Plan was one of the most important predictor of students' test score. Other important predictors include students' Limited English Proficiency status and ethnicity. 
 
-# Discussion - Linear Model 
+# Discussion
 
 ADD CONCLUDING DISCUSSION HERE
 
