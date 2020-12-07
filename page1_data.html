@@ -13,7 +13,6 @@
 
 <title>Tensor Flo Ridas: A Journey in Machine Learning</title>
 
-<script src="site_libs/header-attrs-2.5/header-attrs.js"></script>
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
@@ -441,9 +440,32 @@ div.tocify {
 </div>
 
 
+<pre class="r"><code>theme_tensor_flo &lt;- function() { 
+    theme_bw() %+replace% 
+        theme(
+          legend.background = element_rect(fill = &quot;#1b1d22&quot;,
+                                           colour = &quot;#1b1d22&quot;),
+          panel.background = element_rect(fill = &quot;#171f24&quot;,
+                                          colour = &quot;#1b1d22&quot;,
+                                          size = 0.5,
+                                          linetype = &quot;solid&quot;),
+          panel.grid.major = element_line(size = 0.2, 
+                                          linetype = &#39;solid&#39;, 
+                                          colour = &quot;gray40&quot;), 
+          panel.grid.minor = element_line(size = 0.0, 
+                                          linetype = &#39;solid&#39;,
+                                          colour = &quot;gray40&quot;),
+          axis.line = element_line(colour = &quot;white&quot;),
+          plot.background = element_rect(fill = &quot;#171f24&quot;),
+          text  = element_text(color = &quot;white&quot;),
+          axis.text  = element_text(color = &quot;white&quot;),
+          axis.ticks = element_line(color = &quot;white&quot;),
+          strip.background = element_rect(fill = &quot;white&quot;,
+                                          colour = &quot;white&quot;))}</code></pre>
 <pre class="r"><code># read in data set
 data &lt;- read_csv(&quot;data/train.csv&quot;,
-                 col_types = cols(.default = col_guess(), calc_admn_cd = col_character()))  %&gt;% 
+                 col_types = cols(.default = col_guess(), 
+                                  calc_admn_cd = col_character()))  %&gt;% 
     select(-classification)
 
 # read in free/reduced lunch data and student counts
@@ -464,9 +486,9 @@ stu_counts &lt;- import(&quot;https://github.com/datalorax/ach-gap-variability/r
   count(ncessch, wt = n)  %&gt;% 
   mutate(ncessch = as.double(ncessch))
 
-frl &lt;- left_join(frl, stu_counts)</code></pre>
-<pre><code>## Joining, by = &quot;ncessch&quot;</code></pre>
-<pre class="r"><code>rm(stu_counts)
+frl &lt;- left_join(frl, stu_counts)
+
+rm(stu_counts)
 
 frl &lt;- frl %&gt;% 
   mutate(free_lunch_prop    = free_lunch_qualified / n,
@@ -481,14 +503,16 @@ staff &lt;- import(here(&quot;data&quot;, &quot;staff.csv&quot;), setclass = &qu
   select(ncessch, teachers)
 
 # read in school characteristics data
-school_chars &lt;- import(here(&quot;data&quot;, &quot;school_characteristics.csv&quot;), setclass = &quot;tbl_df&quot;)  %&gt;% 
+school_chars &lt;- import(here(&quot;data&quot;, &quot;school_characteristics.csv&quot;), 
+                       setclass = &quot;tbl_df&quot;)  %&gt;% 
   janitor::clean_names()  %&gt;% 
   filter(st == &quot;OR&quot;)  %&gt;%
   mutate(ncessch = as.double(ncessch)) %&gt;%
   select(ncessch, titlei_status, nslp_status, virtual)
 
 # read in ethnicity data
-eth &lt;- import(file     = here::here(&quot;data&quot;, &quot;fallmembershipreport_20192020.xlsx&quot;), 
+eth &lt;- import(file     = here::here(&quot;data&quot;, 
+                                    &quot;fallmembershipreport_20192020.xlsx&quot;), 
             sheet    = &quot;School (19-20)&quot;,
             setclass = &quot;tibble&quot;) %&gt;%
   janitor::clean_names() %&gt;%
@@ -503,15 +527,12 @@ data &lt;- data %&gt;%
     left_join(frl) %&gt;%
     left_join(staff) %&gt;%
     left_join(school_chars) %&gt;%
-    left_join(eth)</code></pre>
-<pre><code>## Joining, by = &quot;ncessch&quot;
-## Joining, by = &quot;ncessch&quot;
-## Joining, by = &quot;ncessch&quot;</code></pre>
-<pre><code>## Joining, by = &quot;attnd_schl_inst_id&quot;</code></pre>
-<pre class="r"><code># remove unneeded dataframes
+    left_join(eth)
+
+# remove unneeded dataframes
 rm(frl, staff, school_chars, eth)</code></pre>
-<div id="create-splits" class="section level3" number="0.0.1">
-<h3 number="0.0.1"><span class="header-section-number">0.0.1</span> Create splits</h3>
+<div id="create-splits" class="section level3">
+<h3>Create splits</h3>
 <p>Set a seed, split your data into training and test data, and extract the training data</p>
 <pre class="r"><code>set.seed(3000)
 
@@ -529,64 +550,79 @@ data_test  &lt;- testing(data_split)
 
 data_train_cv &lt;- vfold_cv(data_train)</code></pre>
 </div>
-<div id="exploring-the-data" class="section level3" number="0.0.2">
-<h3 number="0.0.2"><span class="header-section-number">0.0.2</span> Exploring the data</h3>
-<pre class="r"><code>theme_407 &lt;- function() { 
-    theme_bw(base_size = 25) %+replace% 
-        theme(
-          legend.direction = &quot;horizontal&quot;,
-          legend.background = element_rect(fill = &quot;#1b1d22&quot;,
-                                           colour = &quot;#1b1d22&quot;),
-          panel.background = element_rect(fill = &quot;#171f24&quot;,
-                              colour = &quot;#1b1d22&quot;,
-                              size = 0.5, linetype = &quot;solid&quot;),
-          panel.grid.major = element_line(size = 0.2, 
-                                          linetype = &#39;solid&#39;, 
-                                          colour = &quot;gray40&quot;), 
-          panel.grid.minor = element_line(size = 0.0, 
-                                          linetype = &#39;solid&#39;,
-                                          colour = &quot;gray40&quot;),
-          axis.line = element_line(colour = &quot;white&quot;),
-          plot.background = element_rect(fill = &quot;#171f24&quot;),
-          text  = element_text(color = &quot;white&quot;, size = 20),
-          axis.text  = element_text(color = &quot;white&quot;),
-          axis.ticks = element_line(color = &quot;white&quot;),
-          strip.background = element_rect(fill = &quot;white&quot;,
-                                          colour = &quot;white&quot;)
-        )
-}
+<div id="exploring-the-data" class="section level3">
+<h3>Exploring the data</h3>
+<pre class="r"><code>hist_data &lt;- data_train %&gt;%
+  select(where(is.numeric),
+         -contains(&quot;id&quot;),
+         -ncessch) %&gt;%
+  dplyr::rename(&quot;Grade&quot; = `enrl_grd`,
+                &quot;Latitude&quot; = `lat`,
+                &quot;Longitude&quot; = `lon`,
+                &quot;Score&quot; = `score`,
+                &quot;Number of Teachers&quot; = `teachers`,
+                &quot;Proportion Free Lunch&quot; = `free_lunch_prop`,
+                &quot;Proportion Reduced Lunch&quot; = `reduced_lunch_prop`,
+                &quot;Proportion Indigenous&quot; = `p_american_indian_alaska_native`,
+                &quot;Proportion Asian&quot; = `p_asian`,
+                &quot;Proportion African American&quot; = `p_black_african_american`,
+                &quot;Proportion Hispanic&quot; = `p_hispanic_latino`,
+                &quot;Proportion Pacific Islander&quot; = `p_native_hawaiian_pacific_islander`,
+                &quot;Proportion Multiracial&quot; = `p_multiracial`,
+                &quot;Proportion White&quot; = `p_white`) %&gt;%
+  gather(&quot;variable&quot;)
 
-data_train %&gt;%
-  select(where(is.numeric),
-         -contains(&quot;id&quot;),
-         -ncessch) %&gt;%
-  gather(&quot;variable&quot;) %&gt;%
-  ggplot(aes(x = value)) +
-    geom_histogram(color = &quot;#171f24&quot;, fill = &quot;cyan3&quot;) +
-    facet_wrap(~variable, scales = &quot;free&quot;) +
+ggplot(hist_data, aes(x = value)) +
+    geom_histogram(color = &quot;#171f24&quot;, 
+                   fill = &quot;cyan3&quot;,
+                   alpha = 0.70) +
+    facet_wrap(~variable,
+               ncol = 4,
+               scales = &quot;free&quot;) +
     theme_bw() +
-    theme_407()</code></pre>
-<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
-<pre><code>## Warning: Removed 14236 rows containing non-finite values (stat_bin).</code></pre>
-<p><img src="page1_data_files/figure-html/histograms-1.png" width="672" /></p>
-<pre class="r"><code>data_train %&gt;%
+    theme_tensor_flo() +
+    labs(y = &quot;Count&quot;,
+         x = &quot;Value&quot;)</code></pre>
+<p><img src="page1_data_files/figure-html/histograms-1.png" width="960" /></p>
+<pre class="r"><code>cor_data &lt;- data_train %&gt;%
   select(where(is.numeric),
          -contains(&quot;id&quot;),
          -ncessch) %&gt;%
+  dplyr::rename(&quot;Grade&quot; = `enrl_grd`,
+                &quot;Latitude&quot; = `lat`,
+                &quot;Longitude&quot; = `lon`,
+                &quot;Score&quot; = `score`,
+                &quot;Number of Teachers&quot; = `teachers`,
+                &quot;Prop Free Lunch&quot; = `free_lunch_prop`,
+                &quot;Prop Reduced Lunch&quot; = `reduced_lunch_prop`,
+                &quot;Prop Indigenous&quot; = `p_american_indian_alaska_native`,
+                &quot;Prop Asian&quot; = `p_asian`,
+                &quot;Prop African American&quot; = `p_black_african_american`,
+                &quot;Prop Hispanic&quot; = `p_hispanic_latino`,
+                &quot;Prop Pacific Islander&quot; = `p_native_hawaiian_pacific_islander`,
+                &quot;Prop Multiracial&quot; = `p_multiracial`,
+                &quot;Prop White&quot; = `p_white`) %&gt;%
   cor(use = &quot;pairwise.complete.obs&quot;) %&gt;%
   data.frame() %&gt;%
   rownames_to_column() %&gt;%
-  gather(&quot;colname&quot;, &quot;cor&quot;, -rowname) %&gt;%
-  ggplot(aes(x = rowname, y = colname, fill = cor)) +
+  gather(&quot;colname&quot;, &quot;cor&quot;, -rowname)
+  
+  
+ggplot(cor_data, aes(x = rowname, y = colname, fill = cor)) +
     geom_tile(color = &quot;white&quot;) +
     geom_text(aes(label=round(cor,2))) + 
-    scale_fill_gradient2(low = &quot;purple4&quot;, mid = &quot;white&quot;, high = &quot;deepskyblue3&quot;) +
-    theme_bw() +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))</code></pre>
-<p><img src="page1_data_files/figure-html/zo-1.png" width="672" /></p>
+    scale_fill_gradient2(low = &quot;#703882&quot;, 
+                         mid = &quot;white&quot;, 
+                         high = &quot;#01C0C0&quot;) +
+    theme_tensor_flo() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+          axis.text = element_text(size = 10.5)) +
+    labs(y = &quot;Variable&quot;,
+         x = &quot;Variable&quot;)</code></pre>
+<p><img src="page1_data_files/figure-html/zo-1.png" width="960" /></p>
 </div>
-<div id="build-the-preliminary-recipe" class="section level3" number="0.0.3">
-<h3 number="0.0.3"><span class="header-section-number">0.0.3</span> Build the preliminary recipe</h3>
+<div id="build-the-preliminary-recipe" class="section level3">
+<h3>Build the preliminary recipe</h3>
 <pre class="r"><code>recipe_1 &lt;- recipe(score ~ ., data_train) %&gt;%  
     step_mutate(tst_dt = lubridate::mdy_hm(tst_dt)) %&gt;%
     update_role(contains(&quot;id&quot;), ncessch, sch_name, new_role = &quot;id vars&quot;) %&gt;%
@@ -600,7 +636,7 @@ data_train %&gt;%
     step_zv(all_predictors())</code></pre>
 <hr />
 <center>
-<em>Last updated: September 29th, 2020.</em>
+<em>Last updated: December 6th, 2020.</em>
 </center>
 </div>
 
@@ -655,7 +691,7 @@ $(document).ready(function ()  {
 
     // establish options
     var options = {
-      selectors: "h1",
+      selectors: "h1,h2,h3,h4",
       theme: "bootstrap3",
       context: '.toc-content',
       hashGenerator: function (text) {

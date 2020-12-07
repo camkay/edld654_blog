@@ -3,15 +3,17 @@ title: "Tensor Flo Ridas: A Journey in Machine Learning"
 output: 
   html_document:
     toc: TRUE
-    toc_depth: 1
+    toc_depth: 4
     toc_float: TRUE
-    number_sections: TRUE
+    number_sections: FALSE
     code_folding: hide
     df_print: paged
 ---
 
 ```{r setup, include = FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE,
+                      message = FALSE)
 
 # load required packages
 library(tidyverse)
@@ -22,10 +24,37 @@ library(workflows)
 library(tictoc)
 ```
 
+```{r load_theme}
+theme_tensor_flo <- function() { 
+    theme_bw() %+replace% 
+        theme(
+          legend.background = element_rect(fill = "#1b1d22",
+                                           colour = "#1b1d22"),
+          panel.background = element_rect(fill = "#171f24",
+                                          colour = "#1b1d22",
+                                          size = 0.5,
+                                          linetype = "solid"),
+          panel.grid.major = element_line(size = 0.2, 
+                                          linetype = 'solid', 
+                                          colour = "gray40"), 
+          panel.grid.minor = element_line(size = 0.0, 
+                                          linetype = 'solid',
+                                          colour = "gray40"),
+          axis.line = element_line(colour = "white"),
+          plot.background = element_rect(fill = "#171f24"),
+          text  = element_text(color = "white"),
+          axis.text  = element_text(color = "white"),
+          axis.ticks = element_line(color = "white"),
+          strip.background = element_rect(fill = "white",
+                                          colour = "white"))}
+```
+
+
 ```{r import_data}
 # read in data set
 data <- read_csv("data/train.csv",
-                 col_types = cols(.default = col_guess(), calc_admn_cd = col_character()))  %>% 
+                 col_types = cols(.default = col_guess(), 
+                                  calc_admn_cd = col_character()))  %>% 
     select(-classification)
 
 # read in free/reduced lunch data and student counts
@@ -63,14 +92,16 @@ staff <- import(here("data", "staff.csv"), setclass = "tbl_df")  %>%
   select(ncessch, teachers)
 
 # read in school characteristics data
-school_chars <- import(here("data", "school_characteristics.csv"), setclass = "tbl_df")  %>% 
+school_chars <- import(here("data", "school_characteristics.csv"), 
+                       setclass = "tbl_df")  %>% 
   janitor::clean_names()  %>% 
   filter(st == "OR")  %>%
   mutate(ncessch = as.double(ncessch)) %>%
   select(ncessch, titlei_status, nslp_status, virtual)
 
 # read in ethnicity data
-eth <- import(file     = here::here("data", "fallmembershipreport_20192020.xlsx"), 
+eth <- import(file     = here::here("data", 
+                                    "fallmembershipreport_20192020.xlsx"), 
             sheet    = "School (19-20)",
             setclass = "tibble") %>%
   janitor::clean_names() %>%
@@ -115,59 +146,77 @@ data_train_cv <- vfold_cv(data_train)
 
 ### Exploring the data
 
-```{r histograms}
-theme_407 <- function() { 
-    theme_bw(base_size = 25) %+replace% 
-        theme(
-          legend.direction = "horizontal",
-          legend.background = element_rect(fill = "#1b1d22",
-                                           colour = "#1b1d22"),
-          panel.background = element_rect(fill = "#171f24",
-                              colour = "#1b1d22",
-                              size = 0.5, linetype = "solid"),
-          panel.grid.major = element_line(size = 0.2, 
-                                          linetype = 'solid', 
-                                          colour = "gray40"), 
-          panel.grid.minor = element_line(size = 0.0, 
-                                          linetype = 'solid',
-                                          colour = "gray40"),
-          axis.line = element_line(colour = "white"),
-          plot.background = element_rect(fill = "#171f24"),
-          text  = element_text(color = "white", size = 20),
-          axis.text  = element_text(color = "white"),
-          axis.ticks = element_line(color = "white"),
-          strip.background = element_rect(fill = "white",
-                                          colour = "white")
-        )
-}
-
-data_train %>%
+```{r histograms, fig.height=7, fig.width=10}
+hist_data <- data_train %>%
   select(where(is.numeric),
          -contains("id"),
          -ncessch) %>%
-  gather("variable") %>%
-  ggplot(aes(x = value)) +
-    geom_histogram(color = "#171f24", fill = "cyan3") +
-    facet_wrap(~variable, scales = "free") +
+  dplyr::rename("Grade" = `enrl_grd`,
+                "Latitude" = `lat`,
+                "Longitude" = `lon`,
+                "Score" = `score`,
+                "Number of Teachers" = `teachers`,
+                "Proportion Free Lunch" = `free_lunch_prop`,
+                "Proportion Reduced Lunch" = `reduced_lunch_prop`,
+                "Proportion Indigenous" = `p_american_indian_alaska_native`,
+                "Proportion Asian" = `p_asian`,
+                "Proportion African American" = `p_black_african_american`,
+                "Proportion Hispanic" = `p_hispanic_latino`,
+                "Proportion Pacific Islander" = `p_native_hawaiian_pacific_islander`,
+                "Proportion Multiracial" = `p_multiracial`,
+                "Proportion White" = `p_white`) %>%
+  gather("variable")
+
+ggplot(hist_data, aes(x = value)) +
+    geom_histogram(color = "#171f24", 
+                   fill = "cyan3",
+                   alpha = 0.70) +
+    facet_wrap(~variable,
+               ncol = 4,
+               scales = "free") +
     theme_bw() +
-    theme_407()
+    theme_tensor_flo() +
+    labs(y = "Count",
+         x = "Value")
 ```
 
-```{r zo}
-data_train %>%
+```{r zo, fig.height=7, fig.width=10}
+cor_data <- data_train %>%
   select(where(is.numeric),
          -contains("id"),
          -ncessch) %>%
+  dplyr::rename("Grade" = `enrl_grd`,
+                "Latitude" = `lat`,
+                "Longitude" = `lon`,
+                "Score" = `score`,
+                "Number of Teachers" = `teachers`,
+                "Prop Free Lunch" = `free_lunch_prop`,
+                "Prop Reduced Lunch" = `reduced_lunch_prop`,
+                "Prop Indigenous" = `p_american_indian_alaska_native`,
+                "Prop Asian" = `p_asian`,
+                "Prop African American" = `p_black_african_american`,
+                "Prop Hispanic" = `p_hispanic_latino`,
+                "Prop Pacific Islander" = `p_native_hawaiian_pacific_islander`,
+                "Prop Multiracial" = `p_multiracial`,
+                "Prop White" = `p_white`) %>%
   cor(use = "pairwise.complete.obs") %>%
   data.frame() %>%
   rownames_to_column() %>%
-  gather("colname", "cor", -rowname) %>%
-  ggplot(aes(x = rowname, y = colname, fill = cor)) +
+  gather("colname", "cor", -rowname)
+  
+  
+ggplot(cor_data, aes(x = rowname, y = colname, fill = cor)) +
     geom_tile(color = "white") +
     geom_text(aes(label=round(cor,2))) + 
-    scale_fill_gradient2(low = "purple4", mid = "white", high = "deepskyblue3") +
-    theme_bw() +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    scale_fill_gradient2(low = "#703882", 
+                         mid = "white", 
+                         high = "#01C0C0") +
+    theme_tensor_flo() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+          axis.text = element_text(size = 10.5)) +
+    labs(y = "Variable",
+         x = "Variable")
+  
 ```
 
 ### Build the preliminary recipe
@@ -189,5 +238,5 @@ recipe_1 <- recipe(score ~ ., data_train) %>%
 ***
 
 <center>
-*Last updated: September 29th, 2020.*
+*Last updated: December 6th, 2020.*
 </center>
