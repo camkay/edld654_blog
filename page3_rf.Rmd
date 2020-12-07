@@ -277,7 +277,7 @@ fit_rf_tune_2 <- tune_grid(
   object    = workflow_rf_tune,
   resamples = data_train_cv,
   grid      = grid_rf_2,
-  metrics   = yardstick::metric_set(rmse, rsq, huber_loss),
+  metrics   = yardstick::metric_set(rmse, rsq),
   control   = control_resamples(verbose   = TRUE,
                                 save_pred = TRUE,
                                 extract   = function(x) extract_model(x)))
@@ -286,7 +286,7 @@ fit_rf_tune_2 <- tune_grid(
 time3 <- tictoc::toc()
 ```
 
-The new model took ADD_VALUE to fit. Again, it makes sense that it is longer, becasue we are now testing `10` hyperparameters instead of `5`.
+The new model took ADD_VALUE to fit. Again, it makes sense that it is longer, because we are now testing `10` hyperparameters instead of `5`.
 
 We can then look at the metrics again...
 
