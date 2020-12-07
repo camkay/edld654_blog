@@ -25,59 +25,69 @@ This blog was created as our final project for [EDLD 654](https://uo-datasci-spe
 
 # About us
 
-**Cameron S. Kay** 
-<a href="https://twitter.com/cameronskay"> <i class="fab fa-twitter fa-1x"></i></a>
-<a href="https://github.com/camkay"> <i class="fab fa-github fa-1x"></i></a>
-<a href="https://www.researchgate.net/profile/Cameron_Kay6"> <i class="fab fa-researchgate fa-1x"></i></a>
-<a href="mailto:ckay@uoregon.edu"> <i class="fas fa-envelope fa-1x"></i></a>
+**Cameron S. Kay, M.S., M.A.** 
 
-```{r out.width="10%",echo=FALSE,out.extra='style="float:left;padding-right:15px"'}
+```{r out.width="20%",echo=FALSE,out.extra='style="float:left;padding-right:40px"'}
 knitr::include_graphics("images/Cam.png")
 ```
 
 Cameron is a doctoral candidate studying personality and social psychology at the University of Oregon. He is interested in incorporating new technologies and methodologies into the study of personality. He is the creator and maintainer of the R packages [panoply](https://github.com/camkay/panoply) and [iccImpact](https://github.com/camkay/iccImpact), as well as the [outRun](https://github.com/camkay/outRun) RStudio Editor Theme. 
 
+<a href="https://twitter.com/cameronskay"> <i class="fab fa-twitter fa-1x"></i></a>
+<a href="https://github.com/camkay"> <i class="fab fa-github fa-1x"></i></a>
+<a href="https://www.researchgate.net/profile/Cameron_Kay6"> <i class="fab fa-researchgate fa-1x"></i></a>
+<a href="mailto:ckay@uoregon.edu"> <i class="fas fa-envelope fa-1x"></i></a>
+
 <div style="clear: both;"></div>
 
 $~$
 
-**Lea Frank**
-<a href="https://twitter.com/lurrfursure?lang=en"> <i class="fab fa-twitter fa-1x"></i></a>
-<a href="https://github.com/lfrank14"> <i class="fab fa-github fa-1x"></i></a>
-<a href="https://www.researchgate.net/profile/Lea_Frank"> <i class="fab fa-researchgate fa-1x"></i></a>
-<a href="mailto:lfrank@uoregon.edu"> <i class="fas fa-envelope fa-1x"></i></a>
+**Lea Frank, M.S.**
 
-```{r out.width="10%",echo=FALSE,out.extra='style="float:left;padding-right:15px"'}
+```{r out.width="20%",echo=FALSE,out.extra='style="float:left;padding-right:40px"'}
 knitr::include_graphics("images/Lea.png")
 ```
 
 Lea is a doctoral student studying cognitive neuroscience at the University of Oregon. Her research examines how memories are used to help guide novel decisions. She is interested in combining machine learning and neuroimaging methods to understand the neural processes underlying memory-guided decisions. 
 
+<a href="https://twitter.com/lurrfursure?lang=en"> <i class="fab fa-twitter fa-1x"></i></a>
+<a href="https://github.com/lfrank14"> <i class="fab fa-github fa-1x"></i></a>
+<a href="https://www.researchgate.net/profile/Lea_Frank"> <i class="fab fa-researchgate fa-1x"></i></a>
+<a href="mailto:lfrank@uoregon.edu"> <i class="fas fa-envelope fa-1x"></i></a>
+
 <div style="clear: both;"></div> 
 
 $~$
 
-**Ashley L. Miller**
-<a href="https://github.com/AshLynnMiller"> <i class="fab fa-github fa-1x"></i></a>
-<a href="https://www.researchgate.net/profile/Ashley_Miller52"> <i class="fab fa-researchgate fa-1x"></i></a>
-<a href="mailto:amiller8@uoregon.edu"> <i class="fas fa-envelope fa-1x"></i></a>
+**Ashley L. Miller, M.S.**
 
-```{r out.width="10%",echo=FALSE,out.extra='style="float:left;padding-right:15px"'}
+```{r out.width="20%",echo=FALSE,out.extra='style="float:left;padding-right:40px"'}
 knitr::include_graphics("images/Ash.png")
 ```
 
 Ashley is a doctoral candidate studying memory and attention processes. Specifically, Ashley’s research seeks to identify sources of limitations in learning abilities--and cognitive abilities more broadly--by focusing on how individuals control attention in a goal directed manner. Ashley leverages behavioral and physiological techniques (pupillometry and eye-tracking) to address these questions.
 
+<a href="https://github.com/AshLynnMiller"> <i class="fab fa-github fa-1x"></i></a>
+<a href="https://www.researchgate.net/profile/Ashley_Miller52"> <i class="fab fa-researchgate fa-1x"></i></a>
+<a href="mailto:amiller8@uoregon.edu"> <i class="fas fa-envelope fa-1x"></i></a>
+
 <div style="clear: both;"></div> 
 
 $~$
 
-**Stephanie Gluck**
+**Stephanie Gluck, M.A.**
+
+```{r out.width="20%",echo=FALSE,out.extra='style="float:left;padding-right:40px"'}
+knitr::include_graphics("images/Steph.png")
+```
+
+Stephanie is a doctoral student studying developmental psychology at the University of Oregon. Her research addresses how children become socially aware of others’ thoughts, intentions and emotions – a crucial ability for success in the social world – along with the underlying social and cognitive mechanisms that influence such development.
+
 <a href="https://github.com/s-gluck"> <i class="fab fa-github fa-1x"></i></a>
 <a href="https://www.researchgate.net/profile/Stephanie_Chenwu_Gluck"> <i class="fab fa-researchgate fa-1x"></i></a>
 <a href="mailto:sgluck@uoregon.edu"> <i class="fas fa-envelope fa-1x"></i></a>
 
-BLURB GOES HEREEEEEEEE.
+<div style="clear: both;"></div> 
 
 $~$
 
