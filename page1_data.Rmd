@@ -174,7 +174,15 @@ psych::describe(school_chars)
 
 ## Ethinicity data
 
+Finally, we imported data that breaks down the ethnic makeup of the students enrolled at each school. Specifically, for each school, we know the proportion of students who identify as:
 
++ American Indian/Alaska Native (`p_american_indian_alaska_native`)
++ Asian (`p_asian`)
++ African American (`p_black_african_american`)
++ Hispanic/Latino (`p_hispanic_latino`)
++ Native Hawaiian/Pacific Islander (`p_native_hawaiian_pacific_islander`)
++ White (`p_white`)
++ Multiracial (`p_multiracial`)
 
 ```{r import_ethnicity_data}
 # read in ethnicity data
@@ -188,6 +196,8 @@ eth <- import(file = here::here("data",
          matches("percent"))
 
 names(eth) <- gsub("x2019_20_percent", "p", names(eth)) 
+
+psych::describe(eth)
 ```
 
 ```{r merge_data}
@@ -202,9 +212,11 @@ data <- data %>%
 rm(frl, staff, school_chars, eth)
 ```
 
-### Create splits
+# Getting to know our data
 
-Set a seed, split your data into training and test data, and extract the training data
+## Create splits
+
+The goal of machine learning is to predict results based on new (unseen) data. The simplest way to do this is to split our data into two parts via the function `initial split()`: an initial training set and a test set. We will eventually fit a model to the training data and predict the results of the test set. After the initial split, we need to resample our training set to create subsets of "new" data samples that we can train the model on. The most common method--which we use here--is 10-fold cross-validation. Using `vfold_cv()`, we randomly split the training data into 10 distinct samples ("folds") of approximately equal size. Importantly, each fold contains a sample in which none of the observations are repeated in other folds. And within each fold, a random 10% (1/10) of training data are sampled for an assessment (test) set, whereas the  remaining 90% of the training data serve as the analysis (training) set.
 
 ```{r cv_split}
 set.seed(3000)

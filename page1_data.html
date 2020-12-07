@@ -907,6 +907,16 @@ psych::describe(school_chars)</code></pre>
 </div>
 <div id="ethinicity-data" class="section level2">
 <h2>Ethinicity data</h2>
+<p>Finally, we imported data that breaks down the ethnic makeup of the students enrolled at each school. Specifically, for each school, we know the proportion of students who identify as:</p>
+<ul>
+<li>American Indian/Alaska Native (<code>p_american_indian_alaska_native</code>)</li>
+<li>Asian (<code>p_asian</code>)</li>
+<li>African American (<code>p_black_african_american</code>)</li>
+<li>Hispanic/Latino (<code>p_hispanic_latino</code>)</li>
+<li>Native Hawaiian/Pacific Islander (<code>p_native_hawaiian_pacific_islander</code>)</li>
+<li>White (<code>p_white</code>)</li>
+<li>Multiracial (<code>p_multiracial</code>)</li>
+</ul>
 <pre class="r"><code># read in ethnicity data
 eth &lt;- import(file = here::here(&quot;data&quot;,
                                 &quot;fallmembershipreport_20192020.xlsx&quot;),
@@ -917,7 +927,14 @@ eth &lt;- import(file = here::here(&quot;data&quot;,
          sch_name = school_name,
          matches(&quot;percent&quot;))
 
-names(eth) &lt;- gsub(&quot;x2019_20_percent&quot;, &quot;p&quot;, names(eth)) </code></pre>
+names(eth) &lt;- gsub(&quot;x2019_20_percent&quot;, &quot;p&quot;, names(eth)) 
+
+psych::describe(eth)</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["vars"],"name":[1],"type":["int"],"align":["right"]},{"label":["n"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["sd"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["trimmed"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["mad"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["min"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["range"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["skew"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["kurtosis"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["se"],"name":[13],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"1459","3":"1661.258396162","4":"1558.62405413","5":"1034.00000","6":"1443.532078700","7":"937.003200000","8":"1","9":"5457.00000","10":"5456.00000","11":"1.102672482","12":"-0.1415435","13":"40.805032533","_rn_":"attnd_schl_inst_id"},{"1":"2","2":"1459","3":"690.416723783","4":"397.74913911","5":"680.00000","6":"690.287425150","7":"508.531800000","8":"1","9":"1381.00000","10":"1380.00000","11":"0.002743797","12":"-1.1862708","13":"10.413137484","_rn_":"sch_name*"},{"1":"3","2":"1459","3":"0.015686415","4":"0.04818512","5":"0.00585","6":"0.007671138","7":"0.008673210","8":"0","9":"0.88284","10":"0.88284","11":"10.875463034","12":"154.4883947","13":"0.001261494","_rn_":"p_american_indian_alaska_native"},{"1":"4","2":"1459","3":"0.026003557","4":"0.05313012","5":"0.00864","6":"0.013389555","7":"0.012809664","8":"0","9":"0.61931","10":"0.61931","11":"4.769898511","12":"33.5920287","13":"0.001390955","_rn_":"p_asian"},{"1":"5","2":"1459","3":"0.006053564","4":"0.01417845","5":"0.00194","6":"0.003157767","7":"0.002876244","8":"0","9":"0.33333","10":"0.33333","11":"10.364677307","12":"201.1713982","13":"0.000371194","_rn_":"p_native_hawaiian_pacific_islander"},{"1":"6","2":"1459","3":"0.021258492","4":"0.05304041","5":"0.00603","6":"0.009410599","7":"0.008940078","8":"0","9":"1.00000","10":"1.00000","11":"7.518681315","12":"96.0633432","13":"0.001388607","_rn_":"p_black_african_american"},{"1":"7","2":"1459","3":"0.207136354","4":"0.18392804","5":"0.14311","6":"0.177364157","7":"0.115479714","8":"0","9":"1.00000","10":"1.00000","11":"1.629071974","12":"2.7586267","13":"0.004815266","_rn_":"p_hispanic_latino"},{"1":"8","2":"1459","3":"0.647821830","4":"0.21652351","5":"0.70833","6":"0.670360128","7":"0.174590976","8":"0","9":"1.00000","10":"1.00000","11":"-0.941792912","12":"0.4309255","13":"0.005668621","_rn_":"p_white"},{"1":"9","2":"1459","3":"0.063702406","4":"0.05079587","5":"0.06065","6":"0.059525757","7":"0.037079826","8":"0","9":"0.66667","10":"0.66667","11":"3.278085380","12":"25.4358443","13":"0.001329844","_rn_":"p_multiracial"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 <pre class="r"><code># combine our data with frl, staff, school characteristics, and ethnicities
 data &lt;- data %&gt;%
     left_join(frl) %&gt;%
@@ -927,9 +944,13 @@ data &lt;- data %&gt;%
 
 # remove unneeded dataframes
 rm(frl, staff, school_chars, eth)</code></pre>
-<div id="create-splits" class="section level3">
-<h3>Create splits</h3>
-<p>Set a seed, split your data into training and test data, and extract the training data</p>
+</div>
+</div>
+<div id="getting-to-know-our-data" class="section level1">
+<h1>Getting to know our data</h1>
+<div id="create-splits" class="section level2">
+<h2>Create splits</h2>
+<p>The goal of machine learning is to predict results based on new (unseen) data. The simplest way to do this is to split our data into two parts via the function <code>initial split()</code>: an initial training set and a test set. We will eventually fit a model to the training data and predict the results of the test set. After the initial split, we need to resample our training set to create subsets of “new” data samples that we can train the model on. The most common method–which we use here–is 10-fold cross-validation. Using <code>vfold_cv()</code>, we randomly split the training data into 10 distinct samples (“folds”) of approximately equal size. Importantly, each fold contains a sample in which none of the observations are repeated in other folds. And within each fold, a random 10% (1/10) of training data are sampled for an assessment (test) set, whereas the remaining 90% of the training data serve as the analysis (training) set.</p>
 <pre class="r"><code>set.seed(3000)
 
 # data %&lt;&gt;%
@@ -945,7 +966,6 @@ data_train &lt;- training(data_split)
 data_test  &lt;- testing(data_split)
 
 data_train_cv &lt;- vfold_cv(data_train)</code></pre>
-</div>
 <div id="exploring-the-data" class="section level3">
 <h3>Exploring the data</h3>
 <pre class="r"><code>hist_data &lt;- data_train %&gt;%
