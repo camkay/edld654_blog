@@ -30,7 +30,7 @@ This blog was created as our final project for [EDLD 654](https://uo-datasci-spe
 
 Email: ckay@uoregon.edu
 
-```{r out.width="9%",echo=FALSE,out.extra='style="float:left;padding-right:07px"'}
+```{r out.width="10%",echo=FALSE,out.extra='style="float:left;padding-right:15px"'}
 knitr::include_graphics("images/Cam.png")
 ```
 
@@ -44,7 +44,7 @@ $~$
 
 Email: lfrank@uoregon.edu
 
-```{r out.width="9%",echo=FALSE,out.extra='style="float:left;padding-right:07px"'}
+```{r out.width="10%",echo=FALSE,out.extra='style="float:left;padding-right:15px"'}
 knitr::include_graphics("images/Lea.png")
 ```
 
@@ -58,7 +58,7 @@ $~$
 
 Email: amiller8@uoregon.edu
 
-```{r out.width="9%",echo=FALSE,out.extra='style="float:left;padding-right:07px"'}
+```{r out.width="10%",echo=FALSE,out.extra='style="float:left;padding-right:15px"'}
 knitr::include_graphics("images/Ash.png")
 ```
 
