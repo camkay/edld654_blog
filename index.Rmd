@@ -29,7 +29,7 @@ This blog was created as our final project for [EDLD 654](https://uo-datasci-spe
 <a href="https://twitter.com/cameronskay"> <i class="fab fa-twitter fa-1x"></i></a>
 <a href="https://github.com/camkay"> <i class="fab fa-github fa-1x"></i></a>
 <a href="https://www.researchgate.net/profile/Cameron_Kay6"> <i class="fab fa-researchgate fa-1x"></i></a>
-<a href="ckay@uoregon.edu"> <i class="fas fa-envelope fa-1x"></i></a>
+<a href="mailto:ckay@uoregon.edu"> <i class="fas fa-envelope fa-1x"></i></a>
 
 ```{r out.width="10%",echo=FALSE,out.extra='style="float:left;padding-right:15px"'}
 knitr::include_graphics("images/Cam.png")
@@ -45,7 +45,7 @@ $~$
 <a href="https://twitter.com/lurrfursure?lang=en"> <i class="fab fa-twitter fa-1x"></i></a>
 <a href="https://github.com/lfrank14"> <i class="fab fa-github fa-1x"></i></a>
 <a href="https://www.researchgate.net/profile/Lea_Frank"> <i class="fab fa-researchgate fa-1x"></i></a>
-<a href="lfrank@uoregon.edu"> <i class="fas fa-envelope fa-1x"></i></a>
+<a href="mailto:lfrank@uoregon.edu"> <i class="fas fa-envelope fa-1x"></i></a>
 
 ```{r out.width="10%",echo=FALSE,out.extra='style="float:left;padding-right:15px"'}
 knitr::include_graphics("images/Lea.png")
@@ -60,7 +60,7 @@ $~$
 **Ashley L. Miller**
 <a href="https://github.com/AshLynnMiller"> <i class="fab fa-github fa-1x"></i></a>
 <a href="https://www.researchgate.net/profile/Ashley_Miller52"> <i class="fab fa-researchgate fa-1x"></i></a>
-<a href="amiller8@uoregon.edu"> <i class="fas fa-envelope fa-1x"></i></a>
+<a href="mailto:amiller8@uoregon.edu"> <i class="fas fa-envelope fa-1x"></i></a>
 
 ```{r out.width="10%",echo=FALSE,out.extra='style="float:left;padding-right:15px"'}
 knitr::include_graphics("images/Ash.png")
@@ -75,7 +75,7 @@ $~$
 **Stephanie Gluck**
 <a href="https://github.com/s-gluck"> <i class="fab fa-github fa-1x"></i></a>
 <a href="https://www.researchgate.net/profile/Stephanie_Chenwu_Gluck"> <i class="fab fa-researchgate fa-1x"></i></a>
-<a href="sgluck@uoregon.edu"> <i class="fas fa-envelope fa-1x"></i></a>
+<a href="mailto:sgluck@uoregon.edu"> <i class="fas fa-envelope fa-1x"></i></a>
 
 BLURB GOES HEREEEEEEEE.
 
