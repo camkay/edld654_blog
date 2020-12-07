@@ -15,6 +15,8 @@ knitr::opts_chunk$set(echo = TRUE,
                       warning = FALSE,
                       message = FALSE)
 
+#install.packages("kableExtra")
+
 # load required packages
 library(tidyverse)
 library(tidymodels)
@@ -22,6 +24,10 @@ library(here)
 library(rio)
 library(workflows)
 library(tictoc)
+library(kableExtra)
+
+#turn off scientific notation
+options(scipen = 999)
 ```
 
 ```{r load_theme}
@@ -49,14 +55,58 @@ theme_tensor_flo <- function() {
                                           colour = "white"))}
 ```
 
+**Describe core features of the data, any additional data you joined in and why, and basic descriptives.**
 
-```{r import_data}
+**The description should be sufficiently clear that the instructor understands all the variables that were included in your modeling, and how the final analytic dataset was constructed, without actually viewing your code. While specific code snippets can be included in this section to add clarity, the reader should not have to rely on this code to understand the data preparation.**
+
+**Provide a summary of the variables (e.g., how many categorical/continuous variables were included, what were the range of values, etc.), and any feature engineering applied to the data. If missing data are present, discuss how these values were handled, variable transformations, etc. Use this section to explain your data splitting process for model evaluation.**
+
+# Our dependent variable
+
+Across the entire United States, students in grades 3-8 are tested annually in reading and math. Our goal in this course was to create a machine learning model capable of accurately predicting a given student's performance on these tests (i.e., a scaled test total score). While our dataset is simulated from actual statewide testing administration across the state of Oregon, the overall distributions are highly similar. The school IDs (`ncessch`) are real. So we used school IDs to link our simulated data with other sources (e.g., [National Center for Educational Statistics](https://nces.ed.gov/ccd/files.asp#Fiscal:2,LevelId:7,SchoolYearId:33,Page:1)), which will be elaborated upon below.
+
+# Simulated data predictors
+
+As mentioned above, our dataset simulates real testing data in the state of Oregon. Below is a summary of the 39 predictor variables included in this dataset:
+
+```{r import_dictionary}
+dictionary <- import(here::here("data", "ASHdata_dictionary.xlsx"),
+                     setclass = "tbl_df")
+dictionary %>%
+  kbl() %>%
+  kable_styling(bootstrap_options = c("condensed", "responsive"),
+                full_width = F) %>%
+  row_spec(0, background = "#171F24", color = "white") %>% # Color header row background 
+  column_spec(1, bold = T, border_right = T, background = "#171F24", color = "white") %>%
+  column_spec(2, width = "40em", background = "#171F24", color = "white") %>%
+  scroll_box(width = "100%", height = "225px")
+```
+
+$~$
+
+And below you can find a summary of the descriptive statistics for each variable:
+
+```{r import_data_main}
 # read in data set
 data <- read_csv("data/train.csv",
                  col_types = cols(.default = col_guess(), 
-                                  calc_admn_cd = col_character()))  %>% 
+                                  calc_admn_cd = col_character())) %>% 
     select(-classification)
 
+psych::describe(data)
+```
+
+$~$
+
+# Additional data sources
+
+## Free and reduced lunch
+
+Note that our simulated dataset described above primarily includes student-level predictors. We decided to import additional data containing info specific to the schools (`ncessch`) students attend. We reasoned that school-level variables could have an important impact on the quality of education students receive, in turn impacting students' scores. 
+
+First, we obtained free/reduced lunch data for each school and counted the number of students at each school. In doing so, our goal was to create two new predictor variables that we could add to our existing dataset. Namely, we computed variables that reflect the proportion of students at a given school who are eligible for free (`free_lunch_prop`) or reduced (`reduced_lunch_prop`) lunches.
+
+```{r import_frl_data}
 # read in free/reduced lunch data and student counts
 frl <- import(here("data", "lunch.csv"),
               setclass = "tbl_df")  %>% 
@@ -80,10 +130,18 @@ frl <- left_join(frl, stu_counts)
 rm(stu_counts)
 
 frl <- frl %>% 
-  mutate(free_lunch_prop    = free_lunch_qualified / n,
+  mutate(free_lunch_prop = free_lunch_qualified / n,
          reduced_lunch_prop = reduced_price_lunch_qualified / n)  %>% 
   select(ncessch, ends_with("prop"))
 
+psych::describe(frl)
+```
+
+## Staff
+
+Here we obtained data on the number of full-time-equivalent (FTE) teachers at each school (`teachers`). Schools with more funding seemingly offer more resources and newer, better equipment for students--possibly contributing to better test scores. Our rationale was that the number of full-time teachers at a school could potentially serve as an indirect index of school funding. Or, perhaps the number of full time teachers could be negatively associated with class room size. If smaller class rooms are associated with better student performance, then perhaps this is another means by which the number of full-time teachers could aid in the predictive utility of our model.
+
+```{r import_staff_data}
 # read in staff data
 staff <- import(here("data", "staff.csv"), setclass = "tbl_df")  %>% 
   janitor::clean_names()  %>% 
@@ -91,6 +149,18 @@ staff <- import(here("data", "staff.csv"), setclass = "tbl_df")  %>%
   mutate(ncessch = as.double(ncessch)) %>%
   select(ncessch, teachers)
 
+psych::describe(staff)
+```
+
+## Other school characteristics
+
+Here, we sought to add three more predictors. The first, `titlei_status` refers to a given school's Title I status. A Title 1 school receives federal funds for students. The premise of Title 1 is that schools with large numbers of low-income students will receive supplemental funds to help ensure that all children meet challenging state academic standards. Note schools may receive a classification other than being a Title I school or not being a Title I school. Schools may also be classified as Title I targeted assistance eligible schools, Title I school-wide eligible Title I targeted assistance schools, and more. 
+
+The second predictor of interest was `nslp_status`, which reflects a given school's National School Lunch Program (NSLP) status. The [NSLP](https://www.fns.usda.gov/nslp) "is a federally assisted meal program operating in public and nonprofit private schools and residential child care institutions". Children from families with incomes at or below 130 percent of the Federal Poverty Level (FPL) are eligible for free school meals, whereas children from families with incomes between 130 to 185 percent FPL qualify for reduced-price meals. Approximately [95 percent](https://frac.org/wp-content/uploads/cnnslp.pdf) of public schools participate in NSLP in some way. Schools may fall under codes reflecting participation in NSLP without using any Provision or Community Eligibility Option, participation in NSLP under Community Eligibility Option, participation in NSLP under Provision 1, etc.
+
+The final predictor, `virtual`, refers to a school's virtual (online) status. Some schools may be fully virtual, not virtual at all, supplemental virtual, or virtual with face to face options.
+
+```{r import_school_data}
 # read in school characteristics data
 school_chars <- import(here("data", "school_characteristics.csv"), 
                        setclass = "tbl_df")  %>% 
@@ -99,18 +169,28 @@ school_chars <- import(here("data", "school_characteristics.csv"),
   mutate(ncessch = as.double(ncessch)) %>%
   select(ncessch, titlei_status, nslp_status, virtual)
 
+psych::describe(school_chars)
+```
+
+## Ethinicity data
+
+
+
+```{r import_ethnicity_data}
 # read in ethnicity data
-eth <- import(file     = here::here("data", 
-                                    "fallmembershipreport_20192020.xlsx"), 
-            sheet    = "School (19-20)",
-            setclass = "tibble") %>%
+eth <- import(file = here::here("data",
+                                "fallmembershipreport_20192020.xlsx"),
+              sheet = "School (19-20)",
+              setclass = "tibble") %>%
   janitor::clean_names() %>%
   select(attnd_schl_inst_id = attending_school_id,
-         sch_name           = school_name,
+         sch_name = school_name,
          matches("percent"))
 
 names(eth) <- gsub("x2019_20_percent", "p", names(eth)) 
+```
 
+```{r merge_data}
 # combine our data with frl, staff, school characteristics, and ethnicities
 data <- data %>%
     left_join(frl) %>%
