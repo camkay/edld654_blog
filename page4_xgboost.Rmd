@@ -1,5 +1,5 @@
 ---
-title: "Tensor Flo Ridas: A Journey in Machine Learning"
+title: "Tensor Flo Ridas: A Journey in ML"
 output: 
   html_document:
     toc: TRUE
@@ -354,7 +354,7 @@ ggplot(fit_tune_depth_log, aes(iter, mean)) +
   scale_color_manual(values = c("#FFDB6D", "#00AFBB")) +
   theme_407() +
   facet_grid(~tree_depth) +
-  theme(axis.text.x = element_text(size = 8))
+  theme(axis.text.x = element_text(size = 6))
 
 ```
 
@@ -421,7 +421,7 @@ ggplot(fit_tune_randcol_log, aes(iter, mean)) +
   scale_color_manual(values = c("#FFDB6D", "#00AFBB")) +
   theme_407() +
   facet_grid(~col_sample) +
-  theme(axis.text.x = element_text(size = 8))
+  theme(axis.text.x = element_text(size = 6))
 
 ```
 
@@ -506,17 +506,21 @@ best_learnrate2 <- tune_learn2_best$learning_rate[1]
 ## Finalize model
 
 ```{r}
+tic()
+
 fit_final_xgb <- xgboost(
    data = features,
    label = outcome,
    nrounds = best_numtrees, # number of trees
    objective = "reg:squarederror",
    early_stopping_rounds = 20, 
-   #params = list(eta = best_learnrate2,
-  #               max_depth = best_depth,
-   #              colsample_bytree = best_colsample),
+   params = list(eta = best_learnrate2,
+                 max_depth = best_depth,
+                 colsample_bytree = best_colsample),
    verbose = 0
  ) 
+
+toc()
 ```
 
 ## Preprocess test split

@@ -448,7 +448,6 @@ div.tocify {
 <p>A brief recap, our project aims to predict student math and reading test score for 3rd to 8th grade students in Oregon using data from the National Center for Educational Statistics.</p>
 <p>To obtain a general understanding of how our predictor variables fit our data, we begin by fitting a basic linear regression model to our data akin to <code>stats::lm</code>. Our criteria for evaluation of model fit will be the root mean square error (RMSE). The result of the linear model will be used to inform subsequent model selection and tuning.</p>
 <p>We will use the following recipe (for more information, see our Data section) to fit our model.</p>
-<p>As shown in our recipe summary, our recipe contains 7 id variables (variables will not be used in our prediction), 1 outcome (test score) and 45 predictors.</p>
 <pre class="r"><code>rec &lt;- recipe(score ~ ., data_train) %&gt;%  
     step_mutate(tst_dt = lubridate::mdy_hm(tst_dt)) %&gt;%
     update_role(contains(&quot;id&quot;), ncessch, sch_name, new_role = &quot;id vars&quot;) %&gt;%
@@ -482,6 +481,7 @@ rec</code></pre>
 ## Median Imputation for all_numeric(), ...
 ## Dummy variables from all_nominal(), -has_role(&quot;id vars&quot;)
 ## Zero variance filter on all_predictors()</code></pre>
+<p>As shown in our recipe summary, our recipe contains 7 id variables (variables will not be used in our prediction), 1 outcome (test score) and 45 predictors.</p>
 </div>
 <div id="build-linear-model" class="section level2">
 <h2>Build Linear Model</h2>
@@ -518,7 +518,7 @@ lin_fit &lt;- fit_resamples(
                               save_pred = TRUE))
 end_rf &lt;- Sys.time()
 lin_time &lt;- end_rf - start_rf</code></pre>
-<p>Our linear model took 1.27 minutes to run.</p>
+<p>Our linear model took 1.43 minutes to run.</p>
 </div>
 <div id="collect-metrics" class="section level2">
 <h2>Collect Metrics</h2>
@@ -544,7 +544,7 @@ lin_fit %&gt;%
 </div>
 <div id="make-prediction-on-withheld-test-set" class="section level1">
 <h1>Make Prediction on Withheld Test Set</h1>
-<p>To further evaluate our linear model, We will now make predictions on our left out dataset from our initial split.</p>
+<p>To further evaluate our linear model, we will now make predictions on our left out dataset from our initial split.</p>
 <pre class="r"><code>#run the model on the withheld test set from the initial split 
 start_rf &lt;- Sys.time()
 
@@ -554,7 +554,7 @@ split = data_split)
 
 end_rf &lt;- Sys.time()
 lin_final_time &lt;- end_rf - start_rf</code></pre>
-<p>Applying the linear model to our left out dataset from our initial split was much faster (took only 8.68 seconds to run!) compared to our 10-fold cv training data where the model was fitted across multiple folds.</p>
+<p>Applying the linear model to our left out dataset from our initial split was much faster (took only 10.06 seconds to run!) compared to our 10-fold cv training data (1.43 min) where the model was fitted across multiple folds. It should be mentioned that overall the linear model was extremely quick to run computationally as there were no tuning involved at the most basic level.</p>
 <div id="collect-metrics-1" class="section level2">
 <h2>Collect Metrics</h2>
 <pre class="r"><code>mod_lin_final %&gt;% 
@@ -564,7 +564,7 @@ lin_final_time &lt;- end_rf - start_rf</code></pre>
 {"columns":[{"label":[".metric"],"name":[1],"type":["chr"],"align":["left"]},{"label":[".estimator"],"name":[2],"type":["chr"],"align":["left"]},{"label":[".estimate"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"rmse","2":"standard","3":"86.9756035"},{"1":"rsq","2":"standard","3":"0.4365051"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
-<p>The average RMSE for our linear model on the withheld test data was 86.98. This is a slight improvement in RMSE compared to the RMSE of 87.01 obtained in our 10-fold cv training data.</p>
+<p>The average RMSE for our linear model on the withheld test data was 86.98. This is a very slight improvement in RMSE compared to the RMSE of 87.01 obtained in our 10-fold cv training data.</p>
 </div>
 </div>
 <div id="plot---important-predictors" class="section level1">
@@ -580,14 +580,14 @@ lin_final_time &lt;- end_rf - start_rf</code></pre>
   theme_407() +
   theme(plot.title.position = &quot;plot&quot;) </code></pre>
 <p><img src="page2_linear_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
-<p>From the plot, we can see that the variable <code>sp_ed_fg_N</code> which indicates whether a student participates in an Individualized Education Plan was one of the most important predictor of students’ test score. Other important predictors include Limited English Proficiency status and ethnicity.</p>
+<p>From the plot, we can see that the variable <code>sp_ed_fg_N</code> which indicates whether a student participates in an Individualized Education Plan was one of the most important predictor of students’ test score. Other important predictors include students’ Limited English Proficiency status and ethnicity.</p>
 </div>
-<div id="discussion---linear-model" class="section level1">
-<h1>Discussion - Linear Model</h1>
+<div id="discussion" class="section level1">
+<h1>Discussion</h1>
 <p>ADD CONCLUDING DISCUSSION HERE</p>
 <hr />
 <center>
-<em>Last updated: December 06 2020.</em>
+<em>Last updated: December 07 2020.</em>
 </center>
 </div>
 

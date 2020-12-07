@@ -611,7 +611,7 @@ ggplot(hist_data, aes(x = value)) +
 ggplot(cor_data, aes(x = rowname, y = colname, fill = cor)) +
     geom_tile(color = &quot;white&quot;) +
     geom_text(aes(label=round(cor,2))) + 
-    scale_fill_gradient2(low = &quot;#703882&quot;, 
+    scale_fill_gradient2(low = &quot;#FCCF47&quot;, 
                          mid = &quot;white&quot;, 
                          high = &quot;#01C0C0&quot;) +
     theme_tensor_flo() +

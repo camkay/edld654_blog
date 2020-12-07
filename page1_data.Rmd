@@ -208,7 +208,7 @@ cor_data <- data_train %>%
 ggplot(cor_data, aes(x = rowname, y = colname, fill = cor)) +
     geom_tile(color = "white") +
     geom_text(aes(label=round(cor,2))) + 
-    scale_fill_gradient2(low = "#703882", 
+    scale_fill_gradient2(low = "#FCCF47", 
                          mid = "white", 
                          high = "#01C0C0") +
     theme_tensor_flo() +
@@ -216,7 +216,6 @@ ggplot(cor_data, aes(x = rowname, y = colname, fill = cor)) +
           axis.text = element_text(size = 10.5)) +
     labs(y = "Variable",
          x = "Variable")
-  
 ```
 
 ### Build the preliminary recipe
