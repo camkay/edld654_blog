@@ -88,23 +88,31 @@ recipe_1 <- recipe(score ~ ., data_train) %>%
 
 # Fitting an untuned random forest model
 
+On this page, we provide an overview of how to fit and tune a random forest model. But, before we get into the fitting and tuning, it is important to describe what exactly a random forest model is and, before we do that, we need to describe what decision trees and bagging are.
+
+An intuitive way to think of a decision tree is as a flow chart. Essentially, a decision tree predicts some outcome (whether it is continuous or categorical) by making a number of yes/no decisions on the predictors. For example, in predicting how much coffee a person drinks, the model might predict greater amounts if the person is over 18 (i.e., yes to over 18) than if they are under 18 (i.e., not to over 18) and if they are from Oregon than from other states. In doing so, it also captures interactions between the variables, such that the prediction for a 27-year-old Oregonian could be different from a 17-year old Oregonian and a 27-year-old Washingtonian.
+
+The problem with a decision tree is that it can easily overfit to a given dataset. To address this issue, we can use bootstrap aggregation (i.e., bagging), which makes multiple decision trees based on a bootstrap resamples of the training data. In doing so, we are essentially creating a number of models that are more biased than the single decision tree would be. However, when we average those trees together, we reduce much of that bias and also end up with a model that has less overall variance.
+
+Random forests further attempt to reduce this variance by making the trees built upon each of the resamples more dissimilar. It does this by randomly sampling some number of predictors for each tree (rather than including the same predictors in each tree). This reduces the likelihood that the same predictors will always be found higher up in the trees (e.g., at the roote node) because, in certain trees, those predictors won't exist.
+
 ## Creating the model
 
-Here is how I created the model. It is all quite impressive. 
+To fit a random forest model, we start by creating a specification of the model. To do this, we can use the `random_forest()` function from `{parsnip}`. Since we are predicting a continuous variable (i.e., `score`) we will want to set the mode (using `set_mode()`) to `"regression"`. We will also want to set the engine (using `set_engine()`). Here, we will be using the engine `"ranger"` because it is more efficient than `randomForest`. We also set `num.threads` to the number of cores on our computer. By providing this information, `ranger` is able to parallelize the process, speeding up the creating of the models. Setting `importance = "permutation"` means, when identifying the most important variables, the model will use permutation. Namely, predictors will be considered more importance if shuffling their values results in worse prediction error. We also set `verbose = TRUE` so that R tells us what step in the process we are at. Finally, we set argumetns using `set_args()`. In this case, we only se one argument, which was setting `trees` to `500`. This means that our random forest model will create 500 decision trees. Although this is less than the number of trees recommended by Max and Johnson (2013), we chose this value to improve computational efficiency and to minimize potential memory issues during tuning (i.e., exhausting vector memory in R). 
 
 ```{r}
 model_rf <- rand_forest() %>% 
   set_mode("regression") %>% 
   set_engine(engine      = "ranger",
-             num.threads = parallel::detectCores() - 2,
+             num.threads = parallel::detectCores(),
              importance  = "permutation",
              verbose     = TRUE) %>% 
-  set_args(trees = 1000)
+  set_args(trees = 500)
 ```
 
 ## Creating the workflow
 
-Here is how I created the workflow. One cannot doubt my greatness.
+Once we have created the model, we can combine it with the recipe (see The Data (LINK HERE)) using `workflow()` from the `{workflows}` package. This allows us to only pass a single object (e.g., `workflow`) to fit our model instead of passing multiple objects (e.g., `recipe_1` *and* `model_rf`).  
 
 ```{r}
 # create workflow object
@@ -115,7 +123,7 @@ workflow_rf <- workflow() %>%
 
 ## Fitting the model
 
-I am the creator of worlds (or, at the very least, forests). 
+Now all that is left is to fit our model using `fit_resamples`. Here we used `metrics = yardstick::metric_set(rmse, rsq)` to request calculation of the average *Root Mean Square Error* (RMSE) and $R^2$ for the model. We also used the arguments `tic()` and `toc()` from the aptly named `{tictoc}` package to measure how long it took the model to run. 
 
 ```{r}
 # start timer
@@ -125,7 +133,7 @@ tictoc::tic()
 fit_rf <- fit_resamples(
   object    = workflow_rf,
   resamples = data_train_cv,
-  metrics   = yardstick::metric_set(rmse, rsq, huber_loss),
+  metrics   = yardstick::metric_set(rmse, rsq),
   control   = control_resamples(verbose   = TRUE,
                                 save_pred = TRUE,
                                 extract   = function(x) extract_model(x)))
@@ -136,58 +144,72 @@ time1 <- tictoc::toc()
 
 ## Checking model metrics
 
+Whew! It only took ADD_VALUE to run.
+
+Now we can check how it fit using the `collect_metrics()` function. 
+
 ```{r}
-show_best(fit_rf, metric = "rmse", n = 10) # 86.1
+collect_metrics(fit_rf) # 86.1
 ```
+
+We can see that it had an RMSE of ADD_VALUE and a $R^2$ of ADD_VALUE. In other words, our predictors explained ADD_VALUE% of the variance in the scores.
 
 ## Extracting important predictors
 
-...axis labels still somehow elude me. 
+We can also check the most important predictors in our trees using the `vip()` argument. 
 
 ```{r}
 pluck(fit_rf, ".extracts", 1, ".extracts", 1) %>%
-  vip(aesthetics = list(fill = "cyan3")) +
+  vip(aesthetics = list(fill = "cyan3"), num_features = 20L) +
   labs(x = "Predictor") + 
   theme_407()
 ```
 
+As we can see, the students enrolment grade (`enrl_grade`) was one of the most importance predictors when it comes to predicting a students `score`. However, you might also note that the graph for the important predictors has quite a long tail. This is because we used a random forest model instead of simple bagging. As hinted at above, random forest models result in more variability of the most important predictors because only a subset of the predictors are included in each tree. 
+
 # Fitting a tuned random forest model
+
+As with the linear model (ADD_LINK), we can also tune our model. With random forest models, there are three hyperparameters. The first is the number of `trees`, which we set to `500` in the previous model. However, with random forest models, people just have to ensure that there are enough trees (there is not the issue of too many trees). As a result, people commonly only tune the other two hyperparameters. 
+The first of these is the minimum node side (`min_n`), which controls how deep a tree will grow. A larger value will result in shallower trees, and a smaller value will result in deeper trees. The deeper a tree, the more likely it is to have high variance, and the shallower a tree, the more likely it is to have high bias. 
+
+The second of these hyperparameters is `mtry`, which controls the number of predictors to sample for each tree. More predictors being sampled increases the similarities between the trees. As a result, it would increase the variance of models. 
+
+To keep computation times down, here we are only going to provide an example of how to tune `min_n`, but the process is quite similar for tuning `mtry`. Below we added `min_n = tune()` to `set_args()` to tune the `min_n` hyperparameter. 
 
 ## Creating the model
 ```{r}
 model_rf_tune <- rand_forest() %>% 
   set_mode("regression") %>% 
   set_engine(engine      = "ranger",
-             num.threads = parallel::detectCores() - 2,
+             num.threads = parallel::detectCores(),
              importance  = "permutation",
              verbose     = TRUE) %>% 
   set_args(trees = 500,
-           # mtry  = tune(),
            min_n = tune())
 ```
 
 ## Updating the workflow object
+
+Now that we have created this new model, we can updated our workflow using the `update_model` function from `{workflows}`.
 
 ```{r}
 workflow_rf_tune <- workflow_rf %>%
   update_model(model_rf_tune)
 ```
 
-## Initial tuning
+## Creating the tuning grid
 
-### Creating the tuning grid
+We also, however, have to tell `{tidymodels}` what potential values to use for `min_n`. To do so, we can use the `grid_regular()` argument from `{dials}`. Below we requested that 5 values (`levels`) be tried for `min_n` between `1` and `10`.
 
 ```{r}
-# extract number of predictors
-num_preds <- sum(recipe_1$var_info$role == "predictor")
-
 # create grid
-grid_rf <- grid_regular(#mtry(range  = c(2, num_preds)), 
-                        min_n(range = c(1, 10)), 
+grid_rf <- grid_regular(min_n(range = c(1, 10)), 
                         levels      = 5)
 ```
 
-### Fitting the model
+## Fitting the model
+
+Now we can fit our model as we did above. However, we will now want to use `tune_grid()` instead of `fit_resamples()` because we want to fit a separate model for each value of the grid specified above. We also used `object = workflow_rf_tune` to pass our new workflow to `tune_grid()`, and `grid = grid_rf` to pass our grid to `tune_grid()`. 
 
 ```{r}
 # start timer
@@ -198,7 +220,7 @@ fit_rf_tune <- tune_grid(
   object    = workflow_rf_tune,
   resamples = data_train_cv,
   grid      = grid_rf,
-  metrics   = yardstick::metric_set(rmse, rsq, huber_loss),
+  metrics   = yardstick::metric_set(rmse, rsq),
   control   = control_resamples(verbose   = TRUE,
                                 save_pred = TRUE,
                                 extract   = function(x) extract_model(x)))
@@ -207,13 +229,21 @@ fit_rf_tune <- tune_grid(
 time2 <- tictoc::toc()
 ```
 
-### Checking model metrics
+## Checking model metrics
+
+This time, it took ADD_VALUE to run, but it is not surprising it took longer, because we fit five times the models (because we provided 5 hyperparameter values to test).
+
+Now we can check how it fit using the `show_best()` function. We are using `show_best()` instead of `collect_metrics()` because we want to see the hyperparameters that produced best fitting models (as determined by the models "rmse")
 
 ```{r}
 show_best(fit_rf_tune, metric = "rmse", n = 10) # 85.8
 ```
 
-### Plotting the tuned values
+We can see that the best fitting model samples `10` predictors for each tree. 
+
+## Plotting the tuned values
+
+To visualize the trend, we can use `autoplot()` to show us how average fit varied across different values of `min_n`.
 
 ```{r}
 fit_rf_tune %>%
@@ -223,20 +253,20 @@ fit_rf_tune %>%
   theme_407()
 ```
 
+Ah! We see that RMSE decreased all the way up to `min_n` equals `10`. Would it reduced even more if we provided an even higher `min_n`?
+
 ## Further tuning 
 
-### Grid respecification 1
-
-#### Create new tuning grid
+We can test this by trying out a different grid. Let's try a new grid, with 10 potential `min_n` values between `10` to `30`
 
 ```{r}
 # create grid
 grid_rf_2 <- grid_regular(#mtry(range  = c(10, 25)), 
-                          min_n(range = c(10, 20)), 
-                          levels      = 5)
+                          min_n(range = c(10, 30)), 
+                          levels      = 10)
 ```
 
-#### Fitting the model
+We then refit the model.
 
 ```{r}
 # start timer
@@ -256,13 +286,15 @@ fit_rf_tune_2 <- tune_grid(
 time3 <- tictoc::toc()
 ```
 
-#### Checking model metrics
+The new model took ADD_VALUE to fit. Again, it makes sense that it is longer, becasue we are now testing `10` hyperparameters instead of `5`.
+
+We can then look at the metrics again...
 
 ```{r}
-show_best(fit_rf_tune_2, metric = "rmse", n = 10) # top is 85.4
+show_best(fit_rf_tune_2, metric = "rmse", n = 10) # 85.3
 ```
 
-#### Plotting the tuned values
+...and the plot showing RMSE by `min_n`.
 
 ```{r}
 fit_rf_tune_2 %>%
@@ -271,6 +303,8 @@ fit_rf_tune_2 %>%
   geom_point(color = "cyan3") +
   theme_407()
 ```
+
+It looks like the best `min_n` (of the values we tested) is ADD_VALUE, which resulted in an average model RMSE of ADD_VALUE.
 
 # Finalizing the model
 
@@ -299,8 +333,10 @@ time4 <- tictoc::tic()
 ## Checking model metrics
 
 ```{r}
-collect_metrics(fit_rf_final) # 87.4
+collect_metrics(fit_rf_final) # 87.2
 ```
+
+# Final thoughts
 
 ***
 
