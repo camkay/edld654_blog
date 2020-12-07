@@ -5,9 +5,11 @@ output:
     toc: TRUE
     toc_depth: 1
     toc_float: TRUE
+    code_folding: show
+    df_print: paged
 ---
 
-```{r load_libraries, include = FALSE}
+```{r load_libraries, include = FALSE, message = FALSE}
 # load required packages
 library(tidyverse)
 library(tidymodels)
@@ -15,110 +17,53 @@ library(here)
 library(rio)
 library(workflows)
 library(vip)
+library(magrittr)
 
-theme_set(theme_minimal())
-```
+# create theme
+theme_407 <- function() { 
+    theme_bw(base_size = 5) %+replace% 
+        theme(
+          # legend.direction = "horizontal",
+          legend.background = element_rect(fill = "#1b1d22",
+                                           colour = "#1b1d22"),
+          panel.background = element_rect(fill = "#171f24",
+                              colour = "#1b1d22",
+                              size = 0.5, linetype = "solid"),
+          panel.grid.major = element_line(size = 0.2, 
+                                          linetype = 'solid', 
+                                          colour = "gray40"), 
+          panel.grid.minor = element_line(size = 0.0, 
+                                          linetype = 'solid',
+                                          colour = "gray40"),
+          axis.line = element_line(colour = "white"),
+          plot.background = element_rect(fill = "#171f24"),
+          text  = element_text(color = "white", size = 10),
+          axis.text  = element_text(color = "white"),
+          axis.ticks = element_line(color = "white"),
+          strip.background = element_rect(fill = "white",
+                                          colour = "white")
+        )
+}
 
-***
 
-# Linear Model 
-
-To get a general understanding of how our predictor variables fit our data, we begin by fitting a basic linear regression model to our data akin to `stats::lm`. 
-
-```{r import_data, include = FALSE}
-# read in data set
-data <- read_csv("data/train.csv",
-                 col_types = cols(.default = col_guess(), calc_admn_cd = col_character()))  %>% 
-    select(-classification)
-
-# read in free/reduced lunch data and student counts
-frl <- import(here("data", "lunch.csv"),
-              setclass = "tbl_df")  %>% 
-  janitor::clean_names()  %>% 
-  filter(st == "OR")  %>%
-  select(ncessch, lunch_program, student_count)  %>% 
-  mutate(student_count = replace_na(student_count, 0))  %>% 
-  pivot_wider(names_from  = lunch_program,
-              values_from = student_count)  %>% 
-  janitor::clean_names()  %>% 
-  mutate(ncessch = as.double(ncessch))
-
-stu_counts <- import("https://github.com/datalorax/ach-gap-variability/raw/master/data/achievement-gaps-geocoded.csv",
-                     setclass = "tbl_df")  %>% 
-  filter(state == "OR" & year == 1718)  %>% 
-  count(ncessch, wt = n)  %>% 
-  mutate(ncessch = as.double(ncessch))
-
-frl <- left_join(frl, stu_counts)
-
-rm(stu_counts)
-
-frl <- frl %>% 
-  mutate(free_lunch_prop    = free_lunch_qualified / n,
-         reduced_lunch_prop = reduced_price_lunch_qualified / n)  %>% 
-  select(ncessch, ends_with("prop"))
-
-# read in staff data
-staff <- import(here("data", "staff.csv"), setclass = "tbl_df")  %>% 
-  janitor::clean_names()  %>% 
-  filter(st == "OR")  %>%
-  mutate(ncessch = as.double(ncessch)) %>%
-  select(ncessch, teachers)
-
-# read in school characteristics data
-school_chars <- import(here("data", "school_characteristics.csv"), setclass = "tbl_df")  %>% 
-  janitor::clean_names()  %>% 
-  filter(st == "OR")  %>%
-  mutate(ncessch = as.double(ncessch)) %>%
-  select(ncessch, titlei_status, nslp_status, virtual)
-
-# read in ethnicity data
-eth <- import(file     = here::here("data", "fallmembershipreport_20192020.xlsx"), 
-            sheet    = "School (19-20)",
-            setclass = "tibble") %>%
-  janitor::clean_names() %>%
-  select(attnd_schl_inst_id = attending_school_id,
-         sch_name           = school_name,
-         matches("percent"))
-
-names(eth) <- gsub("x2019_20_percent", "p", names(eth)) 
-
-# combine our data with frl, staff, school characteristics, and ethnicities
-data <- data %>%
-    left_join(frl) %>%
-    left_join(staff) %>%
-    left_join(school_chars) %>%
-    left_join(eth)
-
-# remove unneeded dataframes
-rm(frl, staff, school_chars, eth)
-```
-
-```{r cv_split, include = FALSE}
+# import all data
 set.seed(3000)
 
-# data %<>%
-#   select(-matches("lat|lon|native|multi|black"))
+data <- import(here::here("data", "data.csv"), setclass = "tibble") %>%
+  janitor::clean_names()
 
-# data <- data %>%
-#   sample_frac(prop = .01)
+# split data
+data_split    <- initial_split(data, strata = "score")
 
-data_split <- initial_split(data)
+data_train    <- training(data_split)
 
-data_train <- training(data_split)
-
-data_test  <- testing(data_split)
+data_test     <- testing(data_split)
 
 data_train_cv <- vfold_cv(data_train)
-```
 
-# Recipe 
-
-We will use the recipe we have created from our 
-
-```{r rec_1}
+# create recipe
 recipe_1 <- recipe(score ~ ., data_train) %>%  
-    step_mutate(tst_dt = lubridate::mdy_hms(tst_dt)) %>%
+    step_mutate(tst_dt = lubridate::mdy_hm(tst_dt)) %>%
     update_role(contains("id"), ncessch, sch_name, new_role = "id vars") %>%
     step_novel(all_nominal()) %>%
     step_unknown(all_nominal()) %>%
@@ -128,46 +73,72 @@ recipe_1 <- recipe(score ~ ., data_train) %>%
     step_medianimpute(all_numeric(), -all_outcomes(), -has_role("id vars")) %>%
     step_dummy(all_nominal(), -has_role("id vars"), one_hot = TRUE) %>%
     step_zv(all_predictors())
-```
-
-## Examine recipe 
-
-```{r}
-
-recipe_1
-
-temp <- prep(recipe_1) 
-
-tidy(temp)
-
-#novel
-tidy(temp, 2) %>% 
-  print(n = Inf)
-
-#unknown
-tidy(temp, 3) %>% 
-  print(n = Inf)
-
-#nzv
-tidy(temp, 4) %>% 
-  print(n = Inf)
 
 ```
 
-# Assemble Model 
+***
 
-```{r}
+# Linear Model 
 
+## Introduction 
+
+A brief recap, our project aims to predict student math and reading test score for 3rd to 8th grade students in Oregon using data from the National Center for Educational Statistics. 
+
+To obtain a general understanding of how our predictor variables fit our data, we begin by fitting a basic linear regression model to our data akin to `stats::lm`. Our criteria for evaluation of model fit will be the root mean square error (RMSE). The result of the linear model will be used to inform subsequent model selection and tuning. 
+
+We will use the following recipe (for more information, see our Data section) to fit our model. 
+
+As shown in our recipe summary, our recipe contains 7 id variables (variables will not be used in our prediction), 1 outcome (test score) and 45 predictors. 
+
+```{r recipe} 
+rec <- recipe(score ~ ., data_train) %>%  
+    step_mutate(tst_dt = lubridate::mdy_hm(tst_dt)) %>%
+    update_role(contains("id"), ncessch, sch_name, new_role = "id vars") %>%
+    step_novel(all_nominal()) %>%
+    step_unknown(all_nominal()) %>%
+    step_zv(all_predictors()) %>%
+    step_normalize(all_numeric(), -all_outcomes(), -has_role("id vars")) %>%
+    step_BoxCox(all_numeric(), -all_outcomes(), -has_role("id vars")) %>%
+    step_medianimpute(all_numeric(), -all_outcomes(), -has_role("id vars")) %>%
+    step_dummy(all_nominal(), -has_role("id vars"), one_hot = TRUE) %>%
+    step_zv(all_predictors())
+
+rec
+```
+
+## Build Linear Model 
+
+To build our model, we will use the [`parsnip`](https://parsnip.tidymodels.org/) and [`workflows`](https://workflows.tidymodels.org/) package that is a part of the [`tidymodels`](https://www.tidymodels.org/) family of packages developed to facilitate modeling and machine learning. 
+
+`parsnip` provides an unified interface of common machine learning algorithms where users simply have to specify the model and engine rather than having to remember model specifications that may differ across different packages. Here is a [library](https://www.tidymodels.org/find/parsnip/) of `parsnip` models. 
+
+Once we have created our recipe and `parsnip` model, we can then use `workflows` to seamlessly combine our recipe and model together to fit our 10-fold cross validation (CV) data. 
+
+We specify our `parsnip` linear model by setting the engine as `lm` and mode as `regression` given our outcome variable (test score) is continous. 
+
+```{r build_model}
 #create model 
 lin_mod <- linear_reg() %>% 
   set_engine("lm")  %>% 
   set_mode("regression")
 
+lin_mod
+```
+
+We then use `add_recipe()` and `add_model()` to combine our recipe and linear model into a workflow. 
+
+```{r workflow}
 #create workflow
 lin_workflow <- workflow() %>% 
   add_recipe(recipe_1) %>% 
   add_model(lin_mod)
+```
 
+## Fit Linear Model 
+
+We now fit our 10-fold CV data to our linear model using `fit_resamples()`.  
+
+```{r fit_model, message = FALSE}
 #run model 
 start_rf <- Sys.time()
 
@@ -178,11 +149,14 @@ lin_fit <- fit_resamples(
   control = control_resamples(verbose = TRUE, 
                               save_pred = TRUE))
 end_rf <- Sys.time()
-(lin_time <- end_rf - start_rf)
+lin_time <- end_rf - start_rf
 ```
 
+Our linear model took `r round(lin_time, 2)` minutes to run. 
 
 ## Collect Metrics 
+
+After sucessfully running our model, we collect our RMSE to evaluate model fit. Listed below are the RMSE for each individual fold across our 10-fold cv along with the average RMSE across the 10-fold. 
 
 ```{r}
 # see all RMSE
@@ -191,14 +165,21 @@ lin_fit %>%
 
 # see average RMSE 
 lin_fit %>%
-  collect_metrics(summarize = TRUE)
+  collect_metrics()
 ```
 
-# Make Prediction
+```{r, include = FALSE}
+train_rmse <- lin_fit %>% 
+  collect_metrics(summarize = TRUE) 
+```
 
-We will now make predictions on our left out dataset from our initial split. 
+The average RMSE for our linear model on the 10-fold CV was `r round(train_rmse$mean,2)`
 
-```{r}
+# Make Prediction on Withheld Test Set
+
+To further evaluate our linear model, We will now make predictions on our left out dataset from our initial split. 
+
+```{r, message = FALSE}
 #run the model on the withheld test set from the initial split 
 start_rf <- Sys.time()
 
@@ -207,8 +188,10 @@ lin_workflow,
 split = data_split)
 
 end_rf <- Sys.time()
-(lin_final_time <- end_rf - start_rf)
+lin_final_time <- end_rf - start_rf
 ```
+
+Applying the linear model to our left out dataset from our initial split was much faster (took only `r round(lin_final_time, 2)` seconds to run!) compared to our 10-fold cv training data where the model was fitted across multiple folds.  
 
 
 ## Collect Metrics 
@@ -217,16 +200,34 @@ mod_lin_final %>%
   collect_metrics()
 ```
 
-## Plot 
-```{r}
+
+```{r, include = FALSE}
+holdout_rmse <- mod_lin_final %>% collect_metrics(summarize = TRUE) %>% filter(.metric == "rmse")
+```
+
+The average RMSE for our linear model on the withheld test data was `r round(holdout_rmse$.estimate,2)`. This is a slight improvement in RMSE compared to the RMSE of `r round(train_rmse$mean,2)` obtained in our 10-fold cv training data. 
+
+# Plot - Important Predictors 
+
+We can plot the most important predictors in our linear model using the `vip` package.  
+
+```{r class.source = 'fold-hide'}
 mod_lin_final %>% 
   pluck(".workflow", 1) %>%   
   pull_workflow_fit() %>% 
-  vip(num_features = 20) +
+  vip(num_features = 20, 
+      aesthetics = list(fill = "cyan3")) +
   labs(y = "Variable Importance", 
        title = "Variable Importance Plot for Linear Model") +
-  theme(plot.title.position = "plot")
+  theme_407() +
+  theme(plot.title.position = "plot") 
 ```
+
+From the plot, we can see that the variable `sp_ed_fg_N` which indicates whether a student participates in an Individualized Education Plan was one of the most important predictor of students' test score. Other important predictors include Limited English Proficiency status and ethnicity. 
+
+# Discussion - Linear Model 
+
+ADD CONCLUDING DISCUSSION HERE
 
 
 ```{r, eval = FALSE, include = FALSE}

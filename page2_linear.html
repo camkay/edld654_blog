@@ -23,8 +23,11 @@
 <link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
 <script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
 <link href="site_libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
 <script src="site_libs/anchor-sections-1.0/anchor-sections.js"></script>
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
@@ -262,6 +265,9 @@ $(document).ready(function () {
 </style>
 
 <!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
 
 
 
@@ -419,6 +425,14 @@ div.tocify {
 
 <div class="fluid-row" id="header">
 
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
 
 
 <h1 class="title toc-ignore">Tensor Flo Ridas: A Journey in Machine Learning</h1>
@@ -429,13 +443,14 @@ div.tocify {
 <hr />
 <div id="linear-model" class="section level1">
 <h1>Linear Model</h1>
-<p>To get a general understanding of how our predictor variables fit our data, we begin by fitting a basic linear regression model to our data akin to <code>stats::lm</code>.</p>
-</div>
-<div id="recipe" class="section level1">
-<h1>Recipe</h1>
-<p>We will use the recipe we have created from our</p>
-<pre class="r"><code>recipe_1 &lt;- recipe(score ~ ., data_train) %&gt;%  
-    step_mutate(tst_dt = lubridate::mdy_hms(tst_dt)) %&gt;%
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>A brief recap, our project aims to predict student math and reading test score for 3rd to 8th grade students in Oregon using data from the National Center for Educational Statistics.</p>
+<p>To obtain a general understanding of how our predictor variables fit our data, we begin by fitting a basic linear regression model to our data akin to <code>stats::lm</code>. Our criteria for evaluation of model fit will be the root mean square error (RMSE). The result of the linear model will be used to inform subsequent model selection and tuning.</p>
+<p>We will use the following recipe (for more information, see our Data section) to fit our model.</p>
+<p>As shown in our recipe summary, our recipe contains 7 id variables (variables will not be used in our prediction), 1 outcome (test score) and 45 predictors.</p>
+<pre class="r"><code>rec &lt;- recipe(score ~ ., data_train) %&gt;%  
+    step_mutate(tst_dt = lubridate::mdy_hm(tst_dt)) %&gt;%
     update_role(contains(&quot;id&quot;), ncessch, sch_name, new_role = &quot;id vars&quot;) %&gt;%
     step_novel(all_nominal()) %&gt;%
     step_unknown(all_nominal()) %&gt;%
@@ -444,10 +459,9 @@ div.tocify {
     step_BoxCox(all_numeric(), -all_outcomes(), -has_role(&quot;id vars&quot;)) %&gt;%
     step_medianimpute(all_numeric(), -all_outcomes(), -has_role(&quot;id vars&quot;)) %&gt;%
     step_dummy(all_nominal(), -has_role(&quot;id vars&quot;), one_hot = TRUE) %&gt;%
-    step_zv(all_predictors())</code></pre>
-<div id="examine-recipe" class="section level2">
-<h2>Examine recipe</h2>
-<pre class="r"><code>recipe_1</code></pre>
+    step_zv(all_predictors())
+
+rec</code></pre>
 <pre><code>## Data Recipe
 ## 
 ## Inputs:
@@ -468,119 +482,32 @@ div.tocify {
 ## Median Imputation for all_numeric(), ...
 ## Dummy variables from all_nominal(), -has_role(&quot;id vars&quot;)
 ## Zero variance filter on all_predictors()</code></pre>
-<pre class="r"><code>temp &lt;- prep(recipe_1) 
-
-tidy(temp)</code></pre>
-<pre><code>## # A tibble: 9 x 6
-##   number operation type         trained skip  id                
-##    &lt;int&gt; &lt;chr&gt;     &lt;chr&gt;        &lt;lgl&gt;   &lt;lgl&gt; &lt;chr&gt;             
-## 1      1 step      mutate       TRUE    FALSE mutate_KOe99      
-## 2      2 step      novel        TRUE    FALSE novel_H9bZ1       
-## 3      3 step      unknown      TRUE    FALSE unknown_SlzjT     
-## 4      4 step      zv           TRUE    FALSE zv_Kc8yv          
-## 5      5 step      normalize    TRUE    FALSE normalize_vyovv   
-## 6      6 step      BoxCox       TRUE    FALSE BoxCox_T5cxO      
-## 7      7 step      medianimpute TRUE    FALSE medianimpute_cMp9J
-## 8      8 step      dummy        TRUE    FALSE dummy_dWBxW       
-## 9      9 step      zv           TRUE    FALSE zv_DOCLd</code></pre>
-<pre class="r"><code>#novel
-tidy(temp, 2) %&gt;% 
-  print(n = Inf)</code></pre>
-<pre><code>## # A tibble: 32 x 3
-##    terms               value id         
-##    &lt;chr&gt;               &lt;chr&gt; &lt;chr&gt;      
-##  1 gndr                new   novel_H9bZ1
-##  2 ethnic_cd           new   novel_H9bZ1
-##  3 calc_admn_cd        new   novel_H9bZ1
-##  4 tst_bnch            new   novel_H9bZ1
-##  5 migrant_ed_fg       new   novel_H9bZ1
-##  6 ind_ed_fg           new   novel_H9bZ1
-##  7 sp_ed_fg            new   novel_H9bZ1
-##  8 tag_ed_fg           new   novel_H9bZ1
-##  9 econ_dsvntg         new   novel_H9bZ1
-## 10 ayp_lep             new   novel_H9bZ1
-## 11 stay_in_dist        new   novel_H9bZ1
-## 12 stay_in_schl        new   novel_H9bZ1
-## 13 dist_sped           new   novel_H9bZ1
-## 14 trgt_assist_fg      new   novel_H9bZ1
-## 15 ayp_dist_partic     new   novel_H9bZ1
-## 16 ayp_schl_partic     new   novel_H9bZ1
-## 17 ayp_dist_prfrm      new   novel_H9bZ1
-## 18 ayp_schl_prfrm      new   novel_H9bZ1
-## 19 rc_dist_partic      new   novel_H9bZ1
-## 20 rc_schl_partic      new   novel_H9bZ1
-## 21 rc_dist_prfrm       new   novel_H9bZ1
-## 22 rc_schl_prfrm       new   novel_H9bZ1
-## 23 lang_cd             new   novel_H9bZ1
-## 24 tst_atmpt_fg        new   novel_H9bZ1
-## 25 grp_rpt_dist_partic new   novel_H9bZ1
-## 26 grp_rpt_schl_partic new   novel_H9bZ1
-## 27 grp_rpt_dist_prfrm  new   novel_H9bZ1
-## 28 grp_rpt_schl_prfrm  new   novel_H9bZ1
-## 29 titlei_status       new   novel_H9bZ1
-## 30 nslp_status         new   novel_H9bZ1
-## 31 virtual             new   novel_H9bZ1
-## 32 sch_name            new   novel_H9bZ1</code></pre>
-<pre class="r"><code>#unknown
-tidy(temp, 3) %&gt;% 
-  print(n = Inf)</code></pre>
-<pre><code>## # A tibble: 32 x 3
-##    terms               value   id           
-##    &lt;chr&gt;               &lt;chr&gt;   &lt;chr&gt;        
-##  1 gndr                unknown unknown_SlzjT
-##  2 ethnic_cd           unknown unknown_SlzjT
-##  3 calc_admn_cd        unknown unknown_SlzjT
-##  4 tst_bnch            unknown unknown_SlzjT
-##  5 migrant_ed_fg       unknown unknown_SlzjT
-##  6 ind_ed_fg           unknown unknown_SlzjT
-##  7 sp_ed_fg            unknown unknown_SlzjT
-##  8 tag_ed_fg           unknown unknown_SlzjT
-##  9 econ_dsvntg         unknown unknown_SlzjT
-## 10 ayp_lep             unknown unknown_SlzjT
-## 11 stay_in_dist        unknown unknown_SlzjT
-## 12 stay_in_schl        unknown unknown_SlzjT
-## 13 dist_sped           unknown unknown_SlzjT
-## 14 trgt_assist_fg      unknown unknown_SlzjT
-## 15 ayp_dist_partic     unknown unknown_SlzjT
-## 16 ayp_schl_partic     unknown unknown_SlzjT
-## 17 ayp_dist_prfrm      unknown unknown_SlzjT
-## 18 ayp_schl_prfrm      unknown unknown_SlzjT
-## 19 rc_dist_partic      unknown unknown_SlzjT
-## 20 rc_schl_partic      unknown unknown_SlzjT
-## 21 rc_dist_prfrm       unknown unknown_SlzjT
-## 22 rc_schl_prfrm       unknown unknown_SlzjT
-## 23 lang_cd             unknown unknown_SlzjT
-## 24 tst_atmpt_fg        unknown unknown_SlzjT
-## 25 grp_rpt_dist_partic unknown unknown_SlzjT
-## 26 grp_rpt_schl_partic unknown unknown_SlzjT
-## 27 grp_rpt_dist_prfrm  unknown unknown_SlzjT
-## 28 grp_rpt_schl_prfrm  unknown unknown_SlzjT
-## 29 titlei_status       unknown unknown_SlzjT
-## 30 nslp_status         unknown unknown_SlzjT
-## 31 virtual             unknown unknown_SlzjT
-## 32 sch_name            unknown unknown_SlzjT</code></pre>
-<pre class="r"><code>#nzv
-tidy(temp, 4) %&gt;% 
-  print(n = Inf)</code></pre>
-<pre><code>## # A tibble: 1 x 2
-##   terms        id      
-##   &lt;chr&gt;        &lt;chr&gt;   
-## 1 calc_admn_cd zv_Kc8yv</code></pre>
 </div>
-</div>
-<div id="assemble-model" class="section level1">
-<h1>Assemble Model</h1>
+<div id="build-linear-model" class="section level2">
+<h2>Build Linear Model</h2>
+<p>To build our model, we will use the <a href="https://parsnip.tidymodels.org/"><code>parsnip</code></a> and <a href="https://workflows.tidymodels.org/"><code>workflows</code></a> package that is a part of the <a href="https://www.tidymodels.org/"><code>tidymodels</code></a> family of packages developed to facilitate modeling and machine learning.</p>
+<p><code>parsnip</code> provides an unified interface of common machine learning algorithms where users simply have to specify the model and engine rather than having to remember model specifications that may differ across different packages. Here is a <a href="https://www.tidymodels.org/find/parsnip/">library</a> of <code>parsnip</code> models.</p>
+<p>Once we have created our recipe and <code>parsnip</code> model, we can then use <code>workflows</code> to seamlessly combine our recipe and model together to fit our 10-fold cross validation (CV) data.</p>
+<p>We specify our <code>parsnip</code> linear model by setting the engine as <code>lm</code> and mode as <code>regression</code> given our outcome variable (test score) is continous.</p>
 <pre class="r"><code>#create model 
 lin_mod &lt;- linear_reg() %&gt;% 
   set_engine(&quot;lm&quot;)  %&gt;% 
   set_mode(&quot;regression&quot;)
 
-#create workflow
+lin_mod</code></pre>
+<pre><code>## Linear Regression Model Specification (regression)
+## 
+## Computational engine: lm</code></pre>
+<p>We then use <code>add_recipe()</code> and <code>add_model()</code> to combine our recipe and linear model into a workflow.</p>
+<pre class="r"><code>#create workflow
 lin_workflow &lt;- workflow() %&gt;% 
   add_recipe(recipe_1) %&gt;% 
-  add_model(lin_mod)
-
-#run model 
+  add_model(lin_mod)</code></pre>
+</div>
+<div id="fit-linear-model" class="section level2">
+<h2>Fit Linear Model</h2>
+<p>We now fit our 10-fold CV data to our linear model using <code>fit_resamples()</code>.</p>
+<pre class="r"><code>#run model 
 start_rf &lt;- Sys.time()
 
 lin_fit &lt;- fit_resamples(
@@ -588,135 +515,80 @@ lin_fit &lt;- fit_resamples(
   data_train_cv,
   metrics = yardstick::metric_set(rmse), 
   control = control_resamples(verbose = TRUE, 
-                              save_pred = TRUE))</code></pre>
-<pre><code>## i Fold01: recipe</code></pre>
-<pre><code>## v Fold01: recipe</code></pre>
-<pre><code>## i Fold01: model</code></pre>
-<pre><code>## v Fold01: model</code></pre>
-<pre><code>## i Fold01: model (predictions)</code></pre>
-<pre><code>## ! Fold01: model (predictions): prediction from a rank-deficient fit may be misleading</code></pre>
-<pre><code>## i Fold02: recipe</code></pre>
-<pre><code>## v Fold02: recipe</code></pre>
-<pre><code>## i Fold02: model</code></pre>
-<pre><code>## v Fold02: model</code></pre>
-<pre><code>## i Fold02: model (predictions)</code></pre>
-<pre><code>## ! Fold02: model (predictions): prediction from a rank-deficient fit may be misleading</code></pre>
-<pre><code>## i Fold03: recipe</code></pre>
-<pre><code>## v Fold03: recipe</code></pre>
-<pre><code>## i Fold03: model</code></pre>
-<pre><code>## v Fold03: model</code></pre>
-<pre><code>## i Fold03: model (predictions)</code></pre>
-<pre><code>## ! Fold03: model (predictions): prediction from a rank-deficient fit may be misleading</code></pre>
-<pre><code>## i Fold04: recipe</code></pre>
-<pre><code>## v Fold04: recipe</code></pre>
-<pre><code>## i Fold04: model</code></pre>
-<pre><code>## v Fold04: model</code></pre>
-<pre><code>## i Fold04: model (predictions)</code></pre>
-<pre><code>## ! Fold04: model (predictions): prediction from a rank-deficient fit may be misleading</code></pre>
-<pre><code>## i Fold05: recipe</code></pre>
-<pre><code>## v Fold05: recipe</code></pre>
-<pre><code>## i Fold05: model</code></pre>
-<pre><code>## v Fold05: model</code></pre>
-<pre><code>## i Fold05: model (predictions)</code></pre>
-<pre><code>## ! Fold05: model (predictions): prediction from a rank-deficient fit may be misleading</code></pre>
-<pre><code>## i Fold06: recipe</code></pre>
-<pre><code>## v Fold06: recipe</code></pre>
-<pre><code>## i Fold06: model</code></pre>
-<pre><code>## v Fold06: model</code></pre>
-<pre><code>## i Fold06: model (predictions)</code></pre>
-<pre><code>## ! Fold06: model (predictions): prediction from a rank-deficient fit may be misleading</code></pre>
-<pre><code>## i Fold07: recipe</code></pre>
-<pre><code>## v Fold07: recipe</code></pre>
-<pre><code>## i Fold07: model</code></pre>
-<pre><code>## v Fold07: model</code></pre>
-<pre><code>## i Fold07: model (predictions)</code></pre>
-<pre><code>## ! Fold07: model (predictions): prediction from a rank-deficient fit may be misleading</code></pre>
-<pre><code>## i Fold08: recipe</code></pre>
-<pre><code>## v Fold08: recipe</code></pre>
-<pre><code>## i Fold08: model</code></pre>
-<pre><code>## v Fold08: model</code></pre>
-<pre><code>## i Fold08: model (predictions)</code></pre>
-<pre><code>## ! Fold08: model (predictions): prediction from a rank-deficient fit may be misleading</code></pre>
-<pre><code>## i Fold09: recipe</code></pre>
-<pre><code>## v Fold09: recipe</code></pre>
-<pre><code>## i Fold09: model</code></pre>
-<pre><code>## v Fold09: model</code></pre>
-<pre><code>## i Fold09: model (predictions)</code></pre>
-<pre><code>## ! Fold09: model (predictions): prediction from a rank-deficient fit may be misleading</code></pre>
-<pre><code>## i Fold10: recipe</code></pre>
-<pre><code>## v Fold10: recipe</code></pre>
-<pre><code>## i Fold10: model</code></pre>
-<pre><code>## v Fold10: model</code></pre>
-<pre><code>## i Fold10: model (predictions)</code></pre>
-<pre><code>## ! Fold10: model (predictions): prediction from a rank-deficient fit may be misleading</code></pre>
-<pre class="r"><code>end_rf &lt;- Sys.time()
-(lin_time &lt;- end_rf - start_rf)</code></pre>
-<pre><code>## Time difference of 1.467578 mins</code></pre>
+                              save_pred = TRUE))
+end_rf &lt;- Sys.time()
+lin_time &lt;- end_rf - start_rf</code></pre>
+<p>Our linear model took 1.27 minutes to run.</p>
+</div>
 <div id="collect-metrics" class="section level2">
 <h2>Collect Metrics</h2>
+<p>After sucessfully running our model, we collect our RMSE to evaluate model fit. Listed below are the RMSE for each individual fold across our 10-fold cv along with the average RMSE across the 10-fold.</p>
 <pre class="r"><code># see all RMSE
 lin_fit %&gt;% 
   collect_metrics(summarize = FALSE)</code></pre>
-<pre><code>## # A tibble: 10 x 4
-##    id     .metric .estimator .estimate
-##    &lt;chr&gt;  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
-##  1 Fold01 rmse    standard        87.1
-##  2 Fold02 rmse    standard        86.4
-##  3 Fold03 rmse    standard        87.0
-##  4 Fold04 rmse    standard        87.5
-##  5 Fold05 rmse    standard        87.8
-##  6 Fold06 rmse    standard        87.0
-##  7 Fold07 rmse    standard        87.0
-##  8 Fold08 rmse    standard        86.0
-##  9 Fold09 rmse    standard        87.2
-## 10 Fold10 rmse    standard        86.9</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["id"],"name":[1],"type":["chr"],"align":["left"]},{"label":[".metric"],"name":[2],"type":["chr"],"align":["left"]},{"label":[".estimator"],"name":[3],"type":["chr"],"align":["left"]},{"label":[".estimate"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"Fold01","2":"rmse","3":"standard","4":"86.56269"},{"1":"Fold02","2":"rmse","3":"standard","4":"86.22152"},{"1":"Fold03","2":"rmse","3":"standard","4":"88.29569"},{"1":"Fold04","2":"rmse","3":"standard","4":"87.73753"},{"1":"Fold05","2":"rmse","3":"standard","4":"86.87353"},{"1":"Fold06","2":"rmse","3":"standard","4":"86.53520"},{"1":"Fold07","2":"rmse","3":"standard","4":"87.84028"},{"1":"Fold08","2":"rmse","3":"standard","4":"86.38722"},{"1":"Fold09","2":"rmse","3":"standard","4":"86.71335"},{"1":"Fold10","2":"rmse","3":"standard","4":"86.91210"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 <pre class="r"><code># see average RMSE 
 lin_fit %&gt;%
-  collect_metrics(summarize = TRUE)</code></pre>
-<pre><code>## # A tibble: 1 x 5
-##   .metric .estimator  mean     n std_err
-##   &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;
-## 1 rmse    standard    87.0    10   0.163</code></pre>
+  collect_metrics()</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[".metric"],"name":[1],"type":["chr"],"align":["left"]},{"label":[".estimator"],"name":[2],"type":["chr"],"align":["left"]},{"label":["mean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["n"],"name":[4],"type":["int"],"align":["right"]},{"label":["std_err"],"name":[5],"type":["dbl"],"align":["right"]}],"data":[{"1":"rmse","2":"standard","3":"87.00791","4":"10","5":"0.2216828"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>The average RMSE for our linear model on the 10-fold CV was 87.01</p>
 </div>
 </div>
-<div id="make-prediction" class="section level1">
-<h1>Make Prediction</h1>
-<p>We will now make predictions on our left out dataset from our initial split.</p>
+<div id="make-prediction-on-withheld-test-set" class="section level1">
+<h1>Make Prediction on Withheld Test Set</h1>
+<p>To further evaluate our linear model, We will now make predictions on our left out dataset from our initial split.</p>
 <pre class="r"><code>#run the model on the withheld test set from the initial split 
 start_rf &lt;- Sys.time()
 
 mod_lin_final &lt;- last_fit(
 lin_workflow, 
-split = data_split)</code></pre>
-<pre><code>## ! Resample1: model (predictions): prediction from a rank-deficient fit may be misleading</code></pre>
-<pre class="r"><code>end_rf &lt;- Sys.time()
-(lin_final_time &lt;- end_rf - start_rf)</code></pre>
-<pre><code>## Time difference of 9.721728 secs</code></pre>
+split = data_split)
+
+end_rf &lt;- Sys.time()
+lin_final_time &lt;- end_rf - start_rf</code></pre>
+<p>Applying the linear model to our left out dataset from our initial split was much faster (took only 8.68 seconds to run!) compared to our 10-fold cv training data where the model was fitted across multiple folds.</p>
 <div id="collect-metrics-1" class="section level2">
 <h2>Collect Metrics</h2>
 <pre class="r"><code>mod_lin_final %&gt;% 
   collect_metrics()</code></pre>
-<pre><code>## # A tibble: 2 x 3
-##   .metric .estimator .estimate
-##   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
-## 1 rmse    standard      87.0  
-## 2 rsq     standard       0.437</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[".metric"],"name":[1],"type":["chr"],"align":["left"]},{"label":[".estimator"],"name":[2],"type":["chr"],"align":["left"]},{"label":[".estimate"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"rmse","2":"standard","3":"86.9756035"},{"1":"rsq","2":"standard","3":"0.4365051"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
 </div>
-<div id="plot" class="section level2">
-<h2>Plot</h2>
-<pre class="r"><code>mod_lin_final %&gt;% 
+<p>The average RMSE for our linear model on the withheld test data was 86.98. This is a slight improvement in RMSE compared to the RMSE of 87.01 obtained in our 10-fold cv training data.</p>
+</div>
+</div>
+<div id="plot---important-predictors" class="section level1">
+<h1>Plot - Important Predictors</h1>
+<p>We can plot the most important predictors in our linear model using the <code>vip</code> package.</p>
+<pre class="r fold-hide"><code>mod_lin_final %&gt;% 
   pluck(&quot;.workflow&quot;, 1) %&gt;%   
   pull_workflow_fit() %&gt;% 
-  vip(num_features = 20) +
+  vip(num_features = 20, 
+      aesthetics = list(fill = &quot;cyan3&quot;)) +
   labs(y = &quot;Variable Importance&quot;, 
        title = &quot;Variable Importance Plot for Linear Model&quot;) +
-  theme(plot.title.position = &quot;plot&quot;)</code></pre>
+  theme_407() +
+  theme(plot.title.position = &quot;plot&quot;) </code></pre>
 <p><img src="page2_linear_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p>From the plot, we can see that the variable <code>sp_ed_fg_N</code> which indicates whether a student participates in an Individualized Education Plan was one of the most important predictor of students’ test score. Other important predictors include Limited English Proficiency status and ethnicity.</p>
+</div>
+<div id="discussion---linear-model" class="section level1">
+<h1>Discussion - Linear Model</h1>
+<p>ADD CONCLUDING DISCUSSION HERE</p>
 <hr />
 <center>
-<em>Last updated: December 04 2020.</em>
+<em>Last updated: December 06 2020.</em>
 </center>
-</div>
 </div>
 
 
@@ -754,6 +626,11 @@ $(document).ready(function () {
 </script>
 
 <!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("show" === "show");
+});
+</script>
 
 <script>
 $(document).ready(function ()  {
