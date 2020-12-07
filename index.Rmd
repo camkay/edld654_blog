@@ -17,6 +17,9 @@ devtools::install_github("ropenscilabs/icon")
 
 <!-- ![](`r here("resources", "videos", "syllabus_crawl.mp4")`){width="100%"} -->
 
+
+[LINK TO THE DATA PAGE](page1_data.html)
+
 # Welcome!
 
 This blog was created as our final project for [EDLD 654](https://uo-datasci-specialization.github.io/c4-ml-fall-2020/index.html). This course focused on applied machine learning techniques for educational data scientists, with an emphasis on supervised learning methods. Considering the primary goal of these methods is to create models capable of making accurate predictions, we had to work together as a team to build a predictive model for unseen data. Here, we provide a description of the data used and our analysis procedure, along with an analysis of model performance and a description of why we chose the final model we did.
