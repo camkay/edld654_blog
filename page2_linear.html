@@ -11,7 +11,7 @@
 
 
 
-<title>Tensor Flo Ridas: A Journey in Machine Learning</title>
+<title>Tensor Flo Ridas: A Journey in ML</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -435,7 +435,7 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Tensor Flo Ridas: A Journey in Machine Learning</h1>
+<h1 class="title toc-ignore">Tensor Flo Ridas: A Journey in ML</h1>
 
 </div>
 
@@ -447,7 +447,7 @@ div.tocify {
 <h2>Introduction</h2>
 <p>A brief recap, our project aims to predict student math and reading test score for 3rd to 8th grade students in Oregon using data from the National Center for Educational Statistics.</p>
 <p>To obtain a general understanding of how our predictor variables fit our data, we begin by fitting a basic linear regression model to our data akin to <code>stats::lm</code>. Our criteria for evaluation of model fit will be the root mean square error (RMSE). The result of the linear model will be used to inform subsequent model selection and tuning.</p>
-<p>We will use the following recipe (for more information, see our Data section) to fit our model.</p>
+<p>We will use the following recipe (for more information, <a href="page1_data.html">see our Data section</a>) to fit our model.</p>
 <pre class="r"><code>rec &lt;- recipe(score ~ ., data_train) %&gt;%  
     step_mutate(tst_dt = lubridate::mdy_hm(tst_dt)) %&gt;%
     update_role(contains(&quot;id&quot;), ncessch, sch_name, new_role = &quot;id vars&quot;) %&gt;%
@@ -481,13 +481,13 @@ rec</code></pre>
 ## Median Imputation for all_numeric(), ...
 ## Dummy variables from all_nominal(), -has_role(&quot;id vars&quot;)
 ## Zero variance filter on all_predictors()</code></pre>
-<p>As shown in our recipe summary, our recipe contains 7 id variables (variables will not be used in our prediction), 1 outcome (test score) and 45 predictors.</p>
+<p>As shown in our recipe summary, our recipe contains 7 id variables (these variables will not be used in our prediction), 1 outcome (test score) and 45 predictors.</p>
 </div>
 <div id="build-linear-model" class="section level2">
 <h2>Build Linear Model</h2>
 <p>To build our model, we will use the <a href="https://parsnip.tidymodels.org/"><code>parsnip</code></a> and <a href="https://workflows.tidymodels.org/"><code>workflows</code></a> package that is a part of the <a href="https://www.tidymodels.org/"><code>tidymodels</code></a> family of packages developed to facilitate modeling and machine learning.</p>
-<p><code>parsnip</code> provides an unified interface of common machine learning algorithms where users simply have to specify the model and engine rather than having to remember model specifications that may differ across different packages. Here is a <a href="https://www.tidymodels.org/find/parsnip/">library</a> of <code>parsnip</code> models.</p>
-<p>Once we have created our recipe and <code>parsnip</code> model, we can then use <code>workflows</code> to seamlessly combine our recipe and model together to fit our 10-fold cross validation (CV) data.</p>
+<p><code>parsnip</code> provides an unified interface of common machine learning algorithms where users simply have to specify the model and engine rather than having to remember model specifications that may differ across different algorithm packages. Here is a reference <a href="https://www.tidymodels.org/find/parsnip/">library</a> of <code>parsnip</code> models.</p>
+<p>Once we have created our recipe and <code>parsnip</code> model, we can then use <code>workflows</code> to combine our recipe and model together to fit our 10-fold cross validation (CV) data.</p>
 <p>We specify our <code>parsnip</code> linear model by setting the engine as <code>lm</code> and mode as <code>regression</code> given our outcome variable (test score) is continous.</p>
 <pre class="r"><code>#create model 
 lin_mod &lt;- linear_reg() %&gt;% 
@@ -506,7 +506,7 @@ lin_workflow &lt;- workflow() %&gt;%
 </div>
 <div id="fit-linear-model" class="section level2">
 <h2>Fit Linear Model</h2>
-<p>We now fit our 10-fold CV data to our linear model using <code>fit_resamples()</code>.</p>
+<p>We now fit our 10-fold CV data to our linear model using <code>fit_resamples()</code> which fits a single model and recipe across mulitple resamples.</p>
 <pre class="r"><code>#run model 
 start_rf &lt;- Sys.time()
 
@@ -518,11 +518,11 @@ lin_fit &lt;- fit_resamples(
                               save_pred = TRUE))
 end_rf &lt;- Sys.time()
 lin_time &lt;- end_rf - start_rf</code></pre>
-<p>Our linear model took 1.43 minutes to run.</p>
+<p>Our linear model took 1.44 minutes to run.</p>
 </div>
 <div id="collect-metrics" class="section level2">
 <h2>Collect Metrics</h2>
-<p>After sucessfully running our model, we collect our RMSE to evaluate model fit. Listed below are the RMSE for each individual fold across our 10-fold cv along with the average RMSE across the 10-fold.</p>
+<p>After sucessfully running our model, we collect our RMSE to evaluate model fit. Listed below are the RMSE for each individual fold across our 10-fold CV along with the average RMSE across the 10-fold.</p>
 <pre class="r"><code># see all RMSE
 lin_fit %&gt;% 
   collect_metrics(summarize = FALSE)</code></pre>
@@ -542,9 +542,9 @@ lin_fit %&gt;%
 <p>The average RMSE for our linear model on the 10-fold CV was 87.01</p>
 </div>
 </div>
-<div id="make-prediction-on-withheld-test-set" class="section level1">
-<h1>Make Prediction on Withheld Test Set</h1>
-<p>To further evaluate our linear model, we will now make predictions on our left out dataset from our initial split.</p>
+<div id="make-prediction" class="section level1">
+<h1>Make Prediction</h1>
+<p>To evaluate how well our trained linear model is able to predict un-trained or un-seen data, we will now make predictions on our left out dataset from our initial split.</p>
 <pre class="r"><code>#run the model on the withheld test set from the initial split 
 start_rf &lt;- Sys.time()
 
@@ -554,7 +554,7 @@ split = data_split)
 
 end_rf &lt;- Sys.time()
 lin_final_time &lt;- end_rf - start_rf</code></pre>
-<p>Applying the linear model to our left out dataset from our initial split was much faster (took only 10.06 seconds to run!) compared to our 10-fold cv training data (1.43 min) where the model was fitted across multiple folds. It should be mentioned that overall the linear model was extremely quick to run computationally as there were no tuning involved at the most basic level.</p>
+<p>Applying the linear model to our left out dataset from our initial split was much faster (took only 9.27 seconds to run!) compared to our 10-fold cv training data (1.44 min) where the model was fitted across multiple folds.</p>
 <div id="collect-metrics-1" class="section level2">
 <h2>Collect Metrics</h2>
 <pre class="r"><code>mod_lin_final %&gt;% 
@@ -584,11 +584,15 @@ lin_final_time &lt;- end_rf - start_rf</code></pre>
 </div>
 <div id="discussion" class="section level1">
 <h1>Discussion</h1>
-<p>ADD CONCLUDING DISCUSSION HERE</p>
+<p>The linear model provided an introduction to machine learning and a general estimate of the RMSE model fit based on all of our predictor variables. Using the linear model, our predictors were able to account for 43.65% of variance in our score with an RMSE of 86.98. Overall, the linear model was extremely quick to run computationally as the algorithm utilized was <code>lm</code> and there were no hyperparameter tuning involved at this most basic level.</p>
+<p>For our subsequent model,s we will explore non-linear models that can be tuned for an optimal bias-variance balance.</p>
+<div id="penalized-regression" class="section level2">
+<h2>Penalized Regression</h2>
 <hr />
 <center>
 <em>Last updated: December 07 2020.</em>
 </center>
+</div>
 </div>
 
 

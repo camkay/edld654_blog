@@ -1,5 +1,5 @@
 ---
-title: "Tensor Flo Ridas: A Journey in Machine Learning"
+title: "Tensor Flo Ridas: A Journey in ML"
 output: 
   html_document:
     toc: TRUE
@@ -86,7 +86,8 @@ A brief recap, our project aims to predict student math and reading test score f
 
 To obtain a general understanding of how our predictor variables fit our data, we begin by fitting a basic linear regression model to our data akin to `stats::lm`. Our criteria for evaluation of model fit will be the root mean square error (RMSE). The result of the linear model will be used to inform subsequent model selection and tuning. 
 
-We will use the following recipe (for more information, see our Data section) to fit our model. 
+We will use the following recipe (for more information, [see our Data section](page1_data.html)) to fit our model. 
+
 
 ```{r recipe} 
 rec <- recipe(score ~ ., data_train) %>%  
@@ -104,16 +105,16 @@ rec <- recipe(score ~ ., data_train) %>%
 rec
 ```
 
-As shown in our recipe summary, our recipe contains 7 id variables (variables will not be used in our prediction), 1 outcome (test score) and 45 predictors. 
+As shown in our recipe summary, our recipe contains 7 id variables (these variables will not be used in our prediction), 1 outcome (test score) and 45 predictors. 
 
 
 ## Build Linear Model 
 
 To build our model, we will use the [`parsnip`](https://parsnip.tidymodels.org/) and [`workflows`](https://workflows.tidymodels.org/) package that is a part of the [`tidymodels`](https://www.tidymodels.org/) family of packages developed to facilitate modeling and machine learning. 
 
-`parsnip` provides an unified interface of common machine learning algorithms where users simply have to specify the model and engine rather than having to remember model specifications that may differ across different packages. Here is a [library](https://www.tidymodels.org/find/parsnip/) of `parsnip` models. 
+`parsnip` provides an unified interface of common machine learning algorithms where users simply have to specify the model and engine rather than having to remember model specifications that may differ across different algorithm packages. Here is a reference [library](https://www.tidymodels.org/find/parsnip/) of `parsnip` models. 
 
-Once we have created our recipe and `parsnip` model, we can then use `workflows` to seamlessly combine our recipe and model together to fit our 10-fold cross validation (CV) data. 
+Once we have created our recipe and `parsnip` model, we can then use `workflows` to combine our recipe and model together to fit our 10-fold cross validation (CV) data. 
 
 We specify our `parsnip` linear model by setting the engine as `lm` and mode as `regression` given our outcome variable (test score) is continous. 
 
@@ -137,7 +138,7 @@ lin_workflow <- workflow() %>%
 
 ## Fit Linear Model 
 
-We now fit our 10-fold CV data to our linear model using `fit_resamples()`.  
+We now fit our 10-fold CV data to our linear model using `fit_resamples()` which fits a single model and recipe across mulitple resamples.  
 
 ```{r fit_model, message = FALSE}
 #run model 
@@ -157,7 +158,7 @@ Our linear model took `r round(lin_time, 2)` minutes to run.
 
 ## Collect Metrics 
 
-After sucessfully running our model, we collect our RMSE to evaluate model fit. Listed below are the RMSE for each individual fold across our 10-fold cv along with the average RMSE across the 10-fold. 
+After sucessfully running our model, we collect our RMSE to evaluate model fit. Listed below are the RMSE for each individual fold across our 10-fold CV along with the average RMSE across the 10-fold. 
 
 ```{r}
 # see all RMSE
@@ -176,9 +177,9 @@ train_rmse <- lin_fit %>%
 
 The average RMSE for our linear model on the 10-fold CV was `r round(train_rmse$mean,2)`
 
-# Make Prediction on Withheld Test Set
+# Make Prediction
 
-To further evaluate our linear model, we will now make predictions on our left out dataset from our initial split. 
+To evaluate how well our trained linear model is able to predict un-trained or un-seen data, we will now make predictions on our left out dataset from our initial split. 
 
 ```{r, message = FALSE}
 #run the model on the withheld test set from the initial split 
@@ -192,8 +193,7 @@ end_rf <- Sys.time()
 lin_final_time <- end_rf - start_rf
 ```
 
-Applying the linear model to our left out dataset from our initial split was much faster (took only `r round(lin_final_time, 2)` seconds to run!) compared to our 10-fold cv training data (`r round(lin_time, 2)` min) where the model was fitted across multiple folds. It should be mentioned that overall the linear model was extremely quick to run computationally as there were no tuning involved at the most basic level.   
-
+Applying the linear model to our left out dataset from our initial split was much faster (took only `r round(lin_final_time, 2)` seconds to run!) compared to our 10-fold cv training data (`r round(lin_time, 2)` min) where the model was fitted across multiple folds. 
 
 ## Collect Metrics 
 ```{r}
@@ -204,6 +204,7 @@ mod_lin_final %>%
 
 ```{r, include = FALSE}
 holdout_rmse <- mod_lin_final %>% collect_metrics(summarize = TRUE) %>% filter(.metric == "rmse")
+holdout_rsq <- mod_lin_final %>% collect_metrics(summarize = TRUE) %>% filter(.metric == "rsq")
 ```
 
 The average RMSE for our linear model on the withheld test data was `r round(holdout_rmse$.estimate,2)`. This is a very slight improvement in RMSE compared to the RMSE of `r round(train_rmse$mean,2)` obtained in our 10-fold cv training data. 
@@ -228,36 +229,13 @@ From the plot, we can see that the variable `sp_ed_fg_N` which indicates whether
 
 # Discussion
 
-ADD CONCLUDING DISCUSSION HERE
+The linear model provided an introduction to machine learning and a general estimate of the RMSE model fit based on all of our predictor variables. Using the linear model, our predictors were able to account for `r round(holdout_rsq$.estimate*100, 2)`% of variance in our score with an RMSE of `r round(holdout_rmse$.estimate, 2)`. Overall, the linear model was extremely quick to run computationally as the algorithm utilized was `lm` and there were no hyperparameter tuning involved at this most basic level. 
+
+For our subsequent model,s we will explore non-linear models that can be tuned for an optimal bias-variance balance. 
 
 
-```{r, eval = FALSE, include = FALSE}
-mod_lin_final %>% 
-  pluck(".workflow", 1) %>%   
-  pull_workflow_fit() %>% 
-  vip(num_features = 20) +
-  geom_bar(data = test2, aes(color = "test$fit$coefficients" > 0))
+## Penalized Regression 
 
-
-test <- mod_lin_final %>% 
-  pluck(".workflow", 1) %>%   
-  pull_workflow_fit()
-
-
-test %>% unlist()
-
-
-test2 <- as.data.frame(test$fit$coefficients) %>% top_n(20)
-
-str(test2)
-
-
-test2 <- as.table(test$fit$coefficients) %>% top_n(20)
-
- geom_point(aes(color = workplaces > 0), 
-                 size = 2) +
-      scale_color_brewer(palette = "Set2")
-```
 
 ***
 
