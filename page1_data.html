@@ -464,9 +464,6 @@ div.tocify {
           axis.ticks = element_line(color = &quot;white&quot;),
           strip.background = element_rect(fill = &quot;white&quot;,
                                           colour = &quot;white&quot;))}</code></pre>
-<p><strong>Describe core features of the data, any additional data you joined in and why, and basic descriptives.</strong></p>
-<p><strong>The description should be sufficiently clear that the instructor understands all the variables that were included in your modeling, and how the final analytic dataset was constructed, without actually viewing your code. While specific code snippets can be included in this section to add clarity, the reader should not have to rely on this code to understand the data preparation.</strong></p>
-<p><strong>Provide a summary of the variables (e.g., how many categorical/continuous variables were included, what were the range of values, etc.), and any feature engineering applied to the data. If missing data are present, discuss how these values were handled, variable transformations, etc. Use this section to explain your data splitting process for model evaluation.</strong></p>
 <div id="our-dependent-variable" class="section level1">
 <h1>Our dependent variable</h1>
 <p>Across the entire United States, students in grades 3-8 are tested annually in reading and math. Our goal in this course was to create a machine learning model capable of accurately predicting a given student’s performance on these tests (i.e., a scaled test total score). While our dataset is simulated from actual statewide testing administration across the state of Oregon, the overall distributions are highly similar. The school IDs (<code>ncessch</code>) are real. So we used school IDs to link our simulated data with other sources (e.g., <a href="https://nces.ed.gov/ccd/files.asp#Fiscal:2,LevelId:7,SchoolYearId:33,Page:1">National Center for Educational Statistics</a>), which will be elaborated upon below.</p>
@@ -867,6 +864,7 @@ psych::describe(frl)</code></pre>
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["vars"],"name":[1],"type":["int"],"align":["right"]},{"label":["n"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["sd"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["trimmed"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["mad"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["min"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["range"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["skew"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["kurtosis"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["se"],"name":[13],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"1256","3":"410701987900.1767578","4":"488283739.7640716","5":"410738004184.50000000","6":"410702255910.02984619","7":"510009353.22959995","8":"410000301061","9":"418018001510.000000","10":"8017700449.000000","11":"5.190083","12":"78.0039","13":"13777722.79140748","_rn_":"ncessch"},{"1":"2","2":"1133","3":"0.6026965","4":"1.2446647","5":"0.43750000","6":"0.47129439","7":"0.31395156","8":"0","9":"35.142857","10":"35.142857","11":"20.506231","12":"535.9249","13":"0.03697749","_rn_":"free_lunch_prop"},{"1":"3","2":"1133","3":"0.1057571","4":"0.2319942","5":"0.07061069","6":"0.08178979","7":"0.04659831","8":"0","9":"6.857143","10":"6.857143","11":"22.595370","12":"635.5081","13":"0.00689227","_rn_":"reduced_lunch_prop"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
+<p><span class="math inline">\(~\)</span></p>
 </div>
 <div id="staff" class="section level2">
 <h2>Staff</h2>
@@ -884,6 +882,7 @@ psych::describe(staff)</code></pre>
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["vars"],"name":[1],"type":["int"],"align":["right"]},{"label":["n"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["sd"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["trimmed"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["mad"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["min"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["range"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["skew"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["kurtosis"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["se"],"name":[13],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"1256","3":"410701987900.17676","4":"488283739.76407","5":"410738004184.500","6":"410702255910.02985","7":"510009353.22960","8":"410000301061","9":"418018001510.00","10":"8017700449.00","11":"5.190083","12":"78.00390","13":"13777722.7914075","_rn_":"ncessch"},{"1":"2","2":"1256","3":"22.98793","4":"16.51762","5":"20.665","6":"20.72987","7":"10.87487","8":"0","9":"154.43","10":"154.43","11":"2.390466","12":"10.02339","13":"0.4660715","_rn_":"teachers"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
+<p><span class="math inline">\(~\)</span></p>
 </div>
 <div id="other-school-characteristics" class="section level2">
 <h2>Other school characteristics</h2>
@@ -904,6 +903,7 @@ psych::describe(school_chars)</code></pre>
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["vars"],"name":[1],"type":["int"],"align":["right"]},{"label":["n"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["sd"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["trimmed"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["mad"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["min"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["range"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["skew"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["kurtosis"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["se"],"name":[13],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"1256","3":"410701987900.176758","4":"488283739.7640716","5":"410738004184","6":"410702255910.029846","7":"510009353","8":"410000301061","9":"418018001510","10":"8017700449","11":"5.1900835","12":"78.0039033","13":"13777722.79140748","_rn_":"ncessch"},{"1":"2","2":"1256","3":"1.488854","4":"0.5686665","5":"1","6":"1.440358","7":"0","8":"1","9":"3","10":"2","11":"0.6410813","12":"-0.6033005","13":"0.01604585","_rn_":"titlei_status*"},{"1":"3","2":"1256","3":"3.093153","4":"1.3125508","5":"4","6":"3.240557","7":"0","8":"1","9":"4","10":"3","11":"-0.8289177","12":"-1.2108681","13":"0.03703576","_rn_":"nslp_status*"},{"1":"4","2":"1256","3":"3.278662","4":"0.5760617","5":"3","6":"3.281312","7":"0","8":"1","9":"4","10":"3","11":"-0.7052842","12":"2.7054458","13":"0.01625452","_rn_":"virtual*"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
+<p><span class="math inline">\(~\)</span></p>
 </div>
 <div id="ethinicity-data" class="section level2">
 <h2>Ethinicity data</h2>
@@ -935,6 +935,8 @@ psych::describe(eth)</code></pre>
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["vars"],"name":[1],"type":["int"],"align":["right"]},{"label":["n"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["sd"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["trimmed"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["mad"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["min"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["range"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["skew"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["kurtosis"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["se"],"name":[13],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"1459","3":"1661.258396162","4":"1558.62405413","5":"1034.00000","6":"1443.532078700","7":"937.003200000","8":"1","9":"5457.00000","10":"5456.00000","11":"1.102672482","12":"-0.1415435","13":"40.805032533","_rn_":"attnd_schl_inst_id"},{"1":"2","2":"1459","3":"690.416723783","4":"397.74913911","5":"680.00000","6":"690.287425150","7":"508.531800000","8":"1","9":"1381.00000","10":"1380.00000","11":"0.002743797","12":"-1.1862708","13":"10.413137484","_rn_":"sch_name*"},{"1":"3","2":"1459","3":"0.015686415","4":"0.04818512","5":"0.00585","6":"0.007671138","7":"0.008673210","8":"0","9":"0.88284","10":"0.88284","11":"10.875463034","12":"154.4883947","13":"0.001261494","_rn_":"p_american_indian_alaska_native"},{"1":"4","2":"1459","3":"0.026003557","4":"0.05313012","5":"0.00864","6":"0.013389555","7":"0.012809664","8":"0","9":"0.61931","10":"0.61931","11":"4.769898511","12":"33.5920287","13":"0.001390955","_rn_":"p_asian"},{"1":"5","2":"1459","3":"0.006053564","4":"0.01417845","5":"0.00194","6":"0.003157767","7":"0.002876244","8":"0","9":"0.33333","10":"0.33333","11":"10.364677307","12":"201.1713982","13":"0.000371194","_rn_":"p_native_hawaiian_pacific_islander"},{"1":"6","2":"1459","3":"0.021258492","4":"0.05304041","5":"0.00603","6":"0.009410599","7":"0.008940078","8":"0","9":"1.00000","10":"1.00000","11":"7.518681315","12":"96.0633432","13":"0.001388607","_rn_":"p_black_african_american"},{"1":"7","2":"1459","3":"0.207136354","4":"0.18392804","5":"0.14311","6":"0.177364157","7":"0.115479714","8":"0","9":"1.00000","10":"1.00000","11":"1.629071974","12":"2.7586267","13":"0.004815266","_rn_":"p_hispanic_latino"},{"1":"8","2":"1459","3":"0.647821830","4":"0.21652351","5":"0.70833","6":"0.670360128","7":"0.174590976","8":"0","9":"1.00000","10":"1.00000","11":"-0.941792912","12":"0.4309255","13":"0.005668621","_rn_":"p_white"},{"1":"9","2":"1459","3":"0.063702406","4":"0.05079587","5":"0.06065","6":"0.059525757","7":"0.037079826","8":"0","9":"0.66667","10":"0.66667","11":"3.278085380","12":"25.4358443","13":"0.001329844","_rn_":"p_multiracial"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
+<p><span class="math inline">\(~\)</span></p>
+<p>Now we can merge our datasets into a single file whereby cases are matched by school ID (<code>ncessch</code>).</p>
 <pre class="r"><code># combine our data with frl, staff, school characteristics, and ethnicities
 data &lt;- data %&gt;%
     left_join(frl) %&gt;%
@@ -943,31 +945,42 @@ data &lt;- data %&gt;%
     left_join(eth)
 
 # remove unneeded dataframes
-rm(frl, staff, school_chars, eth)</code></pre>
+rm(frl, staff, school_chars, eth)
+
+head(data)</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["id"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["gndr"],"name":[2],"type":["chr"],"align":["left"]},{"label":["ethnic_cd"],"name":[3],"type":["chr"],"align":["left"]},{"label":["attnd_dist_inst_id"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["attnd_schl_inst_id"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["enrl_grd"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["calc_admn_cd"],"name":[7],"type":["chr"],"align":["left"]},{"label":["tst_bnch"],"name":[8],"type":["chr"],"align":["left"]},{"label":["tst_dt"],"name":[9],"type":["chr"],"align":["left"]},{"label":["migrant_ed_fg"],"name":[10],"type":["chr"],"align":["left"]},{"label":["ind_ed_fg"],"name":[11],"type":["chr"],"align":["left"]},{"label":["sp_ed_fg"],"name":[12],"type":["chr"],"align":["left"]},{"label":["tag_ed_fg"],"name":[13],"type":["chr"],"align":["left"]},{"label":["econ_dsvntg"],"name":[14],"type":["chr"],"align":["left"]},{"label":["ayp_lep"],"name":[15],"type":["chr"],"align":["left"]},{"label":["stay_in_dist"],"name":[16],"type":["chr"],"align":["left"]},{"label":["stay_in_schl"],"name":[17],"type":["chr"],"align":["left"]},{"label":["dist_sped"],"name":[18],"type":["chr"],"align":["left"]},{"label":["trgt_assist_fg"],"name":[19],"type":["chr"],"align":["left"]},{"label":["ayp_dist_partic"],"name":[20],"type":["chr"],"align":["left"]},{"label":["ayp_schl_partic"],"name":[21],"type":["chr"],"align":["left"]},{"label":["ayp_dist_prfrm"],"name":[22],"type":["chr"],"align":["left"]},{"label":["ayp_schl_prfrm"],"name":[23],"type":["chr"],"align":["left"]},{"label":["rc_dist_partic"],"name":[24],"type":["chr"],"align":["left"]},{"label":["rc_schl_partic"],"name":[25],"type":["chr"],"align":["left"]},{"label":["rc_dist_prfrm"],"name":[26],"type":["chr"],"align":["left"]},{"label":["rc_schl_prfrm"],"name":[27],"type":["chr"],"align":["left"]},{"label":["partic_dist_inst_id"],"name":[28],"type":["dbl"],"align":["right"]},{"label":["partic_schl_inst_id"],"name":[29],"type":["dbl"],"align":["right"]},{"label":["lang_cd"],"name":[30],"type":["chr"],"align":["left"]},{"label":["tst_atmpt_fg"],"name":[31],"type":["chr"],"align":["left"]},{"label":["grp_rpt_dist_partic"],"name":[32],"type":["chr"],"align":["left"]},{"label":["grp_rpt_schl_partic"],"name":[33],"type":["chr"],"align":["left"]},{"label":["grp_rpt_dist_prfrm"],"name":[34],"type":["chr"],"align":["left"]},{"label":["grp_rpt_schl_prfrm"],"name":[35],"type":["chr"],"align":["left"]},{"label":["score"],"name":[36],"type":["dbl"],"align":["right"]},{"label":["ncessch"],"name":[37],"type":["dbl"],"align":["right"]},{"label":["lat"],"name":[38],"type":["dbl"],"align":["right"]},{"label":["lon"],"name":[39],"type":["dbl"],"align":["right"]},{"label":["free_lunch_prop"],"name":[40],"type":["dbl"],"align":["right"]},{"label":["reduced_lunch_prop"],"name":[41],"type":["dbl"],"align":["right"]},{"label":["teachers"],"name":[42],"type":["dbl"],"align":["right"]},{"label":["titlei_status"],"name":[43],"type":["chr"],"align":["left"]},{"label":["nslp_status"],"name":[44],"type":["chr"],"align":["left"]},{"label":["virtual"],"name":[45],"type":["chr"],"align":["left"]},{"label":["sch_name"],"name":[46],"type":["chr"],"align":["left"]},{"label":["p_american_indian_alaska_native"],"name":[47],"type":["dbl"],"align":["right"]},{"label":["p_asian"],"name":[48],"type":["dbl"],"align":["right"]},{"label":["p_native_hawaiian_pacific_islander"],"name":[49],"type":["dbl"],"align":["right"]},{"label":["p_black_african_american"],"name":[50],"type":["dbl"],"align":["right"]},{"label":["p_hispanic_latino"],"name":[51],"type":["dbl"],"align":["right"]},{"label":["p_white"],"name":[52],"type":["dbl"],"align":["right"]},{"label":["p_multiracial"],"name":[53],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"F","3":"H","4":"2142","5":"1330","6":"6","7":"NA","8":"G6","9":"5/14/2018 0:00:00","10":"N","11":"N","12":"Y","13":"N","14":"Y","15":"X","16":"Y","17":"Y","18":"N","19":"N","20":"Y","21":"Y","22":"Y","23":"Y","24":"Y","25":"Y","26":"Y","27":"Y","28":"2142","29":"1330","30":"NA","31":"Y","32":"Y","33":"Y","34":"Y","35":"Y","36":"2340","37":"411082000664","38":"44.91579","39":"-122.9715","40":"0.4123975","41":"0.04354508","42":"45.66","43":"SWELIGSWPROG","44":"NSLPCEO","45":"NOTVIRTUAL","46":"Houck Middle School","47":"0.00186","48":"0.00931","49":"0.04562","50":"0.01117","51":"0.65363","52":"0.24209","53":"0.03631"},{"1":"2","2":"M","3":"W","4":"2138","5":"785","6":"5","7":"NA","8":"2B","9":"6/5/2018 0:00:00","10":"N","11":"N","12":"Y","13":"N","14":"N","15":"NA","16":"Y","17":"Y","18":"N","19":"N","20":"Y","21":"Y","22":"Y","23":"Y","24":"Y","25":"Y","26":"Y","27":"Y","28":"2138","29":"785","30":"NA","31":"Y","32":"Y","33":"Y","34":"Y","35":"Y","36":"2430","37":"411145000830","38":"45.04520","39":"-122.6761","40":"0.2662338","41":"0.10389610","42":"9.39","43":"SWELIGSWPROG","44":"NSLPWOPRO","45":"NOTVIRTUAL","46":"Scotts Mills Elementary School","47":"0.00000","48":"0.00000","49":"0.00000","50":"0.00599","51":"0.02395","52":"0.95210","53":"0.01796"},{"1":"3","2":"M","3":"M","4":"1995","5":"3400","6":"8","7":"NA","8":"3B","9":"5/1/2018 0:00:00","10":"N","11":"N","12":"N","13":"N","14":"N","15":"NA","16":"Y","17":"Y","18":"N","19":"N","20":"Y","21":"Y","22":"Y","23":"Y","24":"Y","25":"Y","26":"Y","27":"Y","28":"1995","29":"3400","30":"NA","31":"Y","32":"Y","33":"Y","34":"Y","35":"Y","36":"2551","37":"410261000315","38":"43.03421","39":"-123.6758","40":"0.4215247","41":"0.08968610","42":"17.21","43":"SWELIGSWPROG","44":"NSLPWOPRO","45":"SUPPVIRTUAL","46":"Camas Valley School","47":"0.00463","48":"0.00000","49":"0.00000","50":"0.00000","51":"0.07407","52":"0.81944","53":"0.10185"},{"1":"5","2":"F","3":"H","4":"2053","5":"1773","6":"8","7":"NA","8":"3B","9":"5/1/2018 0:00:00","10":"Y","11":"N","12":"N","13":"N","14":"Y","15":"F","16":"Y","17":"Y","18":"N","19":"N","20":"Y","21":"Y","22":"Y","23":"Y","24":"Y","25":"Y","26":"Y","27":"Y","28":"2053","29":"1773","30":"NA","31":"Y","32":"Y","33":"Y","34":"Y","35":"Y","36":"2529","37":"410674000656","38":"44.63421","39":"-121.1056","40":"0.3979592","41":"0.03514739","42":"23.75","43":"SWELIGSWPROG","44":"NSLPCEO","45":"NOTVIRTUAL","46":"Jefferson County Middle School","47":"0.10316","48":"0.01053","49":"0.00632","50":"0.00632","51":"0.49895","52":"0.36632","53":"0.00842"},{"1":"7","2":"F","3":"H","4":"1964","5":"191","6":"8","7":"NA","8":"3B","9":"5/22/2018 0:00:00","10":"N","11":"N","12":"N","13":"N","14":"Y","15":"E","16":"Y","17":"Y","18":"N","19":"N","20":"Y","21":"Y","22":"Y","23":"Y","24":"Y","25":"Y","26":"Y","27":"Y","28":"1964","29":"191","30":"NA","31":"Y","32":"Y","33":"Y","34":"Y","35":"Y","36":"2417","37":"410339000202","38":"43.18588","39":"-124.1943","40":"0.4454829","41":"0.06542056","42":"21.35","43":"NOTTITLE1ELIG","44":"NSLPCEO","45":"SUPPVIRTUAL","46":"Coquille Junior Senior High","47":"0.01600","48":"0.00000","49":"0.00267","50":"0.00267","51":"0.10667","52":"0.74933","53":"0.12267"},{"1":"10","2":"M","3":"H","4":"1948","5":"184","6":"8","7":"NA","8":"3B","9":"5/25/2018 0:00:00","10":"N","11":"N","12":"N","13":"N","14":"Y","15":"NA","16":"Y","17":"Y","18":"N","19":"N","20":"Y","21":"Y","22":"Y","23":"Y","24":"Y","25":"Y","26":"Y","27":"Y","28":"1948","29":"184","30":"NA","31":"Y","32":"Y","33":"Y","34":"Y","35":"Y","36":"2620","37":"411172000195","38":"45.86349","39":"-122.8133","40":"0.1975309","41":"0.04320988","42":"22.82","43":"NOTTITLE1ELIG","44":"NSLPWOPRO","45":"NOTVIRTUAL","46":"St Helens Middle School","47":"0.01256","48":"0.00628","49":"0.00628","50":"0.00942","51":"0.10047","52":"0.79278","53":"0.07221"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p><span class="math inline">\(~\)</span></p>
 </div>
 </div>
-<div id="getting-to-know-our-data" class="section level1">
-<h1>Getting to know our data</h1>
-<div id="create-splits" class="section level2">
-<h2>Create splits</h2>
-<p>The goal of machine learning is to predict results based on new (unseen) data. The simplest way to do this is to split our data into two parts via the function <code>initial split()</code>: an initial training set and a test set. We will eventually fit a model to the training data and predict the results of the test set. After the initial split, we need to resample our training set to create subsets of “new” data samples that we can train the model on. The most common method–which we use here–is 10-fold cross-validation. Using <code>vfold_cv()</code>, we randomly split the training data into 10 distinct samples (“folds”) of approximately equal size. Importantly, each fold contains a sample in which none of the observations are repeated in other folds. And within each fold, a random 10% (1/10) of training data are sampled for an assessment (test) set, whereas the remaining 90% of the training data serve as the analysis (training) set.</p>
+<div id="data-splitting-process" class="section level1">
+<h1>Data splitting process</h1>
+<div id="create-initial-splits" class="section level2">
+<h2>Create initial splits</h2>
+<p>The goal of machine learning is to predict results based on new (unseen) data. The simplest way to do this is to split our merged data into two parts: a training set and a test set.</p>
+<ul>
+<li><p><strong>Training set</strong>: These data are used to develop feature sets, train our algorithms, tune hyperparameters, compare models, and all of the other activities required to choose a final model (e.g., the model we want to put into production). See <a href="https://bradleyboehmke.github.io/HOML/process.html">here</a> for more details.</p></li>
+<li><p><strong>Test set</strong>: These data are used to estimate an unbiased assessment of the final model’s performance.</p></li>
+</ul>
+<p>We will eventually fit a series of models (a <a href="page2_linear.html">linear</a> model, <a href="page3_rf.html">random forest</a> model, and a <a href="page4_xgboost.html">boosted tree</a> model) to the training set and predict the results of the test set.</p>
 <pre class="r"><code>set.seed(3000)
-
-# data %&lt;&gt;%
-#   select(-matches(&quot;lat|lon|native|multi|black&quot;))
-
-# data &lt;- data %&gt;%
-#   slice_sample(prop = .01)
-
 data_split &lt;- initial_split(data)
-
 data_train &lt;- training(data_split)
-
-data_test  &lt;- testing(data_split)
-
+data_test  &lt;- testing(data_split)</code></pre>
+</div>
+<div id="resample-training-set" class="section level2">
+<h2>Resample training set</h2>
+<p>After the <code>initial split</code>, we need to resample our training set to create subsets of “new” data samples that we can train the model on. The most common method–which we use here–is 10-fold cross-validation. Using <code>vfold_cv()</code>, we randomly split the training data into 10 distinct samples (i.e., folds) of approximately equal size. Importantly, each fold contains a sample in which none of the observations are repeated in other folds. And within each fold, a random 10% (1/10) of training data are sampled for an assessment (test) set, whereas the remaining 90% of the training data serve as the analysis (training) set.</p>
+<pre class="r"><code>set.seed(3000)
 data_train_cv &lt;- vfold_cv(data_train)</code></pre>
-<div id="exploring-the-data" class="section level3">
-<h3>Exploring the data</h3>
+<p><strong>Provide a summary of the variables (e.g., how many categorical/continuous variables were included, what were the range of values, etc.), and any feature engineering applied to the data. If missing data are present, discuss how these values were handled, variable transformations, etc. Use this section to explain your data splitting process for model evaluation.</strong></p>
+</div>
+</div>
+<div id="explore-the-data" class="section level1">
+<h1>Explore the data</h1>
 <pre class="r"><code>hist_data &lt;- data_train %&gt;%
   select(where(is.numeric),
          -contains(&quot;id&quot;),
@@ -1037,8 +1050,8 @@ ggplot(cor_data, aes(x = rowname, y = colname, fill = cor)) +
          x = &quot;Variable&quot;)</code></pre>
 <p><img src="page1_data_files/figure-html/zo-1.png" width="960" /></p>
 </div>
-<div id="build-the-preliminary-recipe" class="section level3">
-<h3>Build the preliminary recipe</h3>
+<div id="build-the-preliminary-recipe" class="section level1">
+<h1>Build the preliminary recipe</h1>
 <pre class="r"><code>recipe_1 &lt;- recipe(score ~ ., data_train) %&gt;%  
     step_mutate(tst_dt = lubridate::mdy_hm(tst_dt)) %&gt;%
     update_role(contains(&quot;id&quot;), ncessch, sch_name, new_role = &quot;id vars&quot;) %&gt;%
@@ -1054,8 +1067,6 @@ ggplot(cor_data, aes(x = rowname, y = colname, fill = cor)) +
 <center>
 <em>Last updated: December 6th, 2020.</em>
 </center>
-</div>
-</div>
 </div>
 
 

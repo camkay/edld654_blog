@@ -55,12 +55,6 @@ theme_tensor_flo <- function() {
                                           colour = "white"))}
 ```
 
-**Describe core features of the data, any additional data you joined in and why, and basic descriptives.**
-
-**The description should be sufficiently clear that the instructor understands all the variables that were included in your modeling, and how the final analytic dataset was constructed, without actually viewing your code. While specific code snippets can be included in this section to add clarity, the reader should not have to rely on this code to understand the data preparation.**
-
-**Provide a summary of the variables (e.g., how many categorical/continuous variables were included, what were the range of values, etc.), and any feature engineering applied to the data. If missing data are present, discuss how these values were handled, variable transformations, etc. Use this section to explain your data splitting process for model evaluation.**
-
 # Our dependent variable
 
 Across the entire United States, students in grades 3-8 are tested annually in reading and math. Our goal in this course was to create a machine learning model capable of accurately predicting a given student's performance on these tests (i.e., a scaled test total score). While our dataset is simulated from actual statewide testing administration across the state of Oregon, the overall distributions are highly similar. The school IDs (`ncessch`) are real. So we used school IDs to link our simulated data with other sources (e.g., [National Center for Educational Statistics](https://nces.ed.gov/ccd/files.asp#Fiscal:2,LevelId:7,SchoolYearId:33,Page:1)), which will be elaborated upon below.
@@ -137,6 +131,8 @@ frl <- frl %>%
 psych::describe(frl)
 ```
 
+$~$
+
 ## Staff
 
 Here we obtained data on the number of full-time-equivalent (FTE) teachers at each school (`teachers`). Schools with more funding seemingly offer more resources and newer, better equipment for students--possibly contributing to better test scores. Our rationale was that the number of full-time teachers at a school could potentially serve as an indirect index of school funding. Or, perhaps the number of full time teachers could be negatively associated with class room size. If smaller class rooms are associated with better student performance, then perhaps this is another means by which the number of full-time teachers could aid in the predictive utility of our model.
@@ -151,6 +147,8 @@ staff <- import(here("data", "staff.csv"), setclass = "tbl_df")  %>%
 
 psych::describe(staff)
 ```
+
+$~$
 
 ## Other school characteristics
 
@@ -171,6 +169,8 @@ school_chars <- import(here("data", "school_characteristics.csv"),
 
 psych::describe(school_chars)
 ```
+
+$~$
 
 ## Ethinicity data
 
@@ -200,6 +200,10 @@ names(eth) <- gsub("x2019_20_percent", "p", names(eth))
 psych::describe(eth)
 ```
 
+$~$
+
+Now we can merge our datasets into a single file whereby cases are matched by school ID (`ncessch`).
+
 ```{r merge_data}
 # combine our data with frl, staff, school characteristics, and ethnicities
 data <- data %>%
@@ -210,33 +214,43 @@ data <- data %>%
 
 # remove unneeded dataframes
 rm(frl, staff, school_chars, eth)
+
+head(data)
 ```
 
-# Getting to know our data
+$~$
 
-## Create splits
+# Data splitting process
 
-The goal of machine learning is to predict results based on new (unseen) data. The simplest way to do this is to split our data into two parts via the function `initial split()`: an initial training set and a test set. We will eventually fit a model to the training data and predict the results of the test set. After the initial split, we need to resample our training set to create subsets of "new" data samples that we can train the model on. The most common method--which we use here--is 10-fold cross-validation. Using `vfold_cv()`, we randomly split the training data into 10 distinct samples ("folds") of approximately equal size. Importantly, each fold contains a sample in which none of the observations are repeated in other folds. And within each fold, a random 10% (1/10) of training data are sampled for an assessment (test) set, whereas the  remaining 90% of the training data serve as the analysis (training) set.
+## Create initial splits
+
+The goal of machine learning is to predict results based on new (unseen) data. The simplest way to do this is to split our merged data into two parts: a training set and a test set. 
+
++ **Training set**: These data are used to develop feature sets, train our algorithms, tune hyperparameters, compare models, and all of the other activities required to choose a final model (e.g., the model we want to put into production). See [here](https://bradleyboehmke.github.io/HOML/process.html) for more details.
+
++ **Test set**: These data are used to estimate an unbiased assessment of the final model’s performance.
+
+We will eventually fit a series of models (a [linear](page2_linear.html) model, [random forest](page3_rf.html) model, and a [boosted tree](page4_xgboost.html) model) to the training set and predict the results of the test set. 
+
+```{r initial_split}
+set.seed(3000)
+data_split <- initial_split(data)
+data_train <- training(data_split)
+data_test  <- testing(data_split)
+```
+
+## Resample training set
+
+After the `initial split`, we need to resample our training set to create subsets of "new" data samples that we can train the model on. The most common method--which we use here--is 10-fold cross-validation. Using `vfold_cv()`, we randomly split the training data into 10 distinct samples (i.e., folds) of approximately equal size. Importantly, each fold contains a sample in which none of the observations are repeated in other folds. And within each fold, a random 10% (1/10) of training data are sampled for an assessment (test) set, whereas the remaining 90% of the training data serve as the analysis (training) set.
 
 ```{r cv_split}
 set.seed(3000)
-
-# data %<>%
-#   select(-matches("lat|lon|native|multi|black"))
-
-# data <- data %>%
-#   slice_sample(prop = .01)
-
-data_split <- initial_split(data)
-
-data_train <- training(data_split)
-
-data_test  <- testing(data_split)
-
 data_train_cv <- vfold_cv(data_train)
 ```
 
-### Exploring the data
+**Provide a summary of the variables (e.g., how many categorical/continuous variables were included, what were the range of values, etc.), and any feature engineering applied to the data. If missing data are present, discuss how these values were handled, variable transformations, etc. Use this section to explain your data splitting process for model evaluation.**
+
+# Exploring the data and feature engineering
 
 ```{r histograms, fig.height=7, fig.width=10}
 hist_data <- data_train %>%
@@ -310,7 +324,7 @@ ggplot(cor_data, aes(x = rowname, y = colname, fill = cor)) +
          x = "Variable")
 ```
 
-### Build the preliminary recipe
+## Build the preliminary recipe
 
 ```{r rec_1}
 recipe_1 <- recipe(score ~ ., data_train) %>%  
