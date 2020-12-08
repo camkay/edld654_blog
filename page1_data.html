@@ -11,7 +11,7 @@
 
 
 
-<title>Tensor Flo Ridas: A Journey in Machine Learning</title>
+<title>Tensor Flo Ridas: A Journey in ML</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -437,35 +437,13 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Tensor Flo Ridas: A Journey in Machine Learning</h1>
+<h1 class="title toc-ignore">Tensor Flo Ridas: A Journey in ML</h1>
 
 </div>
 
 
-<pre class="r"><code>theme_tensor_flo &lt;- function() { 
-    theme_bw() %+replace% 
-        theme(
-          legend.background = element_rect(fill = &quot;#1b1d22&quot;,
-                                           colour = &quot;#1b1d22&quot;),
-          panel.background = element_rect(fill = &quot;#171f24&quot;,
-                                          colour = &quot;#1b1d22&quot;,
-                                          size = 0.5,
-                                          linetype = &quot;solid&quot;),
-          panel.grid.major = element_line(size = 0.2, 
-                                          linetype = &#39;solid&#39;, 
-                                          colour = &quot;gray40&quot;), 
-          panel.grid.minor = element_line(size = 0.0, 
-                                          linetype = &#39;solid&#39;,
-                                          colour = &quot;gray40&quot;),
-          axis.line = element_line(colour = &quot;white&quot;),
-          plot.background = element_rect(fill = &quot;#171f24&quot;),
-          text  = element_text(color = &quot;white&quot;),
-          axis.text  = element_text(color = &quot;white&quot;),
-          axis.ticks = element_line(color = &quot;white&quot;),
-          strip.background = element_rect(fill = &quot;white&quot;,
-                                          colour = &quot;white&quot;))}</code></pre>
-<div id="our-dependent-variable" class="section level1">
-<h1>Our dependent variable</h1>
+<div id="the-outcome-variable" class="section level1">
+<h1>The outcome variable</h1>
 <p>Across the entire United States, students in grades 3-8 are tested annually in reading and math. Our goal in this course was to create a machine learning model capable of accurately predicting a given student’s performance on these tests (i.e., a scaled test total score). While our dataset is simulated from actual statewide testing administration across the state of Oregon, the overall distributions are highly similar. The school IDs (<code>ncessch</code>) are real. So we used school IDs to link our simulated data with other sources (e.g., <a href="https://nces.ed.gov/ccd/files.asp#Fiscal:2,LevelId:7,SchoolYearId:33,Page:1">National Center for Educational Statistics</a>), which will be elaborated upon below.</p>
 </div>
 <div id="simulated-data-predictors" class="section level1">
@@ -886,7 +864,7 @@ psych::describe(staff)</code></pre>
 </div>
 <div id="other-school-characteristics" class="section level2">
 <h2>Other school characteristics</h2>
-<p>Here, we sought to add three more predictors. The first, <code>titlei_status</code> refers to a given school’s Title I status. A Title 1 school receives federal funds for students. The premise of Title 1 is that schools with large numbers of low-income students will receive supplemental funds to help ensure that all children meet challenging state academic standards. Note schools may receive a classification other than being a Title I school or not being a Title I school. Schools may also be classified as Title I targeted assistance eligible schools, Title I school-wide eligible Title I targeted assistance schools, and more.</p>
+<p>Here, we sought to add three more predictors. The first, <code>titlei_status</code> refers to a given school’s Title I status. The premise of Title I is that schools with large numbers of low-income students will receive supplemental funds to help ensure that all children meet challenging state academic standards. Note schools may receive a classification other than being a Title I school or not being a Title I school. Schools may also be classified as Title I targeted assistance eligible schools, Title I school-wide eligible Title I targeted assistance schools, and more.</p>
 <p>The second predictor of interest was <code>nslp_status</code>, which reflects a given school’s National School Lunch Program (NSLP) status. The <a href="https://www.fns.usda.gov/nslp">NSLP</a> “is a federally assisted meal program operating in public and nonprofit private schools and residential child care institutions”. Children from families with incomes at or below 130 percent of the Federal Poverty Level (FPL) are eligible for free school meals, whereas children from families with incomes between 130 to 185 percent FPL qualify for reduced-price meals. Approximately <a href="https://frac.org/wp-content/uploads/cnnslp.pdf">95 percent</a> of public schools participate in NSLP in some way. Schools may fall under codes reflecting participation in NSLP without using any Provision or Community Eligibility Option, participation in NSLP under Community Eligibility Option, participation in NSLP under Provision 1, etc.</p>
 <p>The final predictor, <code>virtual</code>, refers to a school’s virtual (online) status. Some schools may be fully virtual, not virtual at all, supplemental virtual, or virtual with face to face options.</p>
 <pre class="r"><code># read in school characteristics data
@@ -905,9 +883,9 @@ psych::describe(school_chars)</code></pre>
 </div>
 <p><span class="math inline">\(~\)</span></p>
 </div>
-<div id="ethinicity-data" class="section level2">
-<h2>Ethinicity data</h2>
-<p>Finally, we imported data that breaks down the ethnic makeup of the students enrolled at each school. Specifically, for each school, we know the proportion of students who identify as:</p>
+<div id="ethinicity" class="section level2">
+<h2>Ethinicity</h2>
+<p>Finally, we imported data that breaks down the ethnicity makeup of the students enrolled at each school. Specifically, for each school, we know the proportion of students who identify as:</p>
 <ul>
 <li>American Indian/Alaska Native (<code>p_american_indian_alaska_native</code>)</li>
 <li>Asian (<code>p_asian</code>)</li>
@@ -970,17 +948,47 @@ head(data)</code></pre>
 data_split &lt;- initial_split(data)
 data_train &lt;- training(data_split)
 data_test  &lt;- testing(data_split)</code></pre>
+<p><span class="math inline">\(~\)</span></p>
 </div>
 <div id="resample-training-set" class="section level2">
 <h2>Resample training set</h2>
 <p>After the <code>initial split</code>, we need to resample our training set to create subsets of “new” data samples that we can train the model on. The most common method–which we use here–is 10-fold cross-validation. Using <code>vfold_cv()</code>, we randomly split the training data into 10 distinct samples (i.e., folds) of approximately equal size. Importantly, each fold contains a sample in which none of the observations are repeated in other folds. And within each fold, a random 10% (1/10) of training data are sampled for an assessment (test) set, whereas the remaining 90% of the training data serve as the analysis (training) set.</p>
 <pre class="r"><code>set.seed(3000)
 data_train_cv &lt;- vfold_cv(data_train)</code></pre>
-<p><strong>Provide a summary of the variables (e.g., how many categorical/continuous variables were included, what were the range of values, etc.), and any feature engineering applied to the data. If missing data are present, discuss how these values were handled, variable transformations, etc. Use this section to explain your data splitting process for model evaluation.</strong></p>
+<p><span class="math inline">\(~\)</span></p>
 </div>
 </div>
-<div id="explore-the-data" class="section level1">
-<h1>Explore the data</h1>
+<div id="feature-engineering" class="section level1">
+<h1>Feature engineering</h1>
+<div id="data-exploration" class="section level2">
+<h2>Data exploration</h2>
+<p>First, we wanted to examine the zero order correlations among all continuous variables in the training data. This was done merely for curiosity sake–we were interested in observing which of the 13 continuous predictors were most strongly associated with our outcome variable, <code>score</code>.</p>
+<ul>
+<li>Note: Our dataset has 53 total variables, 1 of which is the outcome variable, and 13 of which are continuous predictors. This means the remaining 39 variables are categorical predictors (7 of which are ID variables).</li>
+</ul>
+<pre class="r"><code>cor_data &lt;- data_train %&gt;%
+  select(where(is.numeric),
+         -contains(&quot;id&quot;),
+         -ncessch) %&gt;%
+  cor(use = &quot;pairwise.complete.obs&quot;) %&gt;%
+  data.frame() %&gt;%
+  rownames_to_column() %&gt;%
+  gather(&quot;colname&quot;, &quot;cor&quot;, -rowname)
+  
+ggplot(cor_data, aes(x = rowname, y = colname, fill = cor)) +
+    geom_tile(color = &quot;white&quot;) +
+    geom_text(aes(label=round(cor,2))) + 
+    scale_fill_gradient2(low = &quot;#FCCF47&quot;, 
+                         mid = &quot;white&quot;, 
+                         high = &quot;#01C0C0&quot;) +
+    theme_tensor_flo() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+          axis.text = element_text(size = 10.5)) +
+    labs(y = &quot;Variable&quot;,
+         x = &quot;Variable&quot;)</code></pre>
+<p><img src="page1_data_files/figure-html/zo-1.png" width="960" /></p>
+<p>It looks like the two variables most strongly associated with student test performance are the student’s enrolled grade level (<code>enrl_grd</code>) and the proportion of students who qualify for free lunch at the student’s school (<code>free_lunch_prop</code>). Test scores tend to increase as grade level increases, and test scores tend to decline if their school has a larger proportion of students who qualify for free lunch.</p>
+<p>Now let’s begin preparing our data for analysis. While we generated descriptive statistics for all variables of interest above, it could be more helpful to examine an array of histograms for our continuous variables. In doing so, we can get a better idea of (1) the range of values for each variable and (2) whether we need to correct for non-normal distributions.</p>
 <pre class="r"><code>hist_data &lt;- data_train %&gt;%
   select(where(is.numeric),
          -contains(&quot;id&quot;),
@@ -1013,45 +1021,12 @@ ggplot(hist_data, aes(x = value)) +
     labs(y = &quot;Count&quot;,
          x = &quot;Value&quot;)</code></pre>
 <p><img src="page1_data_files/figure-html/histograms-1.png" width="960" /></p>
-<pre class="r"><code>cor_data &lt;- data_train %&gt;%
-  select(where(is.numeric),
-         -contains(&quot;id&quot;),
-         -ncessch) %&gt;%
-  dplyr::rename(&quot;Grade&quot; = `enrl_grd`,
-                &quot;Latitude&quot; = `lat`,
-                &quot;Longitude&quot; = `lon`,
-                &quot;Score&quot; = `score`,
-                &quot;Number of Teachers&quot; = `teachers`,
-                &quot;Prop Free Lunch&quot; = `free_lunch_prop`,
-                &quot;Prop Reduced Lunch&quot; = `reduced_lunch_prop`,
-                &quot;Prop Indigenous&quot; = `p_american_indian_alaska_native`,
-                &quot;Prop Asian&quot; = `p_asian`,
-                &quot;Prop African American&quot; = `p_black_african_american`,
-                &quot;Prop Hispanic&quot; = `p_hispanic_latino`,
-                &quot;Prop Pacific Islander&quot; = `p_native_hawaiian_pacific_islander`,
-                &quot;Prop Multiracial&quot; = `p_multiracial`,
-                &quot;Prop White&quot; = `p_white`) %&gt;%
-  cor(use = &quot;pairwise.complete.obs&quot;) %&gt;%
-  data.frame() %&gt;%
-  rownames_to_column() %&gt;%
-  gather(&quot;colname&quot;, &quot;cor&quot;, -rowname)
-  
-  
-ggplot(cor_data, aes(x = rowname, y = colname, fill = cor)) +
-    geom_tile(color = &quot;white&quot;) +
-    geom_text(aes(label=round(cor,2))) + 
-    scale_fill_gradient2(low = &quot;#FCCF47&quot;, 
-                         mid = &quot;white&quot;, 
-                         high = &quot;#01C0C0&quot;) +
-    theme_tensor_flo() +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1),
-          axis.text = element_text(size = 10.5)) +
-    labs(y = &quot;Variable&quot;,
-         x = &quot;Variable&quot;)</code></pre>
-<p><img src="page1_data_files/figure-html/zo-1.png" width="960" /></p>
+<p>Our outcome variable, <code>score</code>, appears to be normally distributed, but it looks like some of our continuous predictor variables are heavily skewed (e.g., <code>Proportion African American</code>, <code>Proportion Asian</code>, <code>Latitude</code>, etc.) and will definitely need to be transformed. We can address this in our recipe below.</p>
+<p><span class="math inline">\(~\)</span></p>
 </div>
-<div id="build-the-preliminary-recipe" class="section level1">
-<h1>Build the preliminary recipe</h1>
+<div id="build-the-preliminary-recipe" class="section level2">
+<h2>Build the preliminary recipe</h2>
+<p>Recipes allow us to make modifications to the data before conducting any formal analysis. Basically, recipes serve as a blueprint <em>outlining</em> any operations we want to apply to a given dataset without actually <em>applying</em> any operations. We then iteratively apply this “blueprint” across sets of data (e.g., folds) during training as well as on new, unseen testing data that has the same variables. This process helps avoid <a href="https://nervous-golick-ef3308.netlify.app/basics-of-recipes.html">data leakage</a>.</p>
 <pre class="r"><code>recipe_1 &lt;- recipe(score ~ ., data_train) %&gt;%  
     step_mutate(tst_dt = lubridate::mdy_hm(tst_dt)) %&gt;%
     update_role(contains(&quot;id&quot;), ncessch, sch_name, new_role = &quot;id vars&quot;) %&gt;%
@@ -1062,11 +1037,53 @@ ggplot(cor_data, aes(x = rowname, y = colname, fill = cor)) +
     step_BoxCox(all_numeric(), -all_outcomes(), -has_role(&quot;id vars&quot;)) %&gt;%
     step_medianimpute(all_numeric(), -all_outcomes(), -has_role(&quot;id vars&quot;)) %&gt;%
     step_dummy(all_nominal(), -has_role(&quot;id vars&quot;), one_hot = TRUE) %&gt;%
-    step_zv(all_predictors())</code></pre>
+    step_zv(all_predictors())
+
+prepped_rec &lt;- prep(recipe_1)
+
+prepped_rec</code></pre>
+<pre><code>## Data Recipe
+## 
+## Inputs:
+## 
+##       role #variables
+##    id vars          7
+##    outcome          1
+##  predictor         45
+## 
+## Training data contained 142176 data points and 142176 incomplete rows. 
+## 
+## Operations:
+## 
+## Variable mutation for tst_dt [trained]
+## Novel factor level assignment for gndr, ethnic_cd, calc_admn_cd, ... [trained]
+## Unknown factor level assignment for gndr, ethnic_cd, calc_admn_cd, ... [trained]
+## Zero variance filter removed calc_admn_cd, tst_dt [trained]
+## Centering and scaling for enrl_grd, lat, lon, ... [trained]
+## Box-Cox transformation on &lt;none&gt; [trained]
+## Median Imputation for enrl_grd, lat, lon, ... [trained]
+## Dummy variables from gndr, ethnic_cd, tst_bnch, migrant_ed_fg, ... [trained]
+## Zero variance filter removed gndr_new, gndr_unknown, ... [trained]</code></pre>
+<p>Our recipe applied the following operations to our training data:</p>
+<ul>
+<li>Set <code>score</code> as the outcome variable, and models all other variables in the dataset</li>
+<li>Converted <code>tst_dt</code> to a date variable</li>
+<li>Sets the role of ID variables (including <code>ncessch</code> and <code>sch_name</code>) to something other than a predictor or an outcome variable</li>
+<li>Added novel factor level assignment to any new categories (e.g., <code>gndr</code>, <code>ethnic_cd</code>, <code>calc_admn_cd</code>, <code>tst_bnch</code>)</li>
+<li>Added an unknown factor level (i.e., role) for missing nominal/categorical data (e.g., <code>gndr</code>, <code>ethnic_cd</code>, <code>calc_admn_cd</code>)</li>
+<li>Removed variables with zero variance (e.g., <code>calc_admn_cd</code>, <code>tst_dt</code>)</li>
+<li>Centered and scaled (normalized) continuous variables (e.g., e<code>nrl_grd</code>, <code>lat</code>, <code>lon</code>, <code>free_lunch_prop</code>)</li>
+<li>Attempted to use a box-cox transformation on all numeric data, but it appears not to have been applied to any of these variables?</li>
+<li>Used median imputation for missing numeric data (e.g., <code>enrl_grd</code>, <code>lat</code>, <code>lon</code>, <code>free_lunch_prop</code>)</li>
+<li>Dummy coded nominal/categorical variables (e.g., <code>gndr</code>, <code>ethnic_cd</code>, <code>tst_bnch</code>, <code>migrant_ed_fg</code>, <code>ind_ed_fg</code>, <code>sp_ed_fg</code>)</li>
+<li>Removed variables with new dummy coded variables with zero variance (e.g., <code>gndr_new</code>, <code>gndr_unknown</code>, <code>ethnic_cd_new</code>)</li>
+</ul>
+<p>Now we are FINALLY ready to fit some preliminary models! :)</p>
 <hr />
 <center>
 <em>Last updated: December 6th, 2020.</em>
 </center>
+</div>
 </div>
 
 
@@ -1106,7 +1123,7 @@ $(document).ready(function () {
 <!-- code folding -->
 <script>
 $(document).ready(function () {
-  window.initializeCodeFolding("hide" === "show");
+  window.initializeCodeFolding("show" === "show");
 });
 </script>
 
