@@ -3,7 +3,7 @@ title: "Tensor Flo Ridas: A Journey in ML"
 output: 
   html_document:
     toc: TRUE
-    toc_depth: 1
+    toc_depth: 2
     toc_float: TRUE
     code_folding: show
     df_print: paged
@@ -85,7 +85,7 @@ recipe_1 <- recipe(score ~ ., data_train) %>%
 
 A brief recap, our project aims to predict student math and reading test score for 3rd to 8th grade students in Oregon using data from the National Center for Educational Statistics. 
 
-To obtain a general understanding of how our predictor variables fit our data, we begin by fitting a linear regression model to our data akin to `stats::lm`. Our criteria for evaluation of model fit will be the root mean square error (RMSE). The result of the linear model will be used to inform subsequent model selection and tuning. 
+To obtain a general understanding of how our predictor variables fit our data, we begin by fitting a simple linear regression model to our data akin to `stats::lm`. Our criteria for evaluation of model fit will be the root mean square error (RMSE). The result of the linear model will be used to inform subsequent model selection and tuning. 
 
 We will use the following recipe (for more information, [see our Data section](page1_data.html)) to fit our model. 
 
