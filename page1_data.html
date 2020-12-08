@@ -30,6 +30,8 @@
 <script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
 <link href="site_libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
 <script src="site_libs/anchor-sections-1.0/anchor-sections.js"></script>
+<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="site_libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
 <link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
 
@@ -462,13 +464,377 @@ div.tocify {
           axis.ticks = element_line(color = &quot;white&quot;),
           strip.background = element_rect(fill = &quot;white&quot;,
                                           colour = &quot;white&quot;))}</code></pre>
+<p><strong>Describe core features of the data, any additional data you joined in and why, and basic descriptives.</strong></p>
+<p><strong>The description should be sufficiently clear that the instructor understands all the variables that were included in your modeling, and how the final analytic dataset was constructed, without actually viewing your code. While specific code snippets can be included in this section to add clarity, the reader should not have to rely on this code to understand the data preparation.</strong></p>
+<p><strong>Provide a summary of the variables (e.g., how many categorical/continuous variables were included, what were the range of values, etc.), and any feature engineering applied to the data. If missing data are present, discuss how these values were handled, variable transformations, etc. Use this section to explain your data splitting process for model evaluation.</strong></p>
+<div id="our-dependent-variable" class="section level1">
+<h1>Our dependent variable</h1>
+<p>Across the entire United States, students in grades 3-8 are tested annually in reading and math. Our goal in this course was to create a machine learning model capable of accurately predicting a given student’s performance on these tests (i.e., a scaled test total score). While our dataset is simulated from actual statewide testing administration across the state of Oregon, the overall distributions are highly similar. The school IDs (<code>ncessch</code>) are real. So we used school IDs to link our simulated data with other sources (e.g., <a href="https://nces.ed.gov/ccd/files.asp#Fiscal:2,LevelId:7,SchoolYearId:33,Page:1">National Center for Educational Statistics</a>), which will be elaborated upon below.</p>
+</div>
+<div id="simulated-data-predictors" class="section level1">
+<h1>Simulated data predictors</h1>
+<p>As mentioned above, our dataset simulates real testing data in the state of Oregon. Below is a summary of the 39 predictor variables included in this dataset:</p>
+<pre class="r"><code>dictionary &lt;- import(here::here(&quot;data&quot;, &quot;ASHdata_dictionary.xlsx&quot;),
+                     setclass = &quot;tbl_df&quot;)
+dictionary %&gt;%
+  kbl() %&gt;%
+  kable_styling(bootstrap_options = c(&quot;condensed&quot;, &quot;responsive&quot;),
+                full_width = F) %&gt;%
+  row_spec(0, background = &quot;#171F24&quot;, color = &quot;white&quot;) %&gt;% # Color header row background 
+  column_spec(1, bold = T, border_right = T, background = &quot;#171F24&quot;, color = &quot;white&quot;) %&gt;%
+  column_spec(2, width = &quot;40em&quot;, background = &quot;#171F24&quot;, color = &quot;white&quot;) %&gt;%
+  scroll_box(width = &quot;100%&quot;, height = &quot;225px&quot;)</code></pre>
+<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:225px; overflow-x: scroll; width:100%; ">
+<table class="table table-condensed table-responsive" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;color: white !important;background-color: #171F24 !important;position: sticky; top:0; background-color: #FFFFFF;">
+Variable Name
+</th>
+<th style="text-align:left;color: white !important;background-color: #171F24 !important;position: sticky; top:0; background-color: #FFFFFF;">
+Description
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+id
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+Unique student identifier
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+gndr
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+Code indicating the gender of the student
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+ethnic_cd
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+Code representing the racial/ethnic reporting subgroup category for the student
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+attnd_dist_inst_id
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+The District where the student is receiving instruction and where state assessments are administered
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+attnd_schl_inst_id
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+The School where the student is receiving instruction and where state assessments are administered
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+enrl_grd
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+Enrolled grade level of the student
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+calc_admn_cd
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+Special circumstances affecting test administration (e.g., home schooled, foreign exchange, out of state)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+tst_bnch
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+Benchmark level of the administered test (e.g., grade 3, grade 5, grade 8)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+tst_dt
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+Date the test was taken (mm/dd/yyyy)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+migrant_ed_fg
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+Student participation in a program designed to assure that migratory children receive full and appropriate opportunities
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+ind_ed_fg
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+Student participation in a program designed to meet educational and culturally related academic needs of American Indians
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+sp_ed_fg
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+Student participation in an Individualized Education Plan (IEP/IFSP)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+tag_ed_fg
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+Student participation in a Talented and Gifted program
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+econ_dsvntg
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+Student eligibility for a Free or Reduced Lunch program
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+ayp_lep
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+Student who received services (or was eligible to receive services) in a Limited English Proficient program
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+stay_in_dist
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+Student enrolled &gt; 50% of the days in the school year at the district where the student is resident
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+stay_in_schl
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+Student enrolled &gt; 50% of the days in the school year at the school where the student is resident
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+dist_sped
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+Student enrolled in a district special education program and received general education classroom instruction &lt; 40% of the time
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+trgt_assist_fg
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+Record is included in Title 1 Targeted Assistance for the Adequate Yearly Progress (AYP) school performance calculations
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+ayp_dist_partic
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+Record is included in the denominator of Adequate Yearly Progress (AYP) district participation calculations
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+ayp_schl_partic
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+Record is included in the denominator of Adequate Yearly Progress (AYP) school participation calculations
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+ayp_dist_prfrm
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+Record is included in the denominator of Adequate Yearly Progress (AYP) district performance calculations
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+ayp_schl_prfrm
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+Record is included in the denominator of Adequate Yearly Progress (AYP) school performance calculations
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+rc_dist_partic
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+Record is included in the denominator of Report Card (RC) district participation calculations
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+rc_schl_partic
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+Record is included in the denominator of Report Card (RC) school participation calculations
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+rc_dist_prfrm
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+Record is included in the denominator of Report Card (RC) district performance calculations
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+rc_schl_prfrm
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+Record is included in the denominator of Report Card (RC) school participation calculations
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+partic_dist_inst_id
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+The Resident District where the student was enrolled on the first school day in May.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+partic_schl_inst_id
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+The Resident School where the student was enrolled on the first school day in May.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+lang_cd
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+Language of the test (English or Spanish)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+tst_atmpt_fg
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+Code describing whether the test was attempted
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+grp_rpt_dist_partic
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+Record is included in the denominator of Group Report district participation calculations
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+grp_rpt_schl_partic
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+Record is included in the denominator of Group Report school participation calculations
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+grp_rpt_dist_prfrm
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+Record is included in the denominator of Group Report district performance calculations
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+grp_rpt_schl_prfrm
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+Record is included in the denominator of Group Report school participation calculations
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+classification
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+Performance Level for Benchmark (PLB) Total Score
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+ncessch
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+NCES school identifier
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+lat
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+school latitute
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #171F24 !important;border-right:1px solid;">
+lon
+</td>
+<td style="text-align:left;width: 40em; color: white !important;background-color: #171F24 !important;">
+school longitute
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><span class="math inline">\(~\)</span></p>
+<p>And below you can find a summary of the descriptive statistics for each variable:</p>
 <pre class="r"><code># read in data set
 data &lt;- read_csv(&quot;data/train.csv&quot;,
                  col_types = cols(.default = col_guess(), 
-                                  calc_admn_cd = col_character()))  %&gt;% 
+                                  calc_admn_cd = col_character())) %&gt;% 
     select(-classification)
 
-# read in free/reduced lunch data and student counts
+psych::describe(data)</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["vars"],"name":[1],"type":["int"],"align":["right"]},{"label":["n"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["sd"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["trimmed"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["mad"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["min"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["range"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["skew"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["kurtosis"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["se"],"name":[13],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"189426","3":"126190.513134","4":"72879.84306643","5":"126095.50000","6":"126170.722117","7":"93497.9451000","8":"1.00000","9":"252568.00000","10":"252567.000000","11":"0.001673069","12":"-1.1980892","13":"167.4509572167","_rn_":"id"},{"1":"2","2":"189426","3":"1.512158","4":"0.49985349","5":"2.00000","6":"1.515197","7":"0.0000000","8":"1.00000","9":"2.00000","10":"1.000000","11":"-0.048645125","12":"-1.9976442","13":"0.0011484787","_rn_":"gndr*"},{"1":"3","2":"189426","3":"5.506045","4":"2.00710047","5":"7.00000","6":"5.761492","7":"0.0000000","8":"1.00000","9":"7.00000","10":"6.000000","11":"-0.801878434","12":"-0.9831129","13":"0.0046115755","_rn_":"ethnic_cd*"},{"1":"4","2":"189426","3":"2119.069098","4":"187.43284184","5":"2142.00000","6":"2114.400754","7":"131.9514000","8":"1894.00000","9":"4131.00000","10":"2237.000000","11":"6.851434791","12":"72.0044081","13":"0.4306514320","_rn_":"attnd_dist_inst_id"},{"1":"5","2":"189426","3":"1374.546768","4":"1393.02102533","5":"934.00000","6":"1112.497855","7":"578.2140000","8":"1.00000","9":"5392.00000","10":"5391.000000","11":"1.564702578","12":"1.1721020","13":"3.2006477278","_rn_":"attnd_schl_inst_id"},{"1":"6","2":"189426","3":"5.462017","4":"1.69477021","5":"5.00000","6":"5.452521","7":"1.4826000","8":"3.00000","9":"8.00000","10":"5.000000","11":"0.037068869","12":"-1.2486847","13":"0.0038939559","_rn_":"enrl_grd"},{"1":"7","2":"0","3":"NaN","4":"NA","5":"NA","6":"NaN","7":"NA","8":"Inf","9":"-Inf","10":"-Inf","11":"NA","12":"NA","13":"NA","_rn_":"calc_admn_cd*"},{"1":"8","2":"189426","3":"3.483978","4":"1.70094008","5":"4.00000","6":"3.479973","7":"2.9652000","8":"1.00000","9":"6.00000","10":"5.000000","11":"0.007099858","12":"-1.2650666","13":"0.0039081320","_rn_":"tst_bnch*"},{"1":"9","2":"189426","3":"53.533221","4":"8.78148719","5":"54.00000","6":"54.115869","7":"7.4130000","8":"1.00000","9":"71.00000","10":"70.000000","11":"-0.919862903","12":"1.9792539","13":"0.0201766136","_rn_":"tst_dt*"},{"1":"10","2":"189426","3":"1.027414","4":"0.16328806","5":"1.00000","6":"1.000000","7":"0.0000000","8":"1.00000","9":"2.00000","10":"1.000000","11":"5.788336317","12":"31.5050036","13":"0.0003751756","_rn_":"migrant_ed_fg*"},{"1":"11","2":"189365","3":"1.022892","4":"0.21268374","5":"1.00000","6":"1.000000","7":"0.0000000","8":"1.00000","9":"3.00000","10":"2.000000","11":"9.185632749","12":"82.3891807","13":"0.0004887474","_rn_":"ind_ed_fg*"},{"1":"12","2":"189365","3":"1.135157","4":"0.34189206","5":"1.00000","6":"1.043949","7":"0.0000000","8":"1.00000","9":"2.00000","10":"1.000000","11":"2.134247277","12":"2.5550249","13":"0.0007856682","_rn_":"sp_ed_fg*"},{"1":"13","2":"188963","3":"1.057419","4":"0.23264143","5":"1.00000","6":"1.000000","7":"0.0000000","8":"1.00000","9":"2.00000","10":"1.000000","11":"3.804816848","12":"12.4766973","13":"0.0005351785","_rn_":"tag_ed_fg*"},{"1":"14","2":"188895","3":"1.576262","4":"0.49415120","5":"2.00000","6":"1.595327","7":"0.0000000","8":"1.00000","9":"2.00000","10":"1.000000","11":"-0.308656706","12":"-1.9047411","13":"0.0011369716","_rn_":"econ_dsvntg*"},{"1":"15","2":"38087","3":"5.670911","4":"2.73620625","5":"4.00000","6":"5.495225","7":"1.4826000","8":"1.00000","9":"10.00000","10":"9.000000","11":"0.662687777","12":"-1.2244936","13":"0.0140204014","_rn_":"ayp_lep*"},{"1":"16","2":"188963","3":"1.975392","4":"0.15492761","5":"2.00000","6":"2.000000","7":"0.0000000","8":"1.00000","9":"2.00000","10":"1.000000","11":"-6.136923919","12":"35.6620239","13":"0.0003564023","_rn_":"stay_in_dist*"},{"1":"17","2":"188963","3":"1.968655","4":"0.17424818","5":"2.00000","6":"2.000000","7":"0.0000000","8":"1.00000","9":"2.00000","10":"1.000000","11":"-5.379141023","12":"26.9353007","13":"0.0004008481","_rn_":"stay_in_schl*"},{"1":"18","2":"188963","3":"1.007605","4":"0.08687274","5":"1.00000","6":"1.000000","7":"0.0000000","8":"1.00000","9":"2.00000","10":"1.000000","11":"11.335955321","12":"126.5045525","13":"0.0001998458","_rn_":"dist_sped*"},{"1":"19","2":"188956","3":"1.084787","4":"0.40257059","5":"1.00000","6":"1.000000","7":"0.0000000","8":"1.00000","9":"3.00000","10":"2.000000","11":"4.542292520","12":"18.6447869","13":"0.0009261081","_rn_":"trgt_assist_fg*"},{"1":"20","2":"189426","3":"1.997197","4":"0.05287119","5":"2.00000","6":"2.000000","7":"0.0000000","8":"1.00000","9":"2.00000","10":"1.000000","11":"-18.807755638","12":"351.7335290","13":"0.0001214785","_rn_":"ayp_dist_partic*"},{"1":"21","2":"189426","3":"1.989621","4":"0.10134624","5":"2.00000","6":"2.000000","7":"0.0000000","8":"1.00000","9":"2.00000","10":"1.000000","11":"-9.662296591","12":"91.3604577","13":"0.0002328562","_rn_":"ayp_schl_partic*"},{"1":"22","2":"189426","3":"1.969450","4":"0.17209599","5":"2.00000","6":"2.000000","7":"0.0000000","8":"1.00000","9":"2.00000","10":"1.000000","11":"-5.455645133","12":"27.7642104","13":"0.0003954130","_rn_":"ayp_dist_prfrm*"},{"1":"23","2":"189426","3":"1.956030","4":"0.20502821","5":"2.00000","6":"2.000000","7":"0.0000000","8":"1.00000","9":"2.00000","10":"1.000000","11":"-4.448440722","12":"17.7887188","13":"0.0004710791","_rn_":"ayp_schl_prfrm*"},{"1":"24","2":"189426","3":"1.997197","4":"0.05287119","5":"2.00000","6":"2.000000","7":"0.0000000","8":"1.00000","9":"2.00000","10":"1.000000","11":"-18.807755638","12":"351.7335290","13":"0.0001214785","_rn_":"rc_dist_partic*"},{"1":"25","2":"189426","3":"1.989621","4":"0.10134624","5":"2.00000","6":"2.000000","7":"0.0000000","8":"1.00000","9":"2.00000","10":"1.000000","11":"-9.662296591","12":"91.3604577","13":"0.0002328562","_rn_":"rc_schl_partic*"},{"1":"26","2":"189426","3":"1.969450","4":"0.17209599","5":"2.00000","6":"2.000000","7":"0.0000000","8":"1.00000","9":"2.00000","10":"1.000000","11":"-5.455645133","12":"27.7642104","13":"0.0003954130","_rn_":"rc_dist_prfrm*"},{"1":"27","2":"189426","3":"1.956030","4":"0.20502821","5":"2.00000","6":"2.000000","7":"0.0000000","8":"1.00000","9":"2.00000","10":"1.000000","11":"-4.448440722","12":"17.7887188","13":"0.0004710791","_rn_":"rc_schl_prfrm*"},{"1":"28","2":"188895","3":"2119.861516","4":"190.58508650","5":"2142.00000","6":"2114.477034","7":"131.9514000","8":"1894.00000","9":"5401.00000","10":"3507.000000","11":"6.767665498","12":"69.3171554","13":"0.4385091727","_rn_":"partic_dist_inst_id"},{"1":"29","2":"188895","3":"1374.857185","4":"1392.47014556","5":"934.00000","6":"1113.177842","7":"579.6966000","8":"1.00000","9":"5401.00000","10":"5400.000000","11":"1.562398355","12":"1.1657109","13":"3.2038757220","_rn_":"partic_schl_inst_id"},{"1":"30","2":"4304","3":"1.000000","4":"0.00000000","5":"1.00000","6":"1.000000","7":"0.0000000","8":"1.00000","9":"1.00000","10":"0.000000","11":"NaN","12":"NaN","13":"0.0000000000","_rn_":"lang_cd*"},{"1":"31","2":"189426","3":"1.996474","4":"0.05927922","5":"2.00000","6":"2.000000","7":"0.0000000","8":"1.00000","9":"2.00000","10":"1.000000","11":"-16.750252287","12":"278.5724223","13":"0.0001362017","_rn_":"tst_atmpt_fg*"},{"1":"32","2":"189426","3":"1.997197","4":"0.05287119","5":"2.00000","6":"2.000000","7":"0.0000000","8":"1.00000","9":"2.00000","10":"1.000000","11":"-18.807755638","12":"351.7335290","13":"0.0001214785","_rn_":"grp_rpt_dist_partic*"},{"1":"33","2":"189426","3":"1.989621","4":"0.10134624","5":"2.00000","6":"2.000000","7":"0.0000000","8":"1.00000","9":"2.00000","10":"1.000000","11":"-9.662296591","12":"91.3604577","13":"0.0002328562","_rn_":"grp_rpt_schl_partic*"},{"1":"34","2":"189426","3":"1.992678","4":"0.08525576","5":"2.00000","6":"2.000000","7":"0.0000000","8":"1.00000","9":"2.00000","10":"1.000000","11":"-11.557582755","12":"131.5784138","13":"0.0001958863","_rn_":"grp_rpt_dist_prfrm*"},{"1":"35","2":"189426","3":"1.985108","4":"0.12112248","5":"2.00000","6":"2.000000","7":"0.0000000","8":"1.00000","9":"2.00000","10":"1.000000","11":"-8.010157939","12":"62.1629584","13":"0.0002782947","_rn_":"grp_rpt_schl_prfrm*"},{"1":"36","2":"189426","3":"2498.992762","4":"115.82831267","5":"2498.00000","6":"2498.751495","7":"114.1602000","8":"1601.00000","9":"3550.00000","10":"1949.000000","11":"-0.030413799","12":"0.5165810","13":"0.2661306750","_rn_":"score"},{"1":"37","2":"186210","3":"410693394857.840820","4":"391895157.93237108","5":"410750001582.00000","6":"410703330796.165649","7":"492222034.6763999","8":"410000301061.00000","9":"411365000319.00000","10":"1364699258.000000","11":"-0.242149872","12":"-1.2607133","13":"908172.6055087092","_rn_":"ncessch"},{"1":"38","2":"186026","3":"44.774716","4":"1.01682310","5":"45.24668","6":"44.955137","7":"0.4511715","8":"42.01103","9":"46.17933","10":"4.168306","11":"-1.296418654","12":"0.6561373","13":"0.0023575373","_rn_":"lat"},{"1":"39","2":"186026","3":"-122.522585","4":"1.18926487","5":"-122.81852","6":"-122.746103","7":"0.3633526","8":"-124.49686","9":"-116.93905","10":"7.557817","11":"2.638094951","12":"7.7889649","13":"0.0027573492","_rn_":"lon"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p><span class="math inline">\(~\)</span></p>
+</div>
+<div id="additional-data-sources" class="section level1">
+<h1>Additional data sources</h1>
+<div id="free-and-reduced-lunch" class="section level2">
+<h2>Free and reduced lunch</h2>
+<p>Note that our simulated dataset described above primarily includes student-level predictors. We decided to import additional data containing info specific to the schools (<code>ncessch</code>) students attend. We reasoned that school-level variables could have an important impact on the quality of education students receive, in turn impacting students’ scores.</p>
+<p>First, we obtained free/reduced lunch data for each school and counted the number of students at each school. In doing so, our goal was to create two new predictor variables that we could add to our existing dataset. Namely, we computed variables that reflect the proportion of students at a given school who are eligible for free (<code>free_lunch_prop</code>) or reduced (<code>reduced_lunch_prop</code>) lunches.</p>
+<pre class="r"><code># read in free/reduced lunch data and student counts
 frl &lt;- import(here(&quot;data&quot;, &quot;lunch.csv&quot;),
               setclass = &quot;tbl_df&quot;)  %&gt;% 
   janitor::clean_names()  %&gt;% 
@@ -491,18 +857,40 @@ frl &lt;- left_join(frl, stu_counts)
 rm(stu_counts)
 
 frl &lt;- frl %&gt;% 
-  mutate(free_lunch_prop    = free_lunch_qualified / n,
+  mutate(free_lunch_prop = free_lunch_qualified / n,
          reduced_lunch_prop = reduced_price_lunch_qualified / n)  %&gt;% 
   select(ncessch, ends_with(&quot;prop&quot;))
 
-# read in staff data
+psych::describe(frl)</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["vars"],"name":[1],"type":["int"],"align":["right"]},{"label":["n"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["sd"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["trimmed"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["mad"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["min"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["range"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["skew"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["kurtosis"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["se"],"name":[13],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"1256","3":"410701987900.1767578","4":"488283739.7640716","5":"410738004184.50000000","6":"410702255910.02984619","7":"510009353.22959995","8":"410000301061","9":"418018001510.000000","10":"8017700449.000000","11":"5.190083","12":"78.0039","13":"13777722.79140748","_rn_":"ncessch"},{"1":"2","2":"1133","3":"0.6026965","4":"1.2446647","5":"0.43750000","6":"0.47129439","7":"0.31395156","8":"0","9":"35.142857","10":"35.142857","11":"20.506231","12":"535.9249","13":"0.03697749","_rn_":"free_lunch_prop"},{"1":"3","2":"1133","3":"0.1057571","4":"0.2319942","5":"0.07061069","6":"0.08178979","7":"0.04659831","8":"0","9":"6.857143","10":"6.857143","11":"22.595370","12":"635.5081","13":"0.00689227","_rn_":"reduced_lunch_prop"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div id="staff" class="section level2">
+<h2>Staff</h2>
+<p>Here we obtained data on the number of full-time-equivalent (FTE) teachers at each school (<code>teachers</code>). Schools with more funding seemingly offer more resources and newer, better equipment for students–possibly contributing to better test scores. Our rationale was that the number of full-time teachers at a school could potentially serve as an indirect index of school funding. Or, perhaps the number of full time teachers could be negatively associated with class room size. If smaller class rooms are associated with better student performance, then perhaps this is another means by which the number of full-time teachers could aid in the predictive utility of our model.</p>
+<pre class="r"><code># read in staff data
 staff &lt;- import(here(&quot;data&quot;, &quot;staff.csv&quot;), setclass = &quot;tbl_df&quot;)  %&gt;% 
   janitor::clean_names()  %&gt;% 
   filter(st == &quot;OR&quot;)  %&gt;%
   mutate(ncessch = as.double(ncessch)) %&gt;%
   select(ncessch, teachers)
 
-# read in school characteristics data
+psych::describe(staff)</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["vars"],"name":[1],"type":["int"],"align":["right"]},{"label":["n"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["sd"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["trimmed"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["mad"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["min"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["range"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["skew"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["kurtosis"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["se"],"name":[13],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"1256","3":"410701987900.17676","4":"488283739.76407","5":"410738004184.500","6":"410702255910.02985","7":"510009353.22960","8":"410000301061","9":"418018001510.00","10":"8017700449.00","11":"5.190083","12":"78.00390","13":"13777722.7914075","_rn_":"ncessch"},{"1":"2","2":"1256","3":"22.98793","4":"16.51762","5":"20.665","6":"20.72987","7":"10.87487","8":"0","9":"154.43","10":"154.43","11":"2.390466","12":"10.02339","13":"0.4660715","_rn_":"teachers"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div id="other-school-characteristics" class="section level2">
+<h2>Other school characteristics</h2>
+<p>Here, we sought to add three more predictors. The first, <code>titlei_status</code> refers to a given school’s Title I status. A Title 1 school receives federal funds for students. The premise of Title 1 is that schools with large numbers of low-income students will receive supplemental funds to help ensure that all children meet challenging state academic standards. Note schools may receive a classification other than being a Title I school or not being a Title I school. Schools may also be classified as Title I targeted assistance eligible schools, Title I school-wide eligible Title I targeted assistance schools, and more.</p>
+<p>The second predictor of interest was <code>nslp_status</code>, which reflects a given school’s National School Lunch Program (NSLP) status. The <a href="https://www.fns.usda.gov/nslp">NSLP</a> “is a federally assisted meal program operating in public and nonprofit private schools and residential child care institutions”. Children from families with incomes at or below 130 percent of the Federal Poverty Level (FPL) are eligible for free school meals, whereas children from families with incomes between 130 to 185 percent FPL qualify for reduced-price meals. Approximately <a href="https://frac.org/wp-content/uploads/cnnslp.pdf">95 percent</a> of public schools participate in NSLP in some way. Schools may fall under codes reflecting participation in NSLP without using any Provision or Community Eligibility Option, participation in NSLP under Community Eligibility Option, participation in NSLP under Provision 1, etc.</p>
+<p>The final predictor, <code>virtual</code>, refers to a school’s virtual (online) status. Some schools may be fully virtual, not virtual at all, supplemental virtual, or virtual with face to face options.</p>
+<pre class="r"><code># read in school characteristics data
 school_chars &lt;- import(here(&quot;data&quot;, &quot;school_characteristics.csv&quot;), 
                        setclass = &quot;tbl_df&quot;)  %&gt;% 
   janitor::clean_names()  %&gt;% 
@@ -510,19 +898,44 @@ school_chars &lt;- import(here(&quot;data&quot;, &quot;school_characteristics.cs
   mutate(ncessch = as.double(ncessch)) %&gt;%
   select(ncessch, titlei_status, nslp_status, virtual)
 
-# read in ethnicity data
-eth &lt;- import(file     = here::here(&quot;data&quot;, 
-                                    &quot;fallmembershipreport_20192020.xlsx&quot;), 
-            sheet    = &quot;School (19-20)&quot;,
-            setclass = &quot;tibble&quot;) %&gt;%
+psych::describe(school_chars)</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["vars"],"name":[1],"type":["int"],"align":["right"]},{"label":["n"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["sd"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["trimmed"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["mad"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["min"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["range"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["skew"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["kurtosis"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["se"],"name":[13],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"1256","3":"410701987900.176758","4":"488283739.7640716","5":"410738004184","6":"410702255910.029846","7":"510009353","8":"410000301061","9":"418018001510","10":"8017700449","11":"5.1900835","12":"78.0039033","13":"13777722.79140748","_rn_":"ncessch"},{"1":"2","2":"1256","3":"1.488854","4":"0.5686665","5":"1","6":"1.440358","7":"0","8":"1","9":"3","10":"2","11":"0.6410813","12":"-0.6033005","13":"0.01604585","_rn_":"titlei_status*"},{"1":"3","2":"1256","3":"3.093153","4":"1.3125508","5":"4","6":"3.240557","7":"0","8":"1","9":"4","10":"3","11":"-0.8289177","12":"-1.2108681","13":"0.03703576","_rn_":"nslp_status*"},{"1":"4","2":"1256","3":"3.278662","4":"0.5760617","5":"3","6":"3.281312","7":"0","8":"1","9":"4","10":"3","11":"-0.7052842","12":"2.7054458","13":"0.01625452","_rn_":"virtual*"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div id="ethinicity-data" class="section level2">
+<h2>Ethinicity data</h2>
+<p>Finally, we imported data that breaks down the ethnic makeup of the students enrolled at each school. Specifically, for each school, we know the proportion of students who identify as:</p>
+<ul>
+<li>American Indian/Alaska Native (<code>p_american_indian_alaska_native</code>)</li>
+<li>Asian (<code>p_asian</code>)</li>
+<li>African American (<code>p_black_african_american</code>)</li>
+<li>Hispanic/Latino (<code>p_hispanic_latino</code>)</li>
+<li>Native Hawaiian/Pacific Islander (<code>p_native_hawaiian_pacific_islander</code>)</li>
+<li>White (<code>p_white</code>)</li>
+<li>Multiracial (<code>p_multiracial</code>)</li>
+</ul>
+<pre class="r"><code># read in ethnicity data
+eth &lt;- import(file = here::here(&quot;data&quot;,
+                                &quot;fallmembershipreport_20192020.xlsx&quot;),
+              sheet = &quot;School (19-20)&quot;,
+              setclass = &quot;tibble&quot;) %&gt;%
   janitor::clean_names() %&gt;%
   select(attnd_schl_inst_id = attending_school_id,
-         sch_name           = school_name,
+         sch_name = school_name,
          matches(&quot;percent&quot;))
 
 names(eth) &lt;- gsub(&quot;x2019_20_percent&quot;, &quot;p&quot;, names(eth)) 
 
-# combine our data with frl, staff, school characteristics, and ethnicities
+psych::describe(eth)</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["vars"],"name":[1],"type":["int"],"align":["right"]},{"label":["n"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["sd"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["trimmed"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["mad"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["min"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["range"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["skew"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["kurtosis"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["se"],"name":[13],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"1459","3":"1661.258396162","4":"1558.62405413","5":"1034.00000","6":"1443.532078700","7":"937.003200000","8":"1","9":"5457.00000","10":"5456.00000","11":"1.102672482","12":"-0.1415435","13":"40.805032533","_rn_":"attnd_schl_inst_id"},{"1":"2","2":"1459","3":"690.416723783","4":"397.74913911","5":"680.00000","6":"690.287425150","7":"508.531800000","8":"1","9":"1381.00000","10":"1380.00000","11":"0.002743797","12":"-1.1862708","13":"10.413137484","_rn_":"sch_name*"},{"1":"3","2":"1459","3":"0.015686415","4":"0.04818512","5":"0.00585","6":"0.007671138","7":"0.008673210","8":"0","9":"0.88284","10":"0.88284","11":"10.875463034","12":"154.4883947","13":"0.001261494","_rn_":"p_american_indian_alaska_native"},{"1":"4","2":"1459","3":"0.026003557","4":"0.05313012","5":"0.00864","6":"0.013389555","7":"0.012809664","8":"0","9":"0.61931","10":"0.61931","11":"4.769898511","12":"33.5920287","13":"0.001390955","_rn_":"p_asian"},{"1":"5","2":"1459","3":"0.006053564","4":"0.01417845","5":"0.00194","6":"0.003157767","7":"0.002876244","8":"0","9":"0.33333","10":"0.33333","11":"10.364677307","12":"201.1713982","13":"0.000371194","_rn_":"p_native_hawaiian_pacific_islander"},{"1":"6","2":"1459","3":"0.021258492","4":"0.05304041","5":"0.00603","6":"0.009410599","7":"0.008940078","8":"0","9":"1.00000","10":"1.00000","11":"7.518681315","12":"96.0633432","13":"0.001388607","_rn_":"p_black_african_american"},{"1":"7","2":"1459","3":"0.207136354","4":"0.18392804","5":"0.14311","6":"0.177364157","7":"0.115479714","8":"0","9":"1.00000","10":"1.00000","11":"1.629071974","12":"2.7586267","13":"0.004815266","_rn_":"p_hispanic_latino"},{"1":"8","2":"1459","3":"0.647821830","4":"0.21652351","5":"0.70833","6":"0.670360128","7":"0.174590976","8":"0","9":"1.00000","10":"1.00000","11":"-0.941792912","12":"0.4309255","13":"0.005668621","_rn_":"p_white"},{"1":"9","2":"1459","3":"0.063702406","4":"0.05079587","5":"0.06065","6":"0.059525757","7":"0.037079826","8":"0","9":"0.66667","10":"0.66667","11":"3.278085380","12":"25.4358443","13":"0.001329844","_rn_":"p_multiracial"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<pre class="r"><code># combine our data with frl, staff, school characteristics, and ethnicities
 data &lt;- data %&gt;%
     left_join(frl) %&gt;%
     left_join(staff) %&gt;%
@@ -531,9 +944,13 @@ data &lt;- data %&gt;%
 
 # remove unneeded dataframes
 rm(frl, staff, school_chars, eth)</code></pre>
-<div id="create-splits" class="section level3">
-<h3>Create splits</h3>
-<p>Set a seed, split your data into training and test data, and extract the training data</p>
+</div>
+</div>
+<div id="getting-to-know-our-data" class="section level1">
+<h1>Getting to know our data</h1>
+<div id="create-splits" class="section level2">
+<h2>Create splits</h2>
+<p>The goal of machine learning is to predict results based on new (unseen) data. The simplest way to do this is to split our data into two parts via the function <code>initial split()</code>: an initial training set and a test set. We will eventually fit a model to the training data and predict the results of the test set. After the initial split, we need to resample our training set to create subsets of “new” data samples that we can train the model on. The most common method–which we use here–is 10-fold cross-validation. Using <code>vfold_cv()</code>, we randomly split the training data into 10 distinct samples (“folds”) of approximately equal size. Importantly, each fold contains a sample in which none of the observations are repeated in other folds. And within each fold, a random 10% (1/10) of training data are sampled for an assessment (test) set, whereas the remaining 90% of the training data serve as the analysis (training) set.</p>
 <pre class="r"><code>set.seed(3000)
 
 # data %&lt;&gt;%
@@ -549,7 +966,6 @@ data_train &lt;- training(data_split)
 data_test  &lt;- testing(data_split)
 
 data_train_cv &lt;- vfold_cv(data_train)</code></pre>
-</div>
 <div id="exploring-the-data" class="section level3">
 <h3>Exploring the data</h3>
 <pre class="r"><code>hist_data &lt;- data_train %&gt;%
@@ -638,6 +1054,8 @@ ggplot(cor_data, aes(x = rowname, y = colname, fill = cor)) +
 <center>
 <em>Last updated: December 6th, 2020.</em>
 </center>
+</div>
+</div>
 </div>
 
 

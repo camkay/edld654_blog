@@ -5,8 +5,8 @@ output:
     toc: TRUE
     toc_depth: 1
     toc_float: TRUE
-    number_sections: TRUE
-    code_folding: hide
+    number_sections: FALSE
+    code_folding: show
     df_print: paged
 ---
 
@@ -26,6 +26,7 @@ library(rpart.plot)
 library(here)
 library(rio)
 library(magrittr)
+library(panoply)
 
 # create theme
 theme_407 <- function() { 
@@ -144,15 +145,15 @@ time1 <- tictoc::toc()
 
 ## Checking model metrics
 
-Whew! It only took ADD_VALUE to run.
+Whew! It only took `r unname(time1$toc - time1$tic)` seconds to run.
 
 Now we can check how it fit using the `collect_metrics()` function. 
 
 ```{r}
-collect_metrics(fit_rf) # 86.1
+collect_metrics(fit_rf) # 86.2
 ```
 
-We can see that it had an RMSE of ADD_VALUE and a $R^2$ of ADD_VALUE. In other words, our predictors explained ADD_VALUE% of the variance in the scores.
+We can see that it had an RMSE of `r spround(collect_metrics(fit_rf)[1, "mean"][[1]])` and a $R^2$ of `r spround(collect_metrics(fit_rf)[2, "mean"][[1]])`. In other words, our predictors explained `r spround(collect_metrics(fit_rf)[2, "mean"][[1]]*100)`% of the variance in the scores.
 
 ## Extracting important predictors
 
@@ -169,7 +170,7 @@ As we can see, the students enrolment grade (`enrl_grade`) was one of the most i
 
 # Fitting a tuned random forest model
 
-As with the linear model (ADD_LINK), we can also tune our model. With random forest models, there are three hyperparameters. The first is the number of `trees`, which we set to `500` in the previous model. However, with random forest models, people just have to ensure that there are enough trees (there is not the issue of too many trees). As a result, people commonly only tune the other two hyperparameters. 
+As with the [linear model](page2_linear.html), we can also tune our model. With random forest models, there are three hyperparameters. The first is the number of `trees`, which we set to `500` in the previous model. However, with random forest models, people just have to ensure that there are enough trees (there is not the issue of too many trees). As a result, people commonly only tune the other two hyperparameters. 
 The first of these is the minimum node side (`min_n`), which controls how deep a tree will grow. A larger value will result in shallower trees, and a smaller value will result in deeper trees. The deeper a tree, the more likely it is to have high variance, and the shallower a tree, the more likely it is to have high bias. 
 
 The second of these hyperparameters is `mtry`, which controls the number of predictors to sample for each tree. More predictors being sampled increases the similarities between the trees. As a result, it would increase the variance of models. 
@@ -231,15 +232,15 @@ time2 <- tictoc::toc()
 
 ## Checking model metrics
 
-This time, it took ADD_VALUE to run, but it is not surprising it took longer, because we fit five times the models (because we provided 5 hyperparameter values to test).
+This time, it took `r unname(time2$toc - time2$tic)` seconds to run, but it is not surprising it took longer, because we fit five times the models (because we provided 5 hyperparameter values to test).
 
-Now we can check how it fit using the `show_best()` function. We are using `show_best()` instead of `collect_metrics()` because we want to see the hyperparameters that produced best fitting models (as determined by the models "rmse")
+Now we can check how it fit using the `show_best()` function. We are using `show_best()` instead of `collect_metrics()` because we want to see the hyperparameters that produced best fitting models (as determined by the models RMSE).
 
 ```{r}
 show_best(fit_rf_tune, metric = "rmse", n = 10) # 85.8
 ```
 
-We can see that the best fitting model samples `10` predictors for each tree. 
+We can see that the best fitting model samples `r spround(show_best(fit_rf_tune, metric = "rmse", n = 10)[1, "min_n"][[1]])` predictors for each tree and has an RMSE of `r spround(show_best(fit_rf_tune, metric = "rmse", n = 10)[1, "mean"][[1]])`, an improvement over our previous RMSE of `r spround(collect_metrics(fit_rf)[1, "mean"][[1]])`.
 
 ## Plotting the tuned values
 
@@ -261,8 +262,7 @@ We can test this by trying out a different grid. Let's try a new grid, with 10 p
 
 ```{r}
 # create grid
-grid_rf_2 <- grid_regular(#mtry(range  = c(10, 25)), 
-                          min_n(range = c(10, 30)), 
+grid_rf_2 <- grid_regular(min_n(range = c(10, 30)), 
                           levels      = 10)
 ```
 
@@ -286,7 +286,7 @@ fit_rf_tune_2 <- tune_grid(
 time3 <- tictoc::toc()
 ```
 
-The new model took ADD_VALUE to fit. Again, it makes sense that it is longer, because we are now testing `10` hyperparameters instead of `5`.
+The new model took `r unname(time3$toc - time3$tic)` seconds to fit. Again, it makes sense that it is longer, because we are now testing `10` hyperparameters instead of `5`.
 
 We can then look at the metrics again...
 
@@ -304,11 +304,11 @@ fit_rf_tune_2 %>%
   theme_407()
 ```
 
-It looks like the best `min_n` (of the values we tested) is ADD_VALUE, which resulted in an average model RMSE of ADD_VALUE.
+It looks like the best `min_n` (of the values we tested) is `r spround(show_best(fit_rf_tune_2, metric = "rmse", n = 10)[1, "min_n"][[1]])` which resulted in an average model RMSE of `r spround(show_best(fit_rf_tune_2, metric = "rmse", n = 10)[1, "mean"][[1]])`. This is marginally better than our previous best RMSE of `r spround(show_best(fit_rf_tune, metric = "rmse", n = 10)[1, "mean"][[1]])`.
 
 # Finalizing the model
 
-## Finalizing the workflow
+Now that if we have promising hyper parameters, we can fit our model on the left out testing data. To do so, we will first want to finalize the workflow (using `finalize_workflow()`) to use the most performant hyperparameters.
 
 ```{r}
 workflow_rf_final <- finalize_workflow(
@@ -317,7 +317,7 @@ workflow_rf_final <- finalize_workflow(
 )
 ```
 
-## Fitting the final model
+Then we fit our model on our initial split data (`data_split`) using `last_fit()`.
 
 ```{r}
 # start timer
@@ -327,19 +327,25 @@ tictoc::tic()
 fit_rf_final <- last_fit(workflow_rf_final, split = data_split)
 
 # end timer
-time4 <- tictoc::tic()
+time4 <- tictoc::toc()
 ```
 
-## Checking model metrics
+Unsurprisingly, it was much faster to fit the model, coming in at `r unname(time3$toc - time3$tic)` seconds, because we only were not testing multiple hyperparameters.
 
 ```{r}
 collect_metrics(fit_rf_final) # 87.2
 ```
 
+The RMSE for the assessment set was <!--`r spround(collect_metrics(fit_rf_final)[1, ".estimate"][[1]])`).-->
+
 # Final thoughts
+
+Although the final model on the assessment set had a greater RMSE  (i.e., <!--`r spround(collect_metrics(fit_rf_final)[1, ".estimate"][[1]])`-->) than the last model fit on the analysis set (i.e., `r spround(show_best(fit_rf_tune_2, metric = "rmse", n = 10)[1, "mean"][[1]])`), but it is not drastically so. We can, therefore, likely conclude that the model has relatively low variance.
+
+In terms of final thoughts about tuning the model, even when only using `500` `trees`, testing only `15` different values for the minimum node size (i.e., `min_n`), and using only `10`% of the data, the tuning model took over `35` minutes to run on a computer with `r benchmarkme::get_cpu()$no_of_cores`  `r str_extract(benchmarkme::get_cpu()$model_name, "\\d\\.\\d{2}GHz")` cores (hyper-threaded) with `r benchmarkme::get_ram()` of RAM. Moreover, the model RMSE also only improved by <!--`r spround(collect_metrics(fit_rf)[1, "mean"][[1]] - show_best(fit_rf_tune_2, metric = "rmse", n = 10)[1, "min_n"][[1]])`-->. At least for this data, the additional time required to tune the model did not seem appropriate for the minimal increase in RMSE.  
 
 ***
 
 <center>
-*Last updated: December 5th, 2020.*
+*Last updated: December 8th, 2020.*
 </center>

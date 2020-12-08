@@ -442,14 +442,14 @@ div.tocify {
 
 
 <hr />
-<div id="fitting-an-untuned-random-forest-model" class="section level1" number="1">
-<h1 number="1"><span class="header-section-number">1</span> Fitting an untuned random forest model</h1>
+<div id="fitting-an-untuned-random-forest-model" class="section level1">
+<h1>Fitting an untuned random forest model</h1>
 <p>On this page, we provide an overview of how to fit and tune a random forest model. But, before we get into the fitting and tuning, it is important to describe what exactly a random forest model is and, before we do that, we need to describe what decision trees and bagging are.</p>
 <p>An intuitive way to think of a decision tree is as a flow chart. Essentially, a decision tree predicts some outcome (whether it is continuous or categorical) by making a number of yes/no decisions on the predictors. For example, in predicting how much coffee a person drinks, the model might predict greater amounts if the person is over 18 (i.e., yes to over 18) than if they are under 18 (i.e., not to over 18) and if they are from Oregon than from other states. In doing so, it also captures interactions between the variables, such that the prediction for a 27-year-old Oregonian could be different from a 17-year old Oregonian and a 27-year-old Washingtonian.</p>
 <p>The problem with a decision tree is that it can easily overfit to a given dataset. To address this issue, we can use bootstrap aggregation (i.e., bagging), which makes multiple decision trees based on a bootstrap resamples of the training data. In doing so, we are essentially creating a number of models that are more biased than the single decision tree would be. However, when we average those trees together, we reduce much of that bias and also end up with a model that has less overall variance.</p>
 <p>Random forests further attempt to reduce this variance by making the trees built upon each of the resamples more dissimilar. It does this by randomly sampling some number of predictors for each tree (rather than including the same predictors in each tree). This reduces the likelihood that the same predictors will always be found higher up in the trees (e.g., at the roote node) because, in certain trees, those predictors won’t exist.</p>
-<div id="creating-the-model" class="section level2" number="1.1">
-<h2 number="1.1"><span class="header-section-number">1.1</span> Creating the model</h2>
+<div id="creating-the-model" class="section level2">
+<h2>Creating the model</h2>
 <p>To fit a random forest model, we start by creating a specification of the model. To do this, we can use the <code>random_forest()</code> function from <code>{parsnip}</code>. Since we are predicting a continuous variable (i.e., <code>score</code>) we will want to set the mode (using <code>set_mode()</code>) to <code>"regression"</code>. We will also want to set the engine (using <code>set_engine()</code>). Here, we will be using the engine <code>"ranger"</code> because it is more efficient than <code>randomForest</code>. We also set <code>num.threads</code> to the number of cores on our computer. By providing this information, <code>ranger</code> is able to parallelize the process, speeding up the creating of the models. Setting <code>importance = "permutation"</code> means, when identifying the most important variables, the model will use permutation. Namely, predictors will be considered more importance if shuffling their values results in worse prediction error. We also set <code>verbose = TRUE</code> so that R tells us what step in the process we are at. Finally, we set argumetns using <code>set_args()</code>. In this case, we only se one argument, which was setting <code>trees</code> to <code>500</code>. This means that our random forest model will create 500 decision trees. Although this is less than the number of trees recommended by Max and Johnson (2013), we chose this value to improve computational efficiency and to minimize potential memory issues during tuning (i.e., exhausting vector memory in R).</p>
 <pre class="r"><code>model_rf &lt;- rand_forest() %&gt;% 
   set_mode(&quot;regression&quot;) %&gt;% 
@@ -459,16 +459,16 @@ div.tocify {
              verbose     = TRUE) %&gt;% 
   set_args(trees = 500)</code></pre>
 </div>
-<div id="creating-the-workflow" class="section level2" number="1.2">
-<h2 number="1.2"><span class="header-section-number">1.2</span> Creating the workflow</h2>
+<div id="creating-the-workflow" class="section level2">
+<h2>Creating the workflow</h2>
 <p>Once we have created the model, we can combine it with the recipe (see The Data (LINK HERE)) using <code>workflow()</code> from the <code>{workflows}</code> package. This allows us to only pass a single object (e.g., <code>workflow</code>) to fit our model instead of passing multiple objects (e.g., <code>recipe_1</code> <em>and</em> <code>model_rf</code>).</p>
 <pre class="r"><code># create workflow object
 workflow_rf &lt;- workflow() %&gt;% 
   add_recipe(recipe_1) %&gt;% 
   add_model(model_rf)</code></pre>
 </div>
-<div id="fitting-the-model" class="section level2" number="1.3">
-<h2 number="1.3"><span class="header-section-number">1.3</span> Fitting the model</h2>
+<div id="fitting-the-model" class="section level2">
+<h2>Fitting the model</h2>
 <p>Now all that is left is to fit our model using <code>fit_resamples</code>. Here we used <code>metrics = yardstick::metric_set(rmse, rsq)</code> to request calculation of the average <em>Root Mean Square Error</em> (RMSE) and <span class="math inline">\(R^2\)</span> for the model. We also used the arguments <code>tic()</code> and <code>toc()</code> from the aptly named <code>{tictoc}</code> package to measure how long it took the model to run.</p>
 <pre class="r"><code># start timer
 tictoc::tic()
@@ -484,22 +484,22 @@ fit_rf &lt;- fit_resamples(
 
 # end timer
 time1 &lt;- tictoc::toc()</code></pre>
-<pre><code>## 150.044 sec elapsed</code></pre>
+<pre><code>## 169.693 sec elapsed</code></pre>
 </div>
-<div id="checking-model-metrics" class="section level2" number="1.4">
-<h2 number="1.4"><span class="header-section-number">1.4</span> Checking model metrics</h2>
-<p>Whew! It only took ADD_VALUE to run.</p>
+<div id="checking-model-metrics" class="section level2">
+<h2>Checking model metrics</h2>
+<p>Whew! It only took 169.693 seconds to run.</p>
 <p>Now we can check how it fit using the <code>collect_metrics()</code> function.</p>
-<pre class="r"><code>collect_metrics(fit_rf) # 86.1</code></pre>
+<pre class="r"><code>collect_metrics(fit_rf) # 86.2</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[".metric"],"name":[1],"type":["chr"],"align":["left"]},{"label":[".estimator"],"name":[2],"type":["chr"],"align":["left"]},{"label":["mean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["n"],"name":[4],"type":["int"],"align":["right"]},{"label":["std_err"],"name":[5],"type":["dbl"],"align":["right"]}],"data":[{"1":"rmse","2":"standard","3":"86.1653101","4":"10","5":"0.580063517"},{"1":"rsq","2":"standard","3":"0.4381685","4":"10","5":"0.006731574"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
-<p>We can see that it had an RMSE of ADD_VALUE and a <span class="math inline">\(R^2\)</span> of ADD_VALUE. In other words, our predictors explained ADD_VALUE% of the variance in the scores.</p>
+<p>We can see that it had an RMSE of 86.17 and a <span class="math inline">\(R^2\)</span> of 0.44. In other words, our predictors explained 43.82% of the variance in the scores.</p>
 </div>
-<div id="extracting-important-predictors" class="section level2" number="1.5">
-<h2 number="1.5"><span class="header-section-number">1.5</span> Extracting important predictors</h2>
+<div id="extracting-important-predictors" class="section level2">
+<h2>Extracting important predictors</h2>
 <p>We can also check the most important predictors in our trees using the <code>vip()</code> argument.</p>
 <pre class="r"><code>pluck(fit_rf, &quot;.extracts&quot;, 1, &quot;.extracts&quot;, 1) %&gt;%
   vip(aesthetics = list(fill = &quot;cyan3&quot;), num_features = 20L) +
@@ -509,13 +509,13 @@ time1 &lt;- tictoc::toc()</code></pre>
 <p>As we can see, the students enrolment grade (<code>enrl_grade</code>) was one of the most importance predictors when it comes to predicting a students <code>score</code>. However, you might also note that the graph for the important predictors has quite a long tail. This is because we used a random forest model instead of simple bagging. As hinted at above, random forest models result in more variability of the most important predictors because only a subset of the predictors are included in each tree.</p>
 </div>
 </div>
-<div id="fitting-a-tuned-random-forest-model" class="section level1" number="2">
-<h1 number="2"><span class="header-section-number">2</span> Fitting a tuned random forest model</h1>
-<p>As with the linear model (ADD_LINK), we can also tune our model. With random forest models, there are three hyperparameters. The first is the number of <code>trees</code>, which we set to <code>500</code> in the previous model. However, with random forest models, people just have to ensure that there are enough trees (there is not the issue of too many trees). As a result, people commonly only tune the other two hyperparameters. The first of these is the minimum node side (<code>min_n</code>), which controls how deep a tree will grow. A larger value will result in shallower trees, and a smaller value will result in deeper trees. The deeper a tree, the more likely it is to have high variance, and the shallower a tree, the more likely it is to have high bias.</p>
+<div id="fitting-a-tuned-random-forest-model" class="section level1">
+<h1>Fitting a tuned random forest model</h1>
+<p>As with the <a href="page2_linear.html">linear model</a>, we can also tune our model. With random forest models, there are three hyperparameters. The first is the number of <code>trees</code>, which we set to <code>500</code> in the previous model. However, with random forest models, people just have to ensure that there are enough trees (there is not the issue of too many trees). As a result, people commonly only tune the other two hyperparameters. The first of these is the minimum node side (<code>min_n</code>), which controls how deep a tree will grow. A larger value will result in shallower trees, and a smaller value will result in deeper trees. The deeper a tree, the more likely it is to have high variance, and the shallower a tree, the more likely it is to have high bias.</p>
 <p>The second of these hyperparameters is <code>mtry</code>, which controls the number of predictors to sample for each tree. More predictors being sampled increases the similarities between the trees. As a result, it would increase the variance of models.</p>
 <p>To keep computation times down, here we are only going to provide an example of how to tune <code>min_n</code>, but the process is quite similar for tuning <code>mtry</code>. Below we added <code>min_n = tune()</code> to <code>set_args()</code> to tune the <code>min_n</code> hyperparameter.</p>
-<div id="creating-the-model-1" class="section level2" number="2.1">
-<h2 number="2.1"><span class="header-section-number">2.1</span> Creating the model</h2>
+<div id="creating-the-model-1" class="section level2">
+<h2>Creating the model</h2>
 <pre class="r"><code>model_rf_tune &lt;- rand_forest() %&gt;% 
   set_mode(&quot;regression&quot;) %&gt;% 
   set_engine(engine      = &quot;ranger&quot;,
@@ -525,21 +525,21 @@ time1 &lt;- tictoc::toc()</code></pre>
   set_args(trees = 500,
            min_n = tune())</code></pre>
 </div>
-<div id="updating-the-workflow-object" class="section level2" number="2.2">
-<h2 number="2.2"><span class="header-section-number">2.2</span> Updating the workflow object</h2>
+<div id="updating-the-workflow-object" class="section level2">
+<h2>Updating the workflow object</h2>
 <p>Now that we have created this new model, we can updated our workflow using the <code>update_model</code> function from <code>{workflows}</code>.</p>
 <pre class="r"><code>workflow_rf_tune &lt;- workflow_rf %&gt;%
   update_model(model_rf_tune)</code></pre>
 </div>
-<div id="creating-the-tuning-grid" class="section level2" number="2.3">
-<h2 number="2.3"><span class="header-section-number">2.3</span> Creating the tuning grid</h2>
+<div id="creating-the-tuning-grid" class="section level2">
+<h2>Creating the tuning grid</h2>
 <p>We also, however, have to tell <code>{tidymodels}</code> what potential values to use for <code>min_n</code>. To do so, we can use the <code>grid_regular()</code> argument from <code>{dials}</code>. Below we requested that 5 values (<code>levels</code>) be tried for <code>min_n</code> between <code>1</code> and <code>10</code>.</p>
 <pre class="r"><code># create grid
 grid_rf &lt;- grid_regular(min_n(range = c(1, 10)), 
                         levels      = 5)</code></pre>
 </div>
-<div id="fitting-the-model-1" class="section level2" number="2.4">
-<h2 number="2.4"><span class="header-section-number">2.4</span> Fitting the model</h2>
+<div id="fitting-the-model-1" class="section level2">
+<h2>Fitting the model</h2>
 <p>Now we can fit our model as we did above. However, we will now want to use <code>tune_grid()</code> instead of <code>fit_resamples()</code> because we want to fit a separate model for each value of the grid specified above. We also used <code>object = workflow_rf_tune</code> to pass our new workflow to <code>tune_grid()</code>, and <code>grid = grid_rf</code> to pass our grid to <code>tune_grid()</code>.</p>
 <pre class="r"><code># start timer
 tictoc::tic()
@@ -556,22 +556,22 @@ fit_rf_tune &lt;- tune_grid(
 
 # end timer
 time2 &lt;- tictoc::toc()</code></pre>
-<pre><code>## 724.524 sec elapsed</code></pre>
+<pre><code>## 779.163 sec elapsed</code></pre>
 </div>
-<div id="checking-model-metrics-1" class="section level2" number="2.5">
-<h2 number="2.5"><span class="header-section-number">2.5</span> Checking model metrics</h2>
-<p>This time, it took ADD_VALUE to run, but it is not surprising it took longer, because we fit five times the models (because we provided 5 hyperparameter values to test).</p>
-<p>Now we can check how it fit using the <code>show_best()</code> function. We are using <code>show_best()</code> instead of <code>collect_metrics()</code> because we want to see the hyperparameters that produced best fitting models (as determined by the models “rmse”)</p>
+<div id="checking-model-metrics-1" class="section level2">
+<h2>Checking model metrics</h2>
+<p>This time, it took 779.163 seconds to run, but it is not surprising it took longer, because we fit five times the models (because we provided 5 hyperparameter values to test).</p>
+<p>Now we can check how it fit using the <code>show_best()</code> function. We are using <code>show_best()</code> instead of <code>collect_metrics()</code> because we want to see the hyperparameters that produced best fitting models (as determined by the models RMSE).</p>
 <pre class="r"><code>show_best(fit_rf_tune, metric = &quot;rmse&quot;, n = 10) # 85.8</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["min_n"],"name":[1],"type":["int"],"align":["right"]},{"label":[".metric"],"name":[2],"type":["chr"],"align":["left"]},{"label":[".estimator"],"name":[3],"type":["chr"],"align":["left"]},{"label":["mean"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["n"],"name":[5],"type":["int"],"align":["right"]},{"label":["std_err"],"name":[6],"type":["dbl"],"align":["right"]},{"label":[".config"],"name":[7],"type":["chr"],"align":["left"]}],"data":[{"1":"10","2":"rmse","3":"standard","4":"85.76636","5":"10","6":"0.5799668","7":"Model5"},{"1":"7","2":"rmse","3":"standard","4":"85.98384","5":"10","6":"0.5916483","7":"Model4"},{"1":"5","2":"rmse","3":"standard","4":"86.20442","5":"10","6":"0.5866762","7":"Model3"},{"1":"3","2":"rmse","3":"standard","4":"86.39005","5":"10","6":"0.5752793","7":"Model2"},{"1":"1","2":"rmse","3":"standard","4":"86.58000","5":"10","6":"0.5888000","7":"Model1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
-<p>We can see that the best fitting model samples <code>10</code> predictors for each tree.</p>
+<p>We can see that the best fitting model samples 10.00 predictors for each tree and has an RMSE of 85.77, an improvement over our previous RMSE of 86.17.</p>
 </div>
-<div id="plotting-the-tuned-values" class="section level2" number="2.6">
-<h2 number="2.6"><span class="header-section-number">2.6</span> Plotting the tuned values</h2>
+<div id="plotting-the-tuned-values" class="section level2">
+<h2>Plotting the tuned values</h2>
 <p>To visualize the trend, we can use <code>autoplot()</code> to show us how average fit varied across different values of <code>min_n</code>.</p>
 <pre class="r"><code>fit_rf_tune %&gt;%
   autoplot() +
@@ -581,12 +581,11 @@ time2 &lt;- tictoc::toc()</code></pre>
 <p><img src="page3_rf_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
 <p>Ah! We see that RMSE decreased all the way up to <code>min_n</code> equals <code>10</code>. Would it reduced even more if we provided an even higher <code>min_n</code>?</p>
 </div>
-<div id="further-tuning" class="section level2" number="2.7">
-<h2 number="2.7"><span class="header-section-number">2.7</span> Further tuning</h2>
+<div id="further-tuning" class="section level2">
+<h2>Further tuning</h2>
 <p>We can test this by trying out a different grid. Let’s try a new grid, with 10 potential <code>min_n</code> values between <code>10</code> to <code>30</code></p>
 <pre class="r"><code># create grid
-grid_rf_2 &lt;- grid_regular(#mtry(range  = c(10, 25)), 
-                          min_n(range = c(10, 30)), 
+grid_rf_2 &lt;- grid_regular(min_n(range = c(10, 30)), 
                           levels      = 10)</code></pre>
 <p>We then refit the model.</p>
 <pre class="r"><code># start timer
@@ -597,15 +596,15 @@ fit_rf_tune_2 &lt;- tune_grid(
   object    = workflow_rf_tune,
   resamples = data_train_cv,
   grid      = grid_rf_2,
-  metrics   = yardstick::metric_set(rmse, rsq, huber_loss),
+  metrics   = yardstick::metric_set(rmse, rsq),
   control   = control_resamples(verbose   = TRUE,
                                 save_pred = TRUE,
                                 extract   = function(x) extract_model(x)))
 
 # end timer
 time3 &lt;- tictoc::toc()</code></pre>
-<pre><code>## 1176.374 sec elapsed</code></pre>
-<p>The new model took ADD_VALUE to fit. Again, it makes sense that it is longer, becasue we are now testing <code>10</code> hyperparameters instead of <code>5</code>.</p>
+<pre><code>## 1258.372 sec elapsed</code></pre>
+<p>The new model took 1258.372 seconds to fit. Again, it makes sense that it is longer, because we are now testing <code>10</code> hyperparameters instead of <code>5</code>.</p>
 <p>We can then look at the metrics again…</p>
 <pre class="r"><code>show_best(fit_rf_tune_2, metric = &quot;rmse&quot;, n = 10) # 85.3</code></pre>
 <div data-pagedtable="false">
@@ -620,20 +619,17 @@ time3 &lt;- tictoc::toc()</code></pre>
   geom_point(color = &quot;cyan3&quot;) +
   theme_407()</code></pre>
 <p><img src="page3_rf_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
-<p>It looks like the best <code>min_n</code> (of the values we tested) is ADD_VALUE, which resulted in an average model RMSE of ADD_VALUE.</p>
+<p>It looks like the best <code>min_n</code> (of the values we tested) is 27.00 which resulted in an average model RMSE of 85.30. This is marginally better than our previous best RMSE of 85.77.</p>
 </div>
 </div>
-<div id="finalizing-the-model" class="section level1" number="3">
-<h1 number="3"><span class="header-section-number">3</span> Finalizing the model</h1>
-<div id="finalizing-the-workflow" class="section level2" number="3.1">
-<h2 number="3.1"><span class="header-section-number">3.1</span> Finalizing the workflow</h2>
+<div id="finalizing-the-model" class="section level1">
+<h1>Finalizing the model</h1>
+<p>Now that if we have promising hyper parameters, we can fit our model on the left out testing data. To do so, we will first want to finalize the workflow (using <code>finalize_workflow()</code>) to use the most performant hyperparameters.</p>
 <pre class="r"><code>workflow_rf_final &lt;- finalize_workflow(
   workflow_rf_tune,
   select_best(fit_rf_tune_2, metric = &quot;rmse&quot;)
 )</code></pre>
-</div>
-<div id="fitting-the-final-model" class="section level2" number="3.2">
-<h2 number="3.2"><span class="header-section-number">3.2</span> Fitting the final model</h2>
+<p>Then we fit our model on our initial split data (<code>data_split</code>) using <code>last_fit()</code>.</p>
 <pre class="r"><code># start timer
 tictoc::tic()
 
@@ -641,21 +637,25 @@ tictoc::tic()
 fit_rf_final &lt;- last_fit(workflow_rf_final, split = data_split)
 
 # end timer
-time4 &lt;- tictoc::tic()</code></pre>
-</div>
-<div id="checking-model-metrics-2" class="section level2" number="3.3">
-<h2 number="3.3"><span class="header-section-number">3.3</span> Checking model metrics</h2>
+time4 &lt;- tictoc::toc()</code></pre>
+<pre><code>## 14.523 sec elapsed</code></pre>
+<p>Unsurprisingly, it was much faster to fit the model, coming in at 1258.372 seconds, because we only were not testing multiple hyperparameters.</p>
 <pre class="r"><code>collect_metrics(fit_rf_final) # 87.2</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[".metric"],"name":[1],"type":["chr"],"align":["left"]},{"label":[".estimator"],"name":[2],"type":["chr"],"align":["left"]},{"label":[".estimate"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"rmse","2":"standard","3":"87.2479913"},{"1":"rsq","2":"standard","3":"0.4365835"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
+<p>The RMSE for the assessment set was <!--87.25).--></p>
+</div>
+<div id="final-thoughts" class="section level1">
+<h1>Final thoughts</h1>
+<p>Although the final model on the assessment set had a greater RMSE (i.e., <!--87.25-->) than the last model fit on the analysis set (i.e., 85.30), but it is not drastically so. We can, therefore, likely conclude that the model has relatively low variance.</p>
+<p>In terms of final thoughts about tuning the model, even when only using <code>500</code> <code>trees</code>, testing only <code>15</code> different values for the minimum node size (i.e., <code>min_n</code>), and using only <code>10</code>% of the data, the tuning model took over <code>35</code> minutes to run on a computer with 12 2.90GHz cores (hyper-threaded) with 1.7179869^{10} of RAM. Moreover, the model RMSE also only improved by <!--59.17-->. At least for this data, the additional time required to tune the model did not seem appropriate for the minimal increase in RMSE.</p>
 <hr />
 <center>
-<em>Last updated: December 5th, 2020.</em>
+<em>Last updated: December 8th, 2020.</em>
 </center>
-</div>
 </div>
 
 
@@ -695,7 +695,7 @@ $(document).ready(function () {
 <!-- code folding -->
 <script>
 $(document).ready(function () {
-  window.initializeCodeFolding("hide" === "show");
+  window.initializeCodeFolding("show" === "show");
 });
 </script>
 
