@@ -13,6 +13,7 @@
 
 <title>Tensor Flo Ridas: A Journey in ML</title>
 
+<script src="site_libs/header-attrs-2.4/header-attrs.js"></script>
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
@@ -28,8 +29,6 @@
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 <link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
 <script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
-<link href="site_libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
-<script src="site_libs/anchor-sections-1.0/anchor-sections.js"></script>
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
 <link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
 
@@ -40,7 +39,7 @@
   div.column{display: inline-block; vertical-align: top; width: 50%;}
   div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
   ul.task-list{list-style: none;}
-    </style>
+      </style>
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
@@ -518,12 +517,12 @@ lin_fit &lt;- fit_resamples(
                               save_pred = TRUE))
 end_rf &lt;- Sys.time()
 (lin_time &lt;- end_rf - start_rf)</code></pre>
-<pre><code>## Time difference of 1.308363 mins</code></pre>
-<p>Our linear model took 1.31 minutes to run.</p>
+<pre><code>## Time difference of 1.289575 mins</code></pre>
+<p>Our linear model took 1.29 minutes to run.</p>
 </div>
 <div id="collect-metrics" class="section level2">
 <h2>Collect Metrics</h2>
-<p>After sucessfully running our linear model, we collect our RMSE to evaluate model fit. Listed below are the RMSE for each individual fold across our 10-fold CV along with the average RMSE across the 10-fold.</p>
+<p>After successfully running our linear model, we collect our RMSE to evaluate model fit. Listed below are the RMSE for each individual fold across our 10-fold CV along with the average RMSE across the 10-fold.</p>
 <pre class="r"><code># see all RMSE
 lin_fit %&gt;% 
   collect_metrics(summarize = FALSE)</code></pre>
@@ -555,8 +554,8 @@ split = data_split)
 
 end_rf &lt;- Sys.time()
 (lin_final_time &lt;- end_rf - start_rf)</code></pre>
-<pre><code>## Time difference of 8.812943 secs</code></pre>
-<p>Applying the linear model to our left out dataset from our initial split was much faster (took only 8.81 seconds to run!) compared to our 10-fold cv training data (1.31 min) where the model was fitted across multiple folds.</p>
+<pre><code>## Time difference of 9.656652 secs</code></pre>
+<p>Applying the linear model to our left out dataset from our initial split was much faster (took only 9.66 seconds to run!) compared to our 10-fold cv training data (1.29 min) where the model was fitted across multiple folds.</p>
 <div id="collect-metrics-1" class="section level2">
 <h2>Collect Metrics</h2>
 <pre class="r"><code>mod_lin_final %&gt;% 
@@ -587,11 +586,11 @@ end_rf &lt;- Sys.time()
 <div id="discussion" class="section level1">
 <h1>Discussion</h1>
 <p>The linear model provided an introduction to machine learning and a general estimate of the RMSE model fit based on all of our predictor variables. Using the linear model, our predictors were able to account for 43.65% of the variance in our score with an RMSE of 86.98 in our left-out dataset.</p>
-<p>Overall, the linear model was extremely quick to run computationally (only took 1.31 min to run through our 10-fold CV) as the algorithm makes a lot of assumptions about the data and there were no hyperparameter tuning involved in the linear model (we will briefly touch upon penalized regression which allows for tuning in the seciton below). Given that the linear model makes high assumption of the data, the linear model will have relatively low variance when applied to new unseen data. However, given the low-variance of the linear model, we will generally expect the model to produce consistent prediction that may not be the most accurate.</p>
+<p>Overall, the linear model was extremely quick to run computationally (only took 1.29 min to run through our 10-fold CV) as the algorithm makes a lot of assumptions about the data and there were no hyperparameter tuning involved in the linear model (we will briefly touch upon penalized regression which allows for tuning in the section below). Given that the linear model makes high assumption of the data, the linear model will have relatively low variance when applied to new unseen data. However, given the low-variance of the linear model, we will generally expect the model to produce consistent prediction that may not be the most accurate.</p>
 <p>To improve our RMSE, we will explore application of non-linear models - <a href="page3_rf.html">Random Forest</a> and <a href="page4_xgboost.html">Boosted Tree</a> - to our data that can also be tuned for an optimal bias-variance balance.</p>
 <div id="penalized-regression" class="section level2">
 <h2>Penalized Regression</h2>
-<p>As mentioned above, linear model makes high assumptions about the data and does not provide any hyperparameters for tuning bias-variance balance. Real world data may not necessarilty fit with all the assumptions made by the linaer model. One can look into penalized regression (also known as regularized regression or shrinkage method) to introduce bias or constraint in your model coefficients to reduce the variance while also accounting for a balanced bias.</p>
+<p>As mentioned above, linear model makes high assumptions about the data and does not provide any hyperparameters for tuning bias-variance balance. Real world data may not necessarily fit with all the assumptions made by the linear model. One can look into penalized regression (also known as regularized regression or shrinkage method) to introduce bias or constraint in your model coefficients to reduce the variance while also accounting for a balanced bias.</p>
 <p>Popular penalized regression methods include:</p>
 <ol style="list-style-type: decimal">
 <li><p>Ridge</p></li>
@@ -601,7 +600,7 @@ end_rf &lt;- Sys.time()
 <p>For more details on penalized regression, refer to <a href="https://bradleyboehmke.github.io/HOML/regularized-regression.html">Chapter 6, Regularized Regression</a> of <em>Hands-On Machine Learning with R</em> by Boehmke &amp; Greenwell (2020).</p>
 <hr />
 <center>
-<em>Last updated: December 07 2020.</em>
+<em>Last updated: December 08 2020.</em>
 </center>
 </div>
 </div>
@@ -617,7 +616,7 @@ end_rf &lt;- Sys.time()
 
 // add bootstrap table styles to pandoc tables
 function bootstrapStylePandocTables() {
-  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
 }
 $(document).ready(function () {
   bootstrapStylePandocTables();

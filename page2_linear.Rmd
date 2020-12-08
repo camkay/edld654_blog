@@ -7,6 +7,8 @@ output:
     toc_float: TRUE
     code_folding: show
     df_print: paged
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r load_libraries, include = FALSE, message = FALSE}
@@ -73,7 +75,6 @@ recipe_1 <- recipe(score ~ ., data_train) %>%
     step_medianimpute(all_numeric(), -all_outcomes(), -has_role("id vars")) %>%
     step_dummy(all_nominal(), -has_role("id vars"), one_hot = TRUE) %>%
     step_zv(all_predictors())
-
 ```
 
 ***
@@ -158,7 +159,7 @@ Our linear model took `r round(lin_time, 2)` minutes to run.
 
 ## Collect Metrics 
 
-After sucessfully running our linear model, we collect our RMSE to evaluate model fit. Listed below are the RMSE for each individual fold across our 10-fold CV along with the average RMSE across the 10-fold. 
+After successfully running our linear model, we collect our RMSE to evaluate model fit. Listed below are the RMSE for each individual fold across our 10-fold CV along with the average RMSE across the 10-fold. 
 
 ```{r}
 # see all RMSE
@@ -231,14 +232,14 @@ From the plot, we can see that the variable `sp_ed_fg_N` which indicates whether
 
 The linear model provided an introduction to machine learning and a general estimate of the RMSE model fit based on all of our predictor variables. Using the linear model, our predictors were able to account for `r round(holdout_rsq$.estimate*100, 2)`% of the variance in our score with an RMSE of `r round(holdout_rmse$.estimate, 2)` in our left-out dataset. 
 
-Overall, the linear model was extremely quick to run computationally (only took `r round(lin_time, 2)` min to run through our 10-fold CV) as the algorithm makes a lot of assumptions about the data and there were no hyperparameter tuning involved in the linear model (we will briefly touch upon penalized regression which allows for tuning in the seciton below). Given that the linear model makes high assumption of the data, the linear model will have relatively low variance when applied to new unseen data. However, given the low-variance of the linear model, we will generally expect the model to produce consistent prediction that may not be the most accurate. 
+Overall, the linear model was extremely quick to run computationally (only took `r round(lin_time, 2)` min to run through our 10-fold CV) as the algorithm makes a lot of assumptions about the data and there were no hyperparameter tuning involved in the linear model (we will briefly touch upon penalized regression which allows for tuning in the section below). Given that the linear model makes high assumption of the data, the linear model will have relatively low variance when applied to new unseen data. However, given the low-variance of the linear model, we will generally expect the model to produce consistent prediction that may not be the most accurate. 
 
 To improve our RMSE, we will explore application of non-linear models - [Random Forest](page3_rf.html) and [Boosted Tree](page4_xgboost.html) - to our data that can also be tuned for an optimal bias-variance balance. 
 
 
 ## Penalized Regression 
 
-As mentioned above, linear model makes high assumptions about the data and does not provide any hyperparameters for tuning bias-variance balance. Real world data may not necessarilty fit with all the assumptions made by the linaer model. One can look into penalized regression (also known as regularized regression or shrinkage method) to introduce bias or constraint in your model coefficients to reduce the variance while also accounting for a balanced bias. 
+As mentioned above, linear model makes high assumptions about the data and does not provide any hyperparameters for tuning bias-variance balance. Real world data may not necessarily fit with all the assumptions made by the linear model. One can look into penalized regression (also known as regularized regression or shrinkage method) to introduce bias or constraint in your model coefficients to reduce the variance while also accounting for a balanced bias. 
 
 Popular penalized regression methods include: 
 
