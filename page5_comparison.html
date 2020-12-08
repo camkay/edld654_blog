@@ -13,6 +13,7 @@
 
 <title>Tensor Flo Ridas: A Journey in Machine Learning</title>
 
+<script src="site_libs/header-attrs-2.4/header-attrs.js"></script>
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
@@ -26,8 +27,6 @@
 <script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
-<link href="site_libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
-<script src="site_libs/anchor-sections-1.0/anchor-sections.js"></script>
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
 <link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
 
@@ -38,7 +37,7 @@
   div.column{display: inline-block; vertical-align: top; width: 50%;}
   div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
   ul.task-list{list-style: none;}
-    </style>
+      </style>
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
@@ -441,7 +440,7 @@ div.tocify {
 <hr />
 <div id="model-comparisons" class="section level1">
 <h1>Model Comparisons</h1>
-<p>For this project, we aimed to predict student testing scores for grades 3-8. We chose to build three different models:</p>
+<p>For this project, we aimed to predict student test scores for grades 3-8. We chose to build three different models:</p>
 <ol style="list-style-type: decimal">
 <li>Linear regression</li>
 <li>Random forest</li>
@@ -458,7 +457,7 @@ print(df)</code></pre>
 ## 2 random forest      87.2
 ## 3 boosted tree       85.8</code></pre>
 <p>The simplest model and the least computationally demanding was the linear regression, which resulted in the second best RMSE. The random forest, was computationally demanding (about 40 minutes) and had worse predictive power than the linear regression. The best fitting model was the boosted tree, with an RMSE of 85.76. Though the boosted tree was the best performing model, it was the most computationally demanding. Tuning just 4 of the many hyperparameters took over 40 minutes to complete and did not result in significant reduction in RMSE compared to the default model.</p>
-<p>It is important to note the data set used for the random forest and boosted tree models was only 10% of the total observations, while the data set for the linear model included all observations. Sampling of the entire data set was stratified by the outcome measure to reduce model variance, however, it is possible that sampled the observations still limited the performance of the random forest and boosted tree models. If we were to fit a final boosted tree or random forest model to the entire training data, we may find that our final predictions (i.e. on test.csv) are considerably more accurate.</p>
+<p>It is important to note the data set used for the random forest and boosted tree models was only 10% of the total observations, while the data set for the linear model included all observations. Sampling of the entire data set was stratified by the outcome measure to reduce model variance, however, it is possible that stratified sampling still limited the performance of the random forest and boosted tree models. If we were to fit a final boosted tree or random forest model to the entire training data, we may find that our final predictions (i.e. on test.csv) are considerably more accurate.</p>
 <p>Taking all things into consideration, we decided to use the boosted tree for our final model.</p>
 </div>
 <div id="generating-final-predictions" class="section level1">
@@ -543,11 +542,11 @@ head(pred_frame)</code></pre>
 <pre><code>## # A tibble: 6 x 2
 ##      Id Predicted
 ##   &lt;int&gt;     &lt;dbl&gt;
-## 1     4     2545.
-## 2     6     2561.
-## 3     8     2600.
-## 4     9     2469.
-## 5    11     2517.
+## 1     4     2546.
+## 2     6     2553.
+## 3     8     2602.
+## 4     9     2507.
+## 5    11     2511.
 ## 6    15     2523.</code></pre>
 <pre class="r"><code># Check for duplicates 
 sum(duplicated(pred_frame))</code></pre>
@@ -573,7 +572,7 @@ write_csv(pred_frame, &quot;data/final_fits.csv&quot;)</code></pre>
 
 // add bootstrap table styles to pandoc tables
 function bootstrapStylePandocTables() {
-  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
 }
 $(document).ready(function () {
   bootstrapStylePandocTables();
