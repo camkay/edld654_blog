@@ -20,7 +20,7 @@ library(xgboost)
 
 # Model Comparisons
 
-For this project, we aimed to predict student testing scores for grades 3-8. We chose to build three different models:
+For this project, we aimed to predict student test scores for grades 3-8. We chose to build three different models:
 
 1. Linear regression
 2. Random forest
@@ -36,7 +36,7 @@ print(df)
 
 The simplest model and the least computationally demanding was the linear regression, which resulted in the second best RMSE. The random forest, was computationally demanding (about 40 minutes) and had worse predictive power than the linear regression. The best fitting model was the boosted tree, with an RMSE of `r df$rmse[df$model=="boosted tree"]`. Though the boosted tree was the best performing model, it was the most computationally demanding. Tuning just 4 of the many hyperparameters took over 40 minutes to complete and did not result in significant reduction in RMSE compared to the default model. 
 
-It is important to note the data set used for the random forest and boosted tree models was only 10% of the total observations, while the data set for the linear model included all observations. Sampling of the entire data set was stratified by the outcome measure to reduce model variance, however, it is possible that sampled the observations still limited the performance of the random forest and boosted tree models. If we were to fit a final boosted tree or random forest model to the entire training data, we may find that our final predictions (i.e. on test.csv) are considerably more accurate. 
+It is important to note the data set used for the random forest and boosted tree models was only 10% of the total observations, while the data set for the linear model included all observations. Sampling of the entire data set was stratified by the outcome measure to reduce model variance, however, it is possible that stratified sampling still limited the performance of the random forest and boosted tree models. If we were to fit a final boosted tree or random forest model to the entire training data, we may find that our final predictions (i.e. on test.csv) are considerably more accurate. 
 
 Taking all things into consideration, we decided to use the boosted tree for our final model. 
 
