@@ -13,6 +13,7 @@ library(here)
 library(tidyverse)
 library(tidymodels)
 library(rio)
+library(xgboost)
 ```
 
 ***
@@ -29,15 +30,15 @@ The final fits for each of the models are listed in the table below:
 
 ```{r}
 df <- tibble(model = c("linear regression", "random forest", "boosted tree"),
-             rmse = c(87, 87.25, 85.5))
+             rmse = c(86.98, 87.25, 85.76))
 print(df)
 ```
 
-The simplest model and the least computationally demanding was the linear regression, which resulted in the second best RMSE. The random forest, which required tuning for three hyperparemeters (minimum n per node and number of columns to sample), was computationally demanding (about 40 minutes) and had worse predictive power than the linear regression. The best fitting model was the boosted tree, with an RMSE of `r df$rmse[df$model=="boosted tree"]`. Though the boosted tree was the best performing model, it was the most computationally demanding. Tuning just 4 hyperparameters (out of the many more possible hyperparameters) took over 40 minutes to complete and did not result in significant reduction in RMSE compared to the default model. 
+The simplest model and the least computationally demanding was the linear regression, which resulted in the second best RMSE. The random forest, was computationally demanding (about 40 minutes) and had worse predictive power than the linear regression. The best fitting model was the boosted tree, with an RMSE of `r df$rmse[df$model=="boosted tree"]`. Though the boosted tree was the best performing model, it was the most computationally demanding. Tuning just 4 of the many hyperparameters took over 40 minutes to complete and did not result in significant reduction in RMSE compared to the default model. 
 
 It is important to note the data set used for the random forest and boosted tree models was only 10% of the total observations, while the data set for the linear model included all observations. Sampling of the entire data set was stratified by the outcome measure to reduce model variance, however, it is possible that sampled the observations still limited the performance of the random forest and boosted tree models. If we were to fit a final boosted tree or random forest model to the entire training data, we may find that our final predictions (i.e. on test.csv) are considerably more accurate. 
 
-Taking all things into consideration, we decided to use XX for our final model. 
+Taking all things into consideration, we decided to use the boosted tree for our final model. 
 
 # Generating Final Predictions
 
@@ -74,13 +75,39 @@ rec <- recipe(score ~ ., full_train) %>%
 ```
 
 ```{r preproc}
+## Train data ##
+
+# Dake data
 full_train_baked <- rec %>%
     prep() %>%
     bake(full_train)
 
+# Transform tst_dt to numeric
+full_train_baked$tst_dt <- as.numeric(full_train_baked$tst_dt)
+
+# Transform preprocessed data into feature matrix
+full_train_feat <- full_train_baked %>% 
+  select(-score, -contains("id"), -ncessch, -sch_name) %>% 
+  as.matrix()
+
+# Saving the scores as a separate vector
+train_outcome <- full_train_baked$score
+
+
+## Test data ##
+
+# Bake data
 final_test_baked <- rec %>%
     prep() %>%
     bake(final_test)
+
+# Transform tst_dt to numeric
+final_test_baked$tst_dt <- as.numeric(final_test_baked$tst_dt)
+
+# Transform preprocessed data into feature matrix
+final_test_feat <- final_test_baked %>% 
+  select(-contains("id"), -ncessch, -sch_name) %>% 
+  as.matrix()
 
 ```
 
@@ -88,29 +115,41 @@ final_test_baked <- rec %>%
 
 ```{r final_model}
 
+fit_final_xgb <- xgboost(
+   data = full_train_feat,
+   label = train_outcome,
+   nrounds = 1000, 
+   objective = "reg:squarederror",
+   early_stopping_rounds = 20, 
+   params = list(eta = .15,
+                 max_depth = 3,
+                 colsample_bytree = .1),
+   verbose = 0
+ ) 
+
 ```
 
 
 ```{r final_predictions}
-# # Fit our final model to the full training data
-# full_fit <- fit(mod_1, 
-#                 score ~ ., 
-#                 data = select(full_train_baked, -contains("id"), -ncessch, -sch_name))
-# 
-# #prediction
-# preds <- predict(full_fit, 
-#                  new_data = final_test_baked)
-# preds
-# 
-# #write out predictions 
-# pred_frame <- tibble(Id = final_test_baked$id, Predicted = preds$.pred)
-# head(pred_frame)
-# 
-# #write out the file 
-# write_csv(pred_frame, "data/final_fits.csv")
+
+# Make predictions
+predictions <- predict(fit_final_xgb, final_test_feat)
+
+# Create dataframe with predictions
+pred_frame <- tibble(Id = final_test_baked$id, Predicted = predictions)
+head(pred_frame)
+
+# Check for duplicates 
+sum(duplicated(pred_frame))
+
+# Remove duplicates
+pred_frame <- pred_frame %>% 
+  filter(!duplicated(pred_frame$Id))
+
+# Save predictions
+write_csv(pred_frame, "data/final_fits.csv")
 
 ```
-
 
 
 ***

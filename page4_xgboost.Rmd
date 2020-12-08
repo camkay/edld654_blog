@@ -54,12 +54,19 @@ theme_407 <- function() {
 }
 ```
 
+# Intro to Boosted Trees
+
+## What are boosted trees?
+
+The third model we chose to build was a boosted tree model. Similar to random forest, the boosted tree model builds decision trees over a number of iterations. While the random forest utilizes bootstrap resampling (i.e. bagging) and aggregates the predictions across samples, boosted trees learn sequentially. On each iteration, a tree is built to predict the residuals from the tree before, resulting in a slow learning process. 
+
+Boosted trees can lead to overfitting of the data if not tuned properly and can be computational inefficient. A benefit to the boosted tree model, however, is that the model can be stopped when learning does not surpass a specified threshold, preventing it from overfitting. In fact, boosted trees are known for having some of the best out-of-box performance when predicting tabular data. For this reason, we will give it a try.
 
 # Data
 
 ## Import data
 
-Only 1% of the training data was used was used so the model tuning wasn't too computationally demanding. 
+Only 1% of the training data was used was used so the model tuning wasn't too computationally demanding. The subset data was split into a training set and a testing set. The training set was used to tune the cross-validated models, while the testing set was used to evaluate it's performance.
 
 ```{r import_data}
 # Import joined data file
@@ -121,6 +128,16 @@ outcome <- train_baked$score
 
 # Model Tuning
 
+Boosted trees have considerably more hyperparameters than random forest. For the purpose of our project, we chose what we felt were the most important hyperparameters:
+
+1. **Number of trees** - If too many trees are used, then our model can overfit the data. This would result in poor out-of-box performance. Alternatively, too few trees may not allow our model enough time to learn. 
+
+2. **Learning rate** - Boosted trees often utilize a learning process called **gradient descent**. On each iteration, the model is adjusted in a way that most reduces the cost function (e.g. RMSE). The amount in which the model is adjusted on each iteration is determined by the learning rate. When the learning rate is high, the model can make adjustments that are too large and end up being far from the optimal solution. When the learning rate is too low, the model may not reach the optimal solution within the specified number of trees. 
+
+3. **Tree depth** - This refers to the number of splits for each tree. In contrast to random forest, shallow trees are used, typically with 1 to 6 splits. A shallower tree would require more trees to reach the optimal solution, while a deeper tree can lead to overfitting. 
+
+4. **Randomness** - There are a number of ways in which randomness can be introduced to a boosted tree model. One is sampling the number of predictors used to determine each split within a tree. This is similar to the random forest model, in which the number of predictors sampled for each tree (`mtry`) is a hyperparameter. 
+
 ## Basic model without any tuning
 
 Before tuning the boosted tree model, a single-cross validated model with default hyperparameters was run to estimate the timing.
@@ -148,7 +165,7 @@ time_default <- toc()
 
 Note the cross-validated boosted tree model with default parameters took about `r time_default$toc[[1]]` s. Will proceed with caution.
 
-Below are the mean train and test metrics from each iteration (i.e. tree). 
+Below are the mean train and test metrics from each iteration (i.e. tree). The model is evaluated using root mean squared error (RMSE). 
 
 ```{r}
 fit_def_xgb$evaluation_log
@@ -315,7 +332,6 @@ best_learnrate1 <- tune_learn1_best$learning_rate[1]
 * use optimal learning rate
 
 Defined as `max_depth` in `XGBoost`
-This parameter determines the maximum number of splits for each tree
 
 ```{r}
 grid_depth <- expand.grid(tree_depth = seq(1,6))
@@ -507,6 +523,8 @@ best_learnrate2 <- tune_learn2_best$learning_rate[1]
 
 ## Finalize model
 
+The final model using the optimal hyperparameters was trained on the training set. 
+
 ```{r}
 tic()
 
@@ -527,6 +545,8 @@ toc()
 
 ## Preprocess test split
 
+The testing set was preprocessed using the same recipe as the training data. 
+
 ```{r}
 # Preprocess data
 test_baked <- rec %>% 
@@ -546,6 +566,8 @@ test_outcome <- test_baked$score
 ```
 
 ## Test final model
+
+The final model was used to make predictions in the testing set. The performance of the model was evaluated using RMSE.
 
 ```{r}
 # Make predictions
