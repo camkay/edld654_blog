@@ -517,8 +517,9 @@ lin_fit &lt;- fit_resamples(
   control = control_resamples(verbose = TRUE, 
                               save_pred = TRUE))
 end_rf &lt;- Sys.time()
-lin_time &lt;- end_rf - start_rf</code></pre>
-<p>Our linear model took 1.44 minutes to run.</p>
+(lin_time &lt;- end_rf - start_rf)</code></pre>
+<pre><code>## Time difference of 1.41195 mins</code></pre>
+<p>Our linear model took 1.41 minutes to run.</p>
 </div>
 <div id="collect-metrics" class="section level2">
 <h2>Collect Metrics</h2>
@@ -553,8 +554,9 @@ lin_workflow,
 split = data_split)
 
 end_rf &lt;- Sys.time()
-lin_final_time &lt;- end_rf - start_rf</code></pre>
-<p>Applying the linear model to our left out dataset from our initial split was much faster (took only 9.27 seconds to run!) compared to our 10-fold cv training data (1.44 min) where the model was fitted across multiple folds.</p>
+(lin_final_time &lt;- end_rf - start_rf)</code></pre>
+<pre><code>## Time difference of 9.233702 secs</code></pre>
+<p>Applying the linear model to our left out dataset from our initial split was much faster (took only 9.23 seconds to run!) compared to our 10-fold cv training data (1.41 min) where the model was fitted across multiple folds.</p>
 <div id="collect-metrics-1" class="section level2">
 <h2>Collect Metrics</h2>
 <pre class="r"><code>mod_lin_final %&gt;% 
@@ -584,15 +586,13 @@ lin_final_time &lt;- end_rf - start_rf</code></pre>
 </div>
 <div id="discussion" class="section level1">
 <h1>Discussion</h1>
-<p>The linear model provided an introduction to machine learning and a general estimate of the RMSE model fit based on all of our predictor variables. Using the linear model, our predictors were able to account for 43.65% of variance in our score with an RMSE of 86.98. Overall, the linear model was extremely quick to run computationally as the algorithm utilized was <code>lm</code> and there were no hyperparameter tuning involved at this most basic level.</p>
-<p>For our subsequent model,s we will explore non-linear models that can be tuned for an optimal bias-variance balance.</p>
-<div id="penalized-regression" class="section level2">
-<h2>Penalized Regression</h2>
+<p>The linear model provided an introduction to machine learning and a general estimate of the RMSE model fit based on all of our predictor variables. Using the linear model, our predictors were able to account for 43.65% of the variance in our score with an RMSE of 86.98 in our left-out dataset.</p>
+<p>Overall, the linear model was extremely quick to run computationally (only took 1.41 to run through our 10-fold CV) as the algorithm (<code>lm</code>) makes a lot of assumptions about the data (i.e., linear model has a high bias) and there were no hyperparameter tuning involved in this basic model (we will briefly touch upon penalized regression which allwos for tuning in the seciton below). Given that the linear model assumes high assumption of our data, the linear model will have relatively low variance when applied to new unseen data. However, given the high-bias and low-variance of the linear model, we will generally expect the model to produce consistent prediction that are not the most accurate.</p>
+<p>To improve our RMSE, we will explore application of non-linear models - <a href="page3_rf.html">Random Forest</a> and <a href="page4_xgboost.html">Boosted Tree</a> - to our data that can be tuned for an optimal bias-variance balance.</p>
 <hr />
 <center>
 <em>Last updated: December 07 2020.</em>
 </center>
-</div>
 </div>
 
 
