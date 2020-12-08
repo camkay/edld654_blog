@@ -47,10 +47,10 @@ theme_407 <- function() {
 
 
 # import all data
-set.seed(3000)
-
 data <- import(here::here("data", "data.csv"), setclass = "tibble") %>%
   janitor::clean_names()
+
+set.seed(3000)
 
 # split data
 data_split    <- initial_split(data, strata = "score")
@@ -84,7 +84,7 @@ recipe_1 <- recipe(score ~ ., data_train) %>%
 
 A brief recap, our project aims to predict student math and reading test score for 3rd to 8th grade students in Oregon using data from the National Center for Educational Statistics. 
 
-To obtain a general understanding of how our predictor variables fit our data, we begin by fitting a basic linear regression model to our data akin to `stats::lm`. Our criteria for evaluation of model fit will be the root mean square error (RMSE). The result of the linear model will be used to inform subsequent model selection and tuning. 
+To obtain a general understanding of how our predictor variables fit our data, we begin by fitting a linear regression model to our data akin to `stats::lm`. Our criteria for evaluation of model fit will be the root mean square error (RMSE). The result of the linear model will be used to inform subsequent model selection and tuning. 
 
 We will use the following recipe (for more information, [see our Data section](page1_data.html)) to fit our model. 
 
@@ -110,7 +110,7 @@ As shown in our recipe summary, our recipe contains 7 id variables (these variab
 
 ## Build Linear Model 
 
-To build our model, we will use the [`parsnip`](https://parsnip.tidymodels.org/) and [`workflows`](https://workflows.tidymodels.org/) package that is a part of the [`tidymodels`](https://www.tidymodels.org/) family of packages developed to facilitate modeling and machine learning. 
+To build our linear model, we will use the [`parsnip`](https://parsnip.tidymodels.org/) and [`workflows`](https://workflows.tidymodels.org/) package that is a part of the [`tidymodels`](https://www.tidymodels.org/) family of packages developed to facilitate modeling and machine learning. 
 
 `parsnip` provides an unified interface of common machine learning algorithms where users simply have to specify the model and engine rather than having to remember model specifications that may differ across different algorithm packages. Here is a reference [library](https://www.tidymodels.org/find/parsnip/) of `parsnip` models. 
 
@@ -158,7 +158,7 @@ Our linear model took `r round(lin_time, 2)` minutes to run.
 
 ## Collect Metrics 
 
-After sucessfully running our model, we collect our RMSE to evaluate model fit. Listed below are the RMSE for each individual fold across our 10-fold CV along with the average RMSE across the 10-fold. 
+After sucessfully running our linear model, we collect our RMSE to evaluate model fit. Listed below are the RMSE for each individual fold across our 10-fold CV along with the average RMSE across the 10-fold. 
 
 ```{r}
 # see all RMSE
@@ -231,12 +231,24 @@ From the plot, we can see that the variable `sp_ed_fg_N` which indicates whether
 
 The linear model provided an introduction to machine learning and a general estimate of the RMSE model fit based on all of our predictor variables. Using the linear model, our predictors were able to account for `r round(holdout_rsq$.estimate*100, 2)`% of the variance in our score with an RMSE of `r round(holdout_rmse$.estimate, 2)` in our left-out dataset. 
 
-Overall, the linear model was extremely quick to run computationally (only took `r round(lin_time, 2)` to run through our 10-fold CV) as the algorithm (`lm`) makes a lot of assumptions about the data (i.e., linear model has a high bias) and there were no hyperparameter tuning involved in this basic model (we will briefly touch upon penalized regression which allwos for tuning in the seciton below). Given that the linear model assumes high assumption of our data, the linear model will have relatively low variance when applied to new unseen data. However, given the high-bias and low-variance of the linear model, we will generally expect the model to produce consistent prediction that may not be the most accurate. 
+Overall, the linear model was extremely quick to run computationally (only took `r round(lin_time, 2)` min to run through our 10-fold CV) as the algorithm makes a lot of assumptions about the data and there were no hyperparameter tuning involved in the linear model (we will briefly touch upon penalized regression which allows for tuning in the seciton below). Given that the linear model makes high assumption of the data, the linear model will have relatively low variance when applied to new unseen data. However, given the low-variance of the linear model, we will generally expect the model to produce consistent prediction that may not be the most accurate. 
 
-To improve our RMSE, we will explore application of non-linear models - [Random Forest](page3_rf.html) and [Boosted Tree](page4_xgboost.html) - to our data that can be tuned for an optimal bias-variance balance. 
+To improve our RMSE, we will explore application of non-linear models - [Random Forest](page3_rf.html) and [Boosted Tree](page4_xgboost.html) - to our data that can also be tuned for an optimal bias-variance balance. 
 
 
 ## Penalized Regression 
+
+As mentioned above, linear model makes high assumptions about the data and does not provide any hyperparameters for tuning bias-variance balance. Real world data may not necessarilty fit with all the assumptions made by the linaer model. One can look into penalized regression (also known as regularized regression or shrinkage method) to introduce bias or constraint in your model coefficients to reduce the variance while also accounting for a balanced bias. 
+
+Popular penalized regression methods include: 
+
+1) Ridge  
+
+2) Lasso 
+
+3) Elastic net
+
+For more details on penalized regression, refer to [Chapter 6, Regularized Regression](https://bradleyboehmke.github.io/HOML/regularized-regression.html) of *Hands-On Machine Learning with R* by Boehmke & Greenwell (2020). 
 
 ***
 

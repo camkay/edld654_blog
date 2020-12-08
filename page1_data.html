@@ -11,7 +11,7 @@
 
 
 
-<title>Tensor Flo Ridas: A Journey in Machine Learning</title>
+<title>Tensor Flo Ridas: A Journey in ML</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -437,38 +437,13 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Tensor Flo Ridas: A Journey in Machine Learning</h1>
+<h1 class="title toc-ignore">Tensor Flo Ridas: A Journey in ML</h1>
 
 </div>
 
 
-<pre class="r"><code>theme_tensor_flo &lt;- function() { 
-    theme_bw() %+replace% 
-        theme(
-          legend.background = element_rect(fill = &quot;#1b1d22&quot;,
-                                           colour = &quot;#1b1d22&quot;),
-          panel.background = element_rect(fill = &quot;#171f24&quot;,
-                                          colour = &quot;#1b1d22&quot;,
-                                          size = 0.5,
-                                          linetype = &quot;solid&quot;),
-          panel.grid.major = element_line(size = 0.2, 
-                                          linetype = &#39;solid&#39;, 
-                                          colour = &quot;gray40&quot;), 
-          panel.grid.minor = element_line(size = 0.0, 
-                                          linetype = &#39;solid&#39;,
-                                          colour = &quot;gray40&quot;),
-          axis.line = element_line(colour = &quot;white&quot;),
-          plot.background = element_rect(fill = &quot;#171f24&quot;),
-          text  = element_text(color = &quot;white&quot;),
-          axis.text  = element_text(color = &quot;white&quot;),
-          axis.ticks = element_line(color = &quot;white&quot;),
-          strip.background = element_rect(fill = &quot;white&quot;,
-                                          colour = &quot;white&quot;))}</code></pre>
-<p><strong>Describe core features of the data, any additional data you joined in and why, and basic descriptives.</strong></p>
-<p><strong>The description should be sufficiently clear that the instructor understands all the variables that were included in your modeling, and how the final analytic dataset was constructed, without actually viewing your code. While specific code snippets can be included in this section to add clarity, the reader should not have to rely on this code to understand the data preparation.</strong></p>
-<p><strong>Provide a summary of the variables (e.g., how many categorical/continuous variables were included, what were the range of values, etc.), and any feature engineering applied to the data. If missing data are present, discuss how these values were handled, variable transformations, etc. Use this section to explain your data splitting process for model evaluation.</strong></p>
-<div id="our-dependent-variable" class="section level1">
-<h1>Our dependent variable</h1>
+<div id="the-outcome-variable" class="section level1">
+<h1>The outcome variable</h1>
 <p>Across the entire United States, students in grades 3-8 are tested annually in reading and math. Our goal in this course was to create a machine learning model capable of accurately predicting a given student’s performance on these tests (i.e., a scaled test total score). While our dataset is simulated from actual statewide testing administration across the state of Oregon, the overall distributions are highly similar. The school IDs (<code>ncessch</code>) are real. So we used school IDs to link our simulated data with other sources (e.g., <a href="https://nces.ed.gov/ccd/files.asp#Fiscal:2,LevelId:7,SchoolYearId:33,Page:1">National Center for Educational Statistics</a>), which will be elaborated upon below.</p>
 </div>
 <div id="simulated-data-predictors" class="section level1">
@@ -867,6 +842,7 @@ psych::describe(frl)</code></pre>
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["vars"],"name":[1],"type":["int"],"align":["right"]},{"label":["n"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["sd"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["trimmed"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["mad"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["min"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["range"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["skew"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["kurtosis"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["se"],"name":[13],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"1256","3":"410701987900.1767578","4":"488283739.7640716","5":"410738004184.50000000","6":"410702255910.02984619","7":"510009353.22959995","8":"410000301061","9":"418018001510.000000","10":"8017700449.000000","11":"5.190083","12":"78.0039","13":"13777722.79140748","_rn_":"ncessch"},{"1":"2","2":"1133","3":"0.6026965","4":"1.2446647","5":"0.43750000","6":"0.47129439","7":"0.31395156","8":"0","9":"35.142857","10":"35.142857","11":"20.506231","12":"535.9249","13":"0.03697749","_rn_":"free_lunch_prop"},{"1":"3","2":"1133","3":"0.1057571","4":"0.2319942","5":"0.07061069","6":"0.08178979","7":"0.04659831","8":"0","9":"6.857143","10":"6.857143","11":"22.595370","12":"635.5081","13":"0.00689227","_rn_":"reduced_lunch_prop"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
+<p><span class="math inline">\(~\)</span></p>
 </div>
 <div id="staff" class="section level2">
 <h2>Staff</h2>
@@ -884,10 +860,11 @@ psych::describe(staff)</code></pre>
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["vars"],"name":[1],"type":["int"],"align":["right"]},{"label":["n"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["sd"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["trimmed"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["mad"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["min"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["range"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["skew"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["kurtosis"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["se"],"name":[13],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"1256","3":"410701987900.17676","4":"488283739.76407","5":"410738004184.500","6":"410702255910.02985","7":"510009353.22960","8":"410000301061","9":"418018001510.00","10":"8017700449.00","11":"5.190083","12":"78.00390","13":"13777722.7914075","_rn_":"ncessch"},{"1":"2","2":"1256","3":"22.98793","4":"16.51762","5":"20.665","6":"20.72987","7":"10.87487","8":"0","9":"154.43","10":"154.43","11":"2.390466","12":"10.02339","13":"0.4660715","_rn_":"teachers"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
+<p><span class="math inline">\(~\)</span></p>
 </div>
 <div id="other-school-characteristics" class="section level2">
 <h2>Other school characteristics</h2>
-<p>Here, we sought to add three more predictors. The first, <code>titlei_status</code> refers to a given school’s Title I status. A Title 1 school receives federal funds for students. The premise of Title 1 is that schools with large numbers of low-income students will receive supplemental funds to help ensure that all children meet challenging state academic standards. Note schools may receive a classification other than being a Title I school or not being a Title I school. Schools may also be classified as Title I targeted assistance eligible schools, Title I school-wide eligible Title I targeted assistance schools, and more.</p>
+<p>Here, we sought to add three more predictors. The first, <code>titlei_status</code> refers to a given school’s Title I status. The premise of Title I is that schools with large numbers of low-income students will receive supplemental funds to help ensure that all children meet challenging state academic standards. Note schools may receive a classification other than being a Title I school or not being a Title I school. Schools may also be classified as Title I targeted assistance eligible schools, Title I school-wide eligible Title I targeted assistance schools, and more.</p>
 <p>The second predictor of interest was <code>nslp_status</code>, which reflects a given school’s National School Lunch Program (NSLP) status. The <a href="https://www.fns.usda.gov/nslp">NSLP</a> “is a federally assisted meal program operating in public and nonprofit private schools and residential child care institutions”. Children from families with incomes at or below 130 percent of the Federal Poverty Level (FPL) are eligible for free school meals, whereas children from families with incomes between 130 to 185 percent FPL qualify for reduced-price meals. Approximately <a href="https://frac.org/wp-content/uploads/cnnslp.pdf">95 percent</a> of public schools participate in NSLP in some way. Schools may fall under codes reflecting participation in NSLP without using any Provision or Community Eligibility Option, participation in NSLP under Community Eligibility Option, participation in NSLP under Provision 1, etc.</p>
 <p>The final predictor, <code>virtual</code>, refers to a school’s virtual (online) status. Some schools may be fully virtual, not virtual at all, supplemental virtual, or virtual with face to face options.</p>
 <pre class="r"><code># read in school characteristics data
@@ -904,10 +881,11 @@ psych::describe(school_chars)</code></pre>
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["vars"],"name":[1],"type":["int"],"align":["right"]},{"label":["n"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["sd"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["trimmed"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["mad"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["min"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["range"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["skew"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["kurtosis"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["se"],"name":[13],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"1256","3":"410701987900.176758","4":"488283739.7640716","5":"410738004184","6":"410702255910.029846","7":"510009353","8":"410000301061","9":"418018001510","10":"8017700449","11":"5.1900835","12":"78.0039033","13":"13777722.79140748","_rn_":"ncessch"},{"1":"2","2":"1256","3":"1.488854","4":"0.5686665","5":"1","6":"1.440358","7":"0","8":"1","9":"3","10":"2","11":"0.6410813","12":"-0.6033005","13":"0.01604585","_rn_":"titlei_status*"},{"1":"3","2":"1256","3":"3.093153","4":"1.3125508","5":"4","6":"3.240557","7":"0","8":"1","9":"4","10":"3","11":"-0.8289177","12":"-1.2108681","13":"0.03703576","_rn_":"nslp_status*"},{"1":"4","2":"1256","3":"3.278662","4":"0.5760617","5":"3","6":"3.281312","7":"0","8":"1","9":"4","10":"3","11":"-0.7052842","12":"2.7054458","13":"0.01625452","_rn_":"virtual*"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
+<p><span class="math inline">\(~\)</span></p>
 </div>
-<div id="ethinicity-data" class="section level2">
-<h2>Ethinicity data</h2>
-<p>Finally, we imported data that breaks down the ethnic makeup of the students enrolled at each school. Specifically, for each school, we know the proportion of students who identify as:</p>
+<div id="ethinicity" class="section level2">
+<h2>Ethinicity</h2>
+<p>Finally, we imported data that breaks down the ethnicity makeup of the students enrolled at each school. Specifically, for each school, we know the proportion of students who identify as:</p>
 <ul>
 <li>American Indian/Alaska Native (<code>p_american_indian_alaska_native</code>)</li>
 <li>Asian (<code>p_asian</code>)</li>
@@ -935,6 +913,8 @@ psych::describe(eth)</code></pre>
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["vars"],"name":[1],"type":["int"],"align":["right"]},{"label":["n"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["sd"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["trimmed"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["mad"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["min"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["range"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["skew"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["kurtosis"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["se"],"name":[13],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"1459","3":"1661.258396162","4":"1558.62405413","5":"1034.00000","6":"1443.532078700","7":"937.003200000","8":"1","9":"5457.00000","10":"5456.00000","11":"1.102672482","12":"-0.1415435","13":"40.805032533","_rn_":"attnd_schl_inst_id"},{"1":"2","2":"1459","3":"690.416723783","4":"397.74913911","5":"680.00000","6":"690.287425150","7":"508.531800000","8":"1","9":"1381.00000","10":"1380.00000","11":"0.002743797","12":"-1.1862708","13":"10.413137484","_rn_":"sch_name*"},{"1":"3","2":"1459","3":"0.015686415","4":"0.04818512","5":"0.00585","6":"0.007671138","7":"0.008673210","8":"0","9":"0.88284","10":"0.88284","11":"10.875463034","12":"154.4883947","13":"0.001261494","_rn_":"p_american_indian_alaska_native"},{"1":"4","2":"1459","3":"0.026003557","4":"0.05313012","5":"0.00864","6":"0.013389555","7":"0.012809664","8":"0","9":"0.61931","10":"0.61931","11":"4.769898511","12":"33.5920287","13":"0.001390955","_rn_":"p_asian"},{"1":"5","2":"1459","3":"0.006053564","4":"0.01417845","5":"0.00194","6":"0.003157767","7":"0.002876244","8":"0","9":"0.33333","10":"0.33333","11":"10.364677307","12":"201.1713982","13":"0.000371194","_rn_":"p_native_hawaiian_pacific_islander"},{"1":"6","2":"1459","3":"0.021258492","4":"0.05304041","5":"0.00603","6":"0.009410599","7":"0.008940078","8":"0","9":"1.00000","10":"1.00000","11":"7.518681315","12":"96.0633432","13":"0.001388607","_rn_":"p_black_african_american"},{"1":"7","2":"1459","3":"0.207136354","4":"0.18392804","5":"0.14311","6":"0.177364157","7":"0.115479714","8":"0","9":"1.00000","10":"1.00000","11":"1.629071974","12":"2.7586267","13":"0.004815266","_rn_":"p_hispanic_latino"},{"1":"8","2":"1459","3":"0.647821830","4":"0.21652351","5":"0.70833","6":"0.670360128","7":"0.174590976","8":"0","9":"1.00000","10":"1.00000","11":"-0.941792912","12":"0.4309255","13":"0.005668621","_rn_":"p_white"},{"1":"9","2":"1459","3":"0.063702406","4":"0.05079587","5":"0.06065","6":"0.059525757","7":"0.037079826","8":"0","9":"0.66667","10":"0.66667","11":"3.278085380","12":"25.4358443","13":"0.001329844","_rn_":"p_multiracial"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
+<p><span class="math inline">\(~\)</span></p>
+<p>Now we can merge our datasets into a single file whereby cases are matched by school ID (<code>ncessch</code>).</p>
 <pre class="r"><code># combine our data with frl, staff, school characteristics, and ethnicities
 data &lt;- data %&gt;%
     left_join(frl) %&gt;%
@@ -943,31 +923,72 @@ data &lt;- data %&gt;%
     left_join(eth)
 
 # remove unneeded dataframes
-rm(frl, staff, school_chars, eth)</code></pre>
+rm(frl, staff, school_chars, eth)
+
+head(data)</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["id"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["gndr"],"name":[2],"type":["chr"],"align":["left"]},{"label":["ethnic_cd"],"name":[3],"type":["chr"],"align":["left"]},{"label":["attnd_dist_inst_id"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["attnd_schl_inst_id"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["enrl_grd"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["calc_admn_cd"],"name":[7],"type":["chr"],"align":["left"]},{"label":["tst_bnch"],"name":[8],"type":["chr"],"align":["left"]},{"label":["tst_dt"],"name":[9],"type":["chr"],"align":["left"]},{"label":["migrant_ed_fg"],"name":[10],"type":["chr"],"align":["left"]},{"label":["ind_ed_fg"],"name":[11],"type":["chr"],"align":["left"]},{"label":["sp_ed_fg"],"name":[12],"type":["chr"],"align":["left"]},{"label":["tag_ed_fg"],"name":[13],"type":["chr"],"align":["left"]},{"label":["econ_dsvntg"],"name":[14],"type":["chr"],"align":["left"]},{"label":["ayp_lep"],"name":[15],"type":["chr"],"align":["left"]},{"label":["stay_in_dist"],"name":[16],"type":["chr"],"align":["left"]},{"label":["stay_in_schl"],"name":[17],"type":["chr"],"align":["left"]},{"label":["dist_sped"],"name":[18],"type":["chr"],"align":["left"]},{"label":["trgt_assist_fg"],"name":[19],"type":["chr"],"align":["left"]},{"label":["ayp_dist_partic"],"name":[20],"type":["chr"],"align":["left"]},{"label":["ayp_schl_partic"],"name":[21],"type":["chr"],"align":["left"]},{"label":["ayp_dist_prfrm"],"name":[22],"type":["chr"],"align":["left"]},{"label":["ayp_schl_prfrm"],"name":[23],"type":["chr"],"align":["left"]},{"label":["rc_dist_partic"],"name":[24],"type":["chr"],"align":["left"]},{"label":["rc_schl_partic"],"name":[25],"type":["chr"],"align":["left"]},{"label":["rc_dist_prfrm"],"name":[26],"type":["chr"],"align":["left"]},{"label":["rc_schl_prfrm"],"name":[27],"type":["chr"],"align":["left"]},{"label":["partic_dist_inst_id"],"name":[28],"type":["dbl"],"align":["right"]},{"label":["partic_schl_inst_id"],"name":[29],"type":["dbl"],"align":["right"]},{"label":["lang_cd"],"name":[30],"type":["chr"],"align":["left"]},{"label":["tst_atmpt_fg"],"name":[31],"type":["chr"],"align":["left"]},{"label":["grp_rpt_dist_partic"],"name":[32],"type":["chr"],"align":["left"]},{"label":["grp_rpt_schl_partic"],"name":[33],"type":["chr"],"align":["left"]},{"label":["grp_rpt_dist_prfrm"],"name":[34],"type":["chr"],"align":["left"]},{"label":["grp_rpt_schl_prfrm"],"name":[35],"type":["chr"],"align":["left"]},{"label":["score"],"name":[36],"type":["dbl"],"align":["right"]},{"label":["ncessch"],"name":[37],"type":["dbl"],"align":["right"]},{"label":["lat"],"name":[38],"type":["dbl"],"align":["right"]},{"label":["lon"],"name":[39],"type":["dbl"],"align":["right"]},{"label":["free_lunch_prop"],"name":[40],"type":["dbl"],"align":["right"]},{"label":["reduced_lunch_prop"],"name":[41],"type":["dbl"],"align":["right"]},{"label":["teachers"],"name":[42],"type":["dbl"],"align":["right"]},{"label":["titlei_status"],"name":[43],"type":["chr"],"align":["left"]},{"label":["nslp_status"],"name":[44],"type":["chr"],"align":["left"]},{"label":["virtual"],"name":[45],"type":["chr"],"align":["left"]},{"label":["sch_name"],"name":[46],"type":["chr"],"align":["left"]},{"label":["p_american_indian_alaska_native"],"name":[47],"type":["dbl"],"align":["right"]},{"label":["p_asian"],"name":[48],"type":["dbl"],"align":["right"]},{"label":["p_native_hawaiian_pacific_islander"],"name":[49],"type":["dbl"],"align":["right"]},{"label":["p_black_african_american"],"name":[50],"type":["dbl"],"align":["right"]},{"label":["p_hispanic_latino"],"name":[51],"type":["dbl"],"align":["right"]},{"label":["p_white"],"name":[52],"type":["dbl"],"align":["right"]},{"label":["p_multiracial"],"name":[53],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"F","3":"H","4":"2142","5":"1330","6":"6","7":"NA","8":"G6","9":"5/14/2018 0:00:00","10":"N","11":"N","12":"Y","13":"N","14":"Y","15":"X","16":"Y","17":"Y","18":"N","19":"N","20":"Y","21":"Y","22":"Y","23":"Y","24":"Y","25":"Y","26":"Y","27":"Y","28":"2142","29":"1330","30":"NA","31":"Y","32":"Y","33":"Y","34":"Y","35":"Y","36":"2340","37":"411082000664","38":"44.91579","39":"-122.9715","40":"0.4123975","41":"0.04354508","42":"45.66","43":"SWELIGSWPROG","44":"NSLPCEO","45":"NOTVIRTUAL","46":"Houck Middle School","47":"0.00186","48":"0.00931","49":"0.04562","50":"0.01117","51":"0.65363","52":"0.24209","53":"0.03631"},{"1":"2","2":"M","3":"W","4":"2138","5":"785","6":"5","7":"NA","8":"2B","9":"6/5/2018 0:00:00","10":"N","11":"N","12":"Y","13":"N","14":"N","15":"NA","16":"Y","17":"Y","18":"N","19":"N","20":"Y","21":"Y","22":"Y","23":"Y","24":"Y","25":"Y","26":"Y","27":"Y","28":"2138","29":"785","30":"NA","31":"Y","32":"Y","33":"Y","34":"Y","35":"Y","36":"2430","37":"411145000830","38":"45.04520","39":"-122.6761","40":"0.2662338","41":"0.10389610","42":"9.39","43":"SWELIGSWPROG","44":"NSLPWOPRO","45":"NOTVIRTUAL","46":"Scotts Mills Elementary School","47":"0.00000","48":"0.00000","49":"0.00000","50":"0.00599","51":"0.02395","52":"0.95210","53":"0.01796"},{"1":"3","2":"M","3":"M","4":"1995","5":"3400","6":"8","7":"NA","8":"3B","9":"5/1/2018 0:00:00","10":"N","11":"N","12":"N","13":"N","14":"N","15":"NA","16":"Y","17":"Y","18":"N","19":"N","20":"Y","21":"Y","22":"Y","23":"Y","24":"Y","25":"Y","26":"Y","27":"Y","28":"1995","29":"3400","30":"NA","31":"Y","32":"Y","33":"Y","34":"Y","35":"Y","36":"2551","37":"410261000315","38":"43.03421","39":"-123.6758","40":"0.4215247","41":"0.08968610","42":"17.21","43":"SWELIGSWPROG","44":"NSLPWOPRO","45":"SUPPVIRTUAL","46":"Camas Valley School","47":"0.00463","48":"0.00000","49":"0.00000","50":"0.00000","51":"0.07407","52":"0.81944","53":"0.10185"},{"1":"5","2":"F","3":"H","4":"2053","5":"1773","6":"8","7":"NA","8":"3B","9":"5/1/2018 0:00:00","10":"Y","11":"N","12":"N","13":"N","14":"Y","15":"F","16":"Y","17":"Y","18":"N","19":"N","20":"Y","21":"Y","22":"Y","23":"Y","24":"Y","25":"Y","26":"Y","27":"Y","28":"2053","29":"1773","30":"NA","31":"Y","32":"Y","33":"Y","34":"Y","35":"Y","36":"2529","37":"410674000656","38":"44.63421","39":"-121.1056","40":"0.3979592","41":"0.03514739","42":"23.75","43":"SWELIGSWPROG","44":"NSLPCEO","45":"NOTVIRTUAL","46":"Jefferson County Middle School","47":"0.10316","48":"0.01053","49":"0.00632","50":"0.00632","51":"0.49895","52":"0.36632","53":"0.00842"},{"1":"7","2":"F","3":"H","4":"1964","5":"191","6":"8","7":"NA","8":"3B","9":"5/22/2018 0:00:00","10":"N","11":"N","12":"N","13":"N","14":"Y","15":"E","16":"Y","17":"Y","18":"N","19":"N","20":"Y","21":"Y","22":"Y","23":"Y","24":"Y","25":"Y","26":"Y","27":"Y","28":"1964","29":"191","30":"NA","31":"Y","32":"Y","33":"Y","34":"Y","35":"Y","36":"2417","37":"410339000202","38":"43.18588","39":"-124.1943","40":"0.4454829","41":"0.06542056","42":"21.35","43":"NOTTITLE1ELIG","44":"NSLPCEO","45":"SUPPVIRTUAL","46":"Coquille Junior Senior High","47":"0.01600","48":"0.00000","49":"0.00267","50":"0.00267","51":"0.10667","52":"0.74933","53":"0.12267"},{"1":"10","2":"M","3":"H","4":"1948","5":"184","6":"8","7":"NA","8":"3B","9":"5/25/2018 0:00:00","10":"N","11":"N","12":"N","13":"N","14":"Y","15":"NA","16":"Y","17":"Y","18":"N","19":"N","20":"Y","21":"Y","22":"Y","23":"Y","24":"Y","25":"Y","26":"Y","27":"Y","28":"1948","29":"184","30":"NA","31":"Y","32":"Y","33":"Y","34":"Y","35":"Y","36":"2620","37":"411172000195","38":"45.86349","39":"-122.8133","40":"0.1975309","41":"0.04320988","42":"22.82","43":"NOTTITLE1ELIG","44":"NSLPWOPRO","45":"NOTVIRTUAL","46":"St Helens Middle School","47":"0.01256","48":"0.00628","49":"0.00628","50":"0.00942","51":"0.10047","52":"0.79278","53":"0.07221"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p><span class="math inline">\(~\)</span></p>
 </div>
 </div>
-<div id="getting-to-know-our-data" class="section level1">
-<h1>Getting to know our data</h1>
-<div id="create-splits" class="section level2">
-<h2>Create splits</h2>
-<p>The goal of machine learning is to predict results based on new (unseen) data. The simplest way to do this is to split our data into two parts via the function <code>initial split()</code>: an initial training set and a test set. We will eventually fit a model to the training data and predict the results of the test set. After the initial split, we need to resample our training set to create subsets of “new” data samples that we can train the model on. The most common method–which we use here–is 10-fold cross-validation. Using <code>vfold_cv()</code>, we randomly split the training data into 10 distinct samples (“folds”) of approximately equal size. Importantly, each fold contains a sample in which none of the observations are repeated in other folds. And within each fold, a random 10% (1/10) of training data are sampled for an assessment (test) set, whereas the remaining 90% of the training data serve as the analysis (training) set.</p>
+<div id="data-splitting-process" class="section level1">
+<h1>Data splitting process</h1>
+<div id="create-initial-splits" class="section level2">
+<h2>Create initial splits</h2>
+<p>The goal of machine learning is to predict results based on new (unseen) data. The simplest way to do this is to split our merged data into two parts: a training set and a test set.</p>
+<ul>
+<li><p><strong>Training set</strong>: These data are used to develop feature sets, train our algorithms, tune hyperparameters, compare models, and all of the other activities required to choose a final model (e.g., the model we want to put into production). See <a href="https://bradleyboehmke.github.io/HOML/process.html">here</a> for more details.</p></li>
+<li><p><strong>Test set</strong>: These data are used to estimate an unbiased assessment of the final model’s performance.</p></li>
+</ul>
+<p>We will eventually fit a series of models (a <a href="page2_linear.html">linear</a> model, <a href="page3_rf.html">random forest</a> model, and a <a href="page4_xgboost.html">boosted tree</a> model) to the training set and predict the results of the test set.</p>
 <pre class="r"><code>set.seed(3000)
-
-# data %&lt;&gt;%
-#   select(-matches(&quot;lat|lon|native|multi|black&quot;))
-
-# data &lt;- data %&gt;%
-#   slice_sample(prop = .01)
-
 data_split &lt;- initial_split(data)
-
 data_train &lt;- training(data_split)
-
-data_test  &lt;- testing(data_split)
-
+data_test  &lt;- testing(data_split)</code></pre>
+<p><span class="math inline">\(~\)</span></p>
+</div>
+<div id="resample-training-set" class="section level2">
+<h2>Resample training set</h2>
+<p>After the <code>initial split</code>, we need to resample our training set to create subsets of “new” data samples that we can train the model on. The most common method–which we use here–is 10-fold cross-validation. Using <code>vfold_cv()</code>, we randomly split the training data into 10 distinct samples (i.e., folds) of approximately equal size. Importantly, each fold contains a sample in which none of the observations are repeated in other folds. And within each fold, a random 10% (1/10) of training data are sampled for an assessment (test) set, whereas the remaining 90% of the training data serve as the analysis (training) set.</p>
+<pre class="r"><code>set.seed(3000)
 data_train_cv &lt;- vfold_cv(data_train)</code></pre>
-<div id="exploring-the-data" class="section level3">
-<h3>Exploring the data</h3>
+<p><span class="math inline">\(~\)</span></p>
+</div>
+</div>
+<div id="feature-engineering" class="section level1">
+<h1>Feature engineering</h1>
+<div id="data-exploration" class="section level2">
+<h2>Data exploration</h2>
+<p>First, we wanted to examine the zero order correlations among all continuous variables in the training data. This was done merely for curiosity sake–we were interested in observing which of the 13 continuous predictors were most strongly associated with our outcome variable, <code>score</code>.</p>
+<ul>
+<li>Note: Our dataset has 53 total variables, 1 of which is the outcome variable, and 13 of which are continuous predictors. This means the remaining 39 variables are categorical predictors (7 of which are ID variables).</li>
+</ul>
+<pre class="r"><code>cor_data &lt;- data_train %&gt;%
+  select(where(is.numeric),
+         -contains(&quot;id&quot;),
+         -ncessch) %&gt;%
+  cor(use = &quot;pairwise.complete.obs&quot;) %&gt;%
+  data.frame() %&gt;%
+  rownames_to_column() %&gt;%
+  gather(&quot;colname&quot;, &quot;cor&quot;, -rowname)
+  
+ggplot(cor_data, aes(x = rowname, y = colname, fill = cor)) +
+    geom_tile(color = &quot;white&quot;) +
+    geom_text(aes(label=round(cor,2))) + 
+    scale_fill_gradient2(low = &quot;#FCCF47&quot;, 
+                         mid = &quot;white&quot;, 
+                         high = &quot;#01C0C0&quot;) +
+    theme_tensor_flo() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+          axis.text = element_text(size = 10.5)) +
+    labs(y = &quot;Variable&quot;,
+         x = &quot;Variable&quot;)</code></pre>
+<p><img src="page1_data_files/figure-html/zo-1.png" width="960" /></p>
+<p>It looks like the two variables most strongly associated with student test performance are the student’s enrolled grade level (<code>enrl_grd</code>) and the proportion of students who qualify for free lunch at the student’s school (<code>free_lunch_prop</code>). Test scores tend to increase as grade level increases, and test scores tend to decline if their school has a larger proportion of students who qualify for free lunch.</p>
+<p>Now let’s begin preparing our data for analysis. While we generated descriptive statistics for all variables of interest above, it could be more helpful to examine an array of histograms for our continuous variables. In doing so, we can get a better idea of (1) the range of values for each variable and (2) whether we need to correct for non-normal distributions.</p>
 <pre class="r"><code>hist_data &lt;- data_train %&gt;%
   select(where(is.numeric),
          -contains(&quot;id&quot;),
@@ -1000,45 +1021,12 @@ ggplot(hist_data, aes(x = value)) +
     labs(y = &quot;Count&quot;,
          x = &quot;Value&quot;)</code></pre>
 <p><img src="page1_data_files/figure-html/histograms-1.png" width="960" /></p>
-<pre class="r"><code>cor_data &lt;- data_train %&gt;%
-  select(where(is.numeric),
-         -contains(&quot;id&quot;),
-         -ncessch) %&gt;%
-  dplyr::rename(&quot;Grade&quot; = `enrl_grd`,
-                &quot;Latitude&quot; = `lat`,
-                &quot;Longitude&quot; = `lon`,
-                &quot;Score&quot; = `score`,
-                &quot;Number of Teachers&quot; = `teachers`,
-                &quot;Prop Free Lunch&quot; = `free_lunch_prop`,
-                &quot;Prop Reduced Lunch&quot; = `reduced_lunch_prop`,
-                &quot;Prop Indigenous&quot; = `p_american_indian_alaska_native`,
-                &quot;Prop Asian&quot; = `p_asian`,
-                &quot;Prop African American&quot; = `p_black_african_american`,
-                &quot;Prop Hispanic&quot; = `p_hispanic_latino`,
-                &quot;Prop Pacific Islander&quot; = `p_native_hawaiian_pacific_islander`,
-                &quot;Prop Multiracial&quot; = `p_multiracial`,
-                &quot;Prop White&quot; = `p_white`) %&gt;%
-  cor(use = &quot;pairwise.complete.obs&quot;) %&gt;%
-  data.frame() %&gt;%
-  rownames_to_column() %&gt;%
-  gather(&quot;colname&quot;, &quot;cor&quot;, -rowname)
-  
-  
-ggplot(cor_data, aes(x = rowname, y = colname, fill = cor)) +
-    geom_tile(color = &quot;white&quot;) +
-    geom_text(aes(label=round(cor,2))) + 
-    scale_fill_gradient2(low = &quot;#FCCF47&quot;, 
-                         mid = &quot;white&quot;, 
-                         high = &quot;#01C0C0&quot;) +
-    theme_tensor_flo() +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1),
-          axis.text = element_text(size = 10.5)) +
-    labs(y = &quot;Variable&quot;,
-         x = &quot;Variable&quot;)</code></pre>
-<p><img src="page1_data_files/figure-html/zo-1.png" width="960" /></p>
+<p>Our outcome variable, <code>score</code>, appears to be normally distributed, but it looks like some of our continuous predictor variables are heavily skewed (e.g., <code>Proportion African American</code>, <code>Proportion Asian</code>, <code>Latitude</code>, etc.) and will definitely need to be transformed. We can address this in our recipe below.</p>
+<p><span class="math inline">\(~\)</span></p>
 </div>
-<div id="build-the-preliminary-recipe" class="section level3">
-<h3>Build the preliminary recipe</h3>
+<div id="build-the-preliminary-recipe" class="section level2">
+<h2>Build the preliminary recipe</h2>
+<p>Recipes allow us to make modifications to the data before conducting any formal analysis. Basically, recipes serve as a blueprint <em>outlining</em> any operations we want to apply to a given dataset without actually <em>applying</em> any operations. We then iteratively apply this “blueprint” across sets of data (e.g., folds) during training as well as on new, unseen testing data that has the same variables. This process helps avoid <a href="https://nervous-golick-ef3308.netlify.app/basics-of-recipes.html">data leakage</a>.</p>
 <pre class="r"><code>recipe_1 &lt;- recipe(score ~ ., data_train) %&gt;%  
     step_mutate(tst_dt = lubridate::mdy_hm(tst_dt)) %&gt;%
     update_role(contains(&quot;id&quot;), ncessch, sch_name, new_role = &quot;id vars&quot;) %&gt;%
@@ -1049,12 +1037,52 @@ ggplot(cor_data, aes(x = rowname, y = colname, fill = cor)) +
     step_BoxCox(all_numeric(), -all_outcomes(), -has_role(&quot;id vars&quot;)) %&gt;%
     step_medianimpute(all_numeric(), -all_outcomes(), -has_role(&quot;id vars&quot;)) %&gt;%
     step_dummy(all_nominal(), -has_role(&quot;id vars&quot;), one_hot = TRUE) %&gt;%
-    step_zv(all_predictors())</code></pre>
+    step_zv(all_predictors())
+
+prepped_rec &lt;- prep(recipe_1)
+
+prepped_rec</code></pre>
+<pre><code>## Data Recipe
+## 
+## Inputs:
+## 
+##       role #variables
+##    id vars          7
+##    outcome          1
+##  predictor         45
+## 
+## Training data contained 142176 data points and 142176 incomplete rows. 
+## 
+## Operations:
+## 
+## Variable mutation for tst_dt [trained]
+## Novel factor level assignment for gndr, ethnic_cd, calc_admn_cd, ... [trained]
+## Unknown factor level assignment for gndr, ethnic_cd, calc_admn_cd, ... [trained]
+## Zero variance filter removed calc_admn_cd, tst_dt [trained]
+## Centering and scaling for enrl_grd, lat, lon, ... [trained]
+## Box-Cox transformation on &lt;none&gt; [trained]
+## Median Imputation for enrl_grd, lat, lon, ... [trained]
+## Dummy variables from gndr, ethnic_cd, tst_bnch, migrant_ed_fg, ... [trained]
+## Zero variance filter removed gndr_new, gndr_unknown, ... [trained]</code></pre>
+<p>Our recipe applied the following operations to our training data:</p>
+<ul>
+<li>Set <code>score</code> as the outcome variable, and models all other variables in the dataset</li>
+<li>Converted <code>tst_dt</code> to a date variable</li>
+<li>Sets the role of ID variables (including <code>ncessch</code> and <code>sch_name</code>) to something other than a predictor or an outcome variable</li>
+<li>Added novel factor level assignment to any new categories (e.g., <code>gndr</code>, <code>ethnic_cd</code>, <code>calc_admn_cd</code>, <code>tst_bnch</code>)</li>
+<li>Added an unknown factor level (i.e., role) for missing nominal/categorical data (e.g., <code>gndr</code>, <code>ethnic_cd</code>, <code>calc_admn_cd</code>)</li>
+<li>Removed variables with zero variance (e.g., <code>calc_admn_cd</code>, <code>tst_dt</code>)</li>
+<li>Centered and scaled (normalized) continuous variables (e.g., e<code>nrl_grd</code>, <code>lat</code>, <code>lon</code>, <code>free_lunch_prop</code>)</li>
+<li>Attempted to use a box-cox transformation on all numeric data, but it appears not to have been applied to any of these variables?</li>
+<li>Used median imputation for missing numeric data (e.g., <code>enrl_grd</code>, <code>lat</code>, <code>lon</code>, <code>free_lunch_prop</code>)</li>
+<li>Dummy coded nominal/categorical variables (e.g., <code>gndr</code>, <code>ethnic_cd</code>, <code>tst_bnch</code>, <code>migrant_ed_fg</code>, <code>ind_ed_fg</code>, <code>sp_ed_fg</code>)</li>
+<li>Removed variables with new dummy coded variables with zero variance (e.g., <code>gndr_new</code>, <code>gndr_unknown</code>, <code>ethnic_cd_new</code>)</li>
+</ul>
+<p>Now we are FINALLY ready to fit some preliminary models! :)</p>
 <hr />
 <center>
 <em>Last updated: December 6th, 2020.</em>
 </center>
-</div>
 </div>
 </div>
 
@@ -1095,7 +1123,7 @@ $(document).ready(function () {
 <!-- code folding -->
 <script>
 $(document).ready(function () {
-  window.initializeCodeFolding("hide" === "show");
+  window.initializeCodeFolding("show" === "show");
 });
 </script>
 

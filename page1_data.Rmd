@@ -1,12 +1,12 @@
 ---
-title: "Tensor Flo Ridas: A Journey in Machine Learning"
+title: "Tensor Flo Ridas: A Journey in ML"
 output: 
   html_document:
     toc: TRUE
     toc_depth: 4
     toc_float: TRUE
     number_sections: FALSE
-    code_folding: hide
+    code_folding: show
     df_print: paged
 ---
 
@@ -30,7 +30,7 @@ library(kableExtra)
 options(scipen = 999)
 ```
 
-```{r load_theme}
+```{r load_theme, echo=FALSE}
 theme_tensor_flo <- function() { 
     theme_bw() %+replace% 
         theme(
@@ -55,13 +55,7 @@ theme_tensor_flo <- function() {
                                           colour = "white"))}
 ```
 
-**Describe core features of the data, any additional data you joined in and why, and basic descriptives.**
-
-**The description should be sufficiently clear that the instructor understands all the variables that were included in your modeling, and how the final analytic dataset was constructed, without actually viewing your code. While specific code snippets can be included in this section to add clarity, the reader should not have to rely on this code to understand the data preparation.**
-
-**Provide a summary of the variables (e.g., how many categorical/continuous variables were included, what were the range of values, etc.), and any feature engineering applied to the data. If missing data are present, discuss how these values were handled, variable transformations, etc. Use this section to explain your data splitting process for model evaluation.**
-
-# Our dependent variable
+# The outcome variable
 
 Across the entire United States, students in grades 3-8 are tested annually in reading and math. Our goal in this course was to create a machine learning model capable of accurately predicting a given student's performance on these tests (i.e., a scaled test total score). While our dataset is simulated from actual statewide testing administration across the state of Oregon, the overall distributions are highly similar. The school IDs (`ncessch`) are real. So we used school IDs to link our simulated data with other sources (e.g., [National Center for Educational Statistics](https://nces.ed.gov/ccd/files.asp#Fiscal:2,LevelId:7,SchoolYearId:33,Page:1)), which will be elaborated upon below.
 
@@ -137,6 +131,8 @@ frl <- frl %>%
 psych::describe(frl)
 ```
 
+$~$
+
 ## Staff
 
 Here we obtained data on the number of full-time-equivalent (FTE) teachers at each school (`teachers`). Schools with more funding seemingly offer more resources and newer, better equipment for students--possibly contributing to better test scores. Our rationale was that the number of full-time teachers at a school could potentially serve as an indirect index of school funding. Or, perhaps the number of full time teachers could be negatively associated with class room size. If smaller class rooms are associated with better student performance, then perhaps this is another means by which the number of full-time teachers could aid in the predictive utility of our model.
@@ -152,9 +148,11 @@ staff <- import(here("data", "staff.csv"), setclass = "tbl_df")  %>%
 psych::describe(staff)
 ```
 
+$~$
+
 ## Other school characteristics
 
-Here, we sought to add three more predictors. The first, `titlei_status` refers to a given school's Title I status. A Title 1 school receives federal funds for students. The premise of Title 1 is that schools with large numbers of low-income students will receive supplemental funds to help ensure that all children meet challenging state academic standards. Note schools may receive a classification other than being a Title I school or not being a Title I school. Schools may also be classified as Title I targeted assistance eligible schools, Title I school-wide eligible Title I targeted assistance schools, and more. 
+Here, we sought to add three more predictors. The first, `titlei_status` refers to a given school's Title I status. The premise of Title I is that schools with large numbers of low-income students will receive supplemental funds to help ensure that all children meet challenging state academic standards. Note schools may receive a classification other than being a Title I school or not being a Title I school. Schools may also be classified as Title I targeted assistance eligible schools, Title I school-wide eligible Title I targeted assistance schools, and more. 
 
 The second predictor of interest was `nslp_status`, which reflects a given school's National School Lunch Program (NSLP) status. The [NSLP](https://www.fns.usda.gov/nslp) "is a federally assisted meal program operating in public and nonprofit private schools and residential child care institutions". Children from families with incomes at or below 130 percent of the Federal Poverty Level (FPL) are eligible for free school meals, whereas children from families with incomes between 130 to 185 percent FPL qualify for reduced-price meals. Approximately [95 percent](https://frac.org/wp-content/uploads/cnnslp.pdf) of public schools participate in NSLP in some way. Schools may fall under codes reflecting participation in NSLP without using any Provision or Community Eligibility Option, participation in NSLP under Community Eligibility Option, participation in NSLP under Provision 1, etc.
 
@@ -172,9 +170,11 @@ school_chars <- import(here("data", "school_characteristics.csv"),
 psych::describe(school_chars)
 ```
 
-## Ethinicity data
+$~$
 
-Finally, we imported data that breaks down the ethnic makeup of the students enrolled at each school. Specifically, for each school, we know the proportion of students who identify as:
+## Ethinicity
+
+Finally, we imported data that breaks down the ethnicity makeup of the students enrolled at each school. Specifically, for each school, we know the proportion of students who identify as:
 
 + American Indian/Alaska Native (`p_american_indian_alaska_native`)
 + Asian (`p_asian`)
@@ -200,6 +200,10 @@ names(eth) <- gsub("x2019_20_percent", "p", names(eth))
 psych::describe(eth)
 ```
 
+$~$
+
+Now we can merge our datasets into a single file whereby cases are matched by school ID (`ncessch`).
+
 ```{r merge_data}
 # combine our data with frl, staff, school characteristics, and ethnicities
 data <- data %>%
@@ -210,33 +214,78 @@ data <- data %>%
 
 # remove unneeded dataframes
 rm(frl, staff, school_chars, eth)
+
+head(data)
 ```
 
-# Getting to know our data
+$~$
 
-## Create splits
+# Data splitting process
 
-The goal of machine learning is to predict results based on new (unseen) data. The simplest way to do this is to split our data into two parts via the function `initial split()`: an initial training set and a test set. We will eventually fit a model to the training data and predict the results of the test set. After the initial split, we need to resample our training set to create subsets of "new" data samples that we can train the model on. The most common method--which we use here--is 10-fold cross-validation. Using `vfold_cv()`, we randomly split the training data into 10 distinct samples ("folds") of approximately equal size. Importantly, each fold contains a sample in which none of the observations are repeated in other folds. And within each fold, a random 10% (1/10) of training data are sampled for an assessment (test) set, whereas the  remaining 90% of the training data serve as the analysis (training) set.
+## Create initial splits
+
+The goal of machine learning is to predict results based on new (unseen) data. The simplest way to do this is to split our merged data into two parts: a training set and a test set. 
+
++ **Training set**: These data are used to develop feature sets, train our algorithms, tune hyperparameters, compare models, and all of the other activities required to choose a final model (e.g., the model we want to put into production). See [here](https://bradleyboehmke.github.io/HOML/process.html) for more details.
+
++ **Test set**: These data are used to estimate an unbiased assessment of the final model’s performance.
+
+We will eventually fit a series of models (a [linear](page2_linear.html) model, [random forest](page3_rf.html) model, and a [boosted tree](page4_xgboost.html) model) to the training set and predict the results of the test set. 
+
+```{r initial_split}
+set.seed(3000)
+data_split <- initial_split(data)
+data_train <- training(data_split)
+data_test  <- testing(data_split)
+```
+
+$~$
+
+## Resample training set
+
+After the `initial split`, we need to resample our training set to create subsets of "new" data samples that we can train the model on. The most common method--which we use here--is 10-fold cross-validation. Using `vfold_cv()`, we randomly split the training data into 10 distinct samples (i.e., folds) of approximately equal size. Importantly, each fold contains a sample in which none of the observations are repeated in other folds. And within each fold, a random 10% (1/10) of training data are sampled for an assessment (test) set, whereas the remaining 90% of the training data serve as the analysis (training) set.
 
 ```{r cv_split}
 set.seed(3000)
-
-# data %<>%
-#   select(-matches("lat|lon|native|multi|black"))
-
-# data <- data %>%
-#   slice_sample(prop = .01)
-
-data_split <- initial_split(data)
-
-data_train <- training(data_split)
-
-data_test  <- testing(data_split)
-
 data_train_cv <- vfold_cv(data_train)
 ```
 
-### Exploring the data
+$~$
+
+# Feature engineering
+
+## Data exploration
+
+First, we wanted to examine the zero order correlations among all continuous variables in the training data. This was done merely for curiosity sake--we were interested in observing which of the 13 continuous predictors were most strongly associated with our outcome variable, `score`.
+
++ Note: Our dataset has 53 total variables, 1 of which is the outcome variable, and 13 of which are continuous predictors. This means the remaining 39 variables are categorical predictors (7 of which are ID variables).
+
+```{r zo, fig.height=7, fig.width=10}
+cor_data <- data_train %>%
+  select(where(is.numeric),
+         -contains("id"),
+         -ncessch) %>%
+  cor(use = "pairwise.complete.obs") %>%
+  data.frame() %>%
+  rownames_to_column() %>%
+  gather("colname", "cor", -rowname)
+  
+ggplot(cor_data, aes(x = rowname, y = colname, fill = cor)) +
+    geom_tile(color = "white") +
+    geom_text(aes(label=round(cor,2))) + 
+    scale_fill_gradient2(low = "#FCCF47", 
+                         mid = "white", 
+                         high = "#01C0C0") +
+    theme_tensor_flo() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+          axis.text = element_text(size = 10.5)) +
+    labs(y = "Variable",
+         x = "Variable")
+```
+
+It looks like the two variables most strongly associated with student test performance are the student's enrolled grade level (`enrl_grd`) and the proportion of students who qualify for free lunch at the student's school (`free_lunch_prop`). Test scores tend to increase as grade level increases, and test scores tend to decline if their school has a larger proportion of students who qualify for free lunch.
+
+Now let's begin preparing our data for analysis. While we generated descriptive statistics for all variables of interest above, it could be more helpful to examine an array of histograms for our continuous variables. In doing so, we can get a better idea of (1) the range of values for each variable and (2) whether we need to correct for non-normal distributions.
 
 ```{r histograms, fig.height=7, fig.width=10}
 hist_data <- data_train %>%
@@ -272,45 +321,13 @@ ggplot(hist_data, aes(x = value)) +
          x = "Value")
 ```
 
-```{r zo, fig.height=7, fig.width=10}
-cor_data <- data_train %>%
-  select(where(is.numeric),
-         -contains("id"),
-         -ncessch) %>%
-  dplyr::rename("Grade" = `enrl_grd`,
-                "Latitude" = `lat`,
-                "Longitude" = `lon`,
-                "Score" = `score`,
-                "Number of Teachers" = `teachers`,
-                "Prop Free Lunch" = `free_lunch_prop`,
-                "Prop Reduced Lunch" = `reduced_lunch_prop`,
-                "Prop Indigenous" = `p_american_indian_alaska_native`,
-                "Prop Asian" = `p_asian`,
-                "Prop African American" = `p_black_african_american`,
-                "Prop Hispanic" = `p_hispanic_latino`,
-                "Prop Pacific Islander" = `p_native_hawaiian_pacific_islander`,
-                "Prop Multiracial" = `p_multiracial`,
-                "Prop White" = `p_white`) %>%
-  cor(use = "pairwise.complete.obs") %>%
-  data.frame() %>%
-  rownames_to_column() %>%
-  gather("colname", "cor", -rowname)
-  
-  
-ggplot(cor_data, aes(x = rowname, y = colname, fill = cor)) +
-    geom_tile(color = "white") +
-    geom_text(aes(label=round(cor,2))) + 
-    scale_fill_gradient2(low = "#FCCF47", 
-                         mid = "white", 
-                         high = "#01C0C0") +
-    theme_tensor_flo() +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1),
-          axis.text = element_text(size = 10.5)) +
-    labs(y = "Variable",
-         x = "Variable")
-```
+Our outcome variable, `score`, appears to be normally distributed, but it looks like some of our continuous predictor variables are heavily skewed (e.g., `Proportion African American`,  `Proportion Asian`, `Latitude`, etc.) and will definitely need to be transformed. We can address this in our recipe below.
 
-### Build the preliminary recipe
+$~$
+
+## Build the preliminary recipe
+
+Recipes allow us to make modifications to the data before conducting any formal analysis. Basically, recipes serve as a blueprint *outlining* any operations we want to apply to a given dataset without actually *applying* any operations. We then iteratively apply this "blueprint" across sets of data (e.g., folds) during training as well as on new, unseen testing data that has the same variables. This process helps avoid [data leakage](https://nervous-golick-ef3308.netlify.app/basics-of-recipes.html).
 
 ```{r rec_1}
 recipe_1 <- recipe(score ~ ., data_train) %>%  
@@ -324,7 +341,27 @@ recipe_1 <- recipe(score ~ ., data_train) %>%
     step_medianimpute(all_numeric(), -all_outcomes(), -has_role("id vars")) %>%
     step_dummy(all_nominal(), -has_role("id vars"), one_hot = TRUE) %>%
     step_zv(all_predictors())
+
+prepped_rec <- prep(recipe_1)
+
+prepped_rec
 ```
+
+Our recipe applied the following operations to our training data:
+
++ Set `score` as the outcome variable, and models all other variables in the dataset
++ Converted `tst_dt` to a date variable
++ Sets the role of ID variables (including `ncessch` and `sch_name`) to something other than a predictor or an outcome variable
++ Added novel factor level assignment to any new categories (e.g., `gndr`, `ethnic_cd`, `calc_admn_cd`, `tst_bnch`)
++ Added an unknown factor level (i.e., role) for missing nominal/categorical data (e.g., `gndr`, `ethnic_cd`, `calc_admn_cd`)
++ Removed variables with zero variance (e.g., `calc_admn_cd`, `tst_dt`)
++ Centered and scaled (normalized) continuous variables (e.g., e`nrl_grd`, `lat`, `lon`, `free_lunch_prop`)
++ Attempted to use a box-cox transformation on all numeric data, but it appears not to have been applied to any of these variables?
++ Used median imputation for missing numeric data (e.g., `enrl_grd`, `lat`, `lon`, `free_lunch_prop`)
++ Dummy coded nominal/categorical variables (e.g., `gndr`, `ethnic_cd`, `tst_bnch`, `migrant_ed_fg`, `ind_ed_fg`, `sp_ed_fg`)
++ Removed variables with new dummy coded variables with zero variance (e.g., `gndr_new`, `gndr_unknown`, `ethnic_cd_new`)
+
+Now we are FINALLY ready to fit some preliminary models! :)
 
 ***
 
