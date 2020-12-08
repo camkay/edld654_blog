@@ -441,11 +441,19 @@ div.tocify {
 
 
 <hr />
+<div id="intro-to-boosted-trees" class="section level1">
+<h1>Intro to Boosted Trees</h1>
+<div id="what-are-boosted-trees" class="section level2">
+<h2>What are boosted trees?</h2>
+<p>The third model we chose to build was a boosted tree model. Similar to random forest, the boosted tree model builds decision trees over a number of iterations. While the random forest utilizes bootstrap resampling (i.e. bagging) and aggregates the predictions across samples, boosted trees learn sequentially. On each iteration, a tree is built to predict the residuals from the tree before, resulting in a slow learning process.</p>
+<p>Boosted trees can lead to overfitting of the data if not tuned properly and can be computational inefficient. A benefit to the boosted tree model, however, is that the model can be stopped when learning does not surpass a specified threshold, preventing it from overfitting. In fact, boosted trees are known for having some of the best out-of-box performance when predicting tabular data. For this reason, we will give it a try.</p>
+</div>
+</div>
 <div id="data" class="section level1">
 <h1>Data</h1>
 <div id="import-data" class="section level2">
 <h2>Import data</h2>
-<p>Only 1% of the training data was used was used so the model tuning wasn’t too computationally demanding.</p>
+<p>Only 1% of the training data was used was used so the model tuning wasn’t too computationally demanding. The subset data was split into a training set and a testing set. The training set was used to tune the cross-validated models, while the testing set was used to evaluate it’s performance.</p>
 <pre class="r"><code># Import joined data file
 data &lt;- import(here(&quot;data&quot;,&quot;data.csv&quot;),
                setclass = &quot;tbl_df&quot;)
@@ -497,6 +505,13 @@ outcome &lt;- train_baked$score</code></pre>
 </div>
 <div id="model-tuning" class="section level1">
 <h1>Model Tuning</h1>
+<p>Boosted trees have considerably more hyperparameters than random forest. For the purpose of our project, we chose what we felt were the most important hyperparameters:</p>
+<ol style="list-style-type: decimal">
+<li><p><strong>Number of trees</strong> - If too many trees are used, then our model can overfit the data. This would result in poor out-of-box performance. Alternatively, too few trees may not allow our model enough time to learn.</p></li>
+<li><p><strong>Learning rate</strong> - Boosted trees often utilize a learning process called <strong>gradient descent</strong>. On each iteration, the model is adjusted in a way that most reduces the cost function (e.g. RMSE). The amount in which the model is adjusted on each iteration is determined by the learning rate. When the learning rate is high, the model can make adjustments that are too large and end up being far from the optimal solution. When the learning rate is too low, the model may not reach the optimal solution within the specified number of trees.</p></li>
+<li><p><strong>Tree depth</strong> - This refers to the number of splits for each tree. In contrast to random forest, shallow trees are used, typically with 1 to 6 splits. A shallower tree would require more trees to reach the optimal solution, while a deeper tree can lead to overfitting.</p></li>
+<li><p><strong>Randomness</strong> - There are a number of ways in which randomness can be introduced to a boosted tree model. One is sampling the number of predictors used to determine each split within a tree. This is similar to the random forest model, in which the number of predictors sampled for each tree (<code>mtry</code>) is a hyperparameter.</p></li>
+</ol>
 <div id="basic-model-without-any-tuning" class="section level2">
 <h2>Basic model without any tuning</h2>
 <p>Before tuning the boosted tree model, a single-cross validated model with default hyperparameters was run to estimate the timing.</p>
@@ -514,9 +529,9 @@ fit_def_xgb &lt;- xgb.cv(
 )
 
 time_default &lt;- toc()</code></pre>
-<pre><code>## 31.23 sec elapsed</code></pre>
-<p>Note the cross-validated boosted tree model with default parameters took about 43.022 s. Will proceed with caution.</p>
-<p>Below are the mean train and test metrics from each iteration (i.e. tree).</p>
+<pre><code>## 30.581 sec elapsed</code></pre>
+<p>Note the cross-validated boosted tree model with default parameters took about 40.616 s. Will proceed with caution.</p>
+<p>Below are the mean train and test metrics from each iteration (i.e. tree). The model is evaluated using root mean squared error (RMSE).</p>
 <pre class="r"><code>fit_def_xgb$evaluation_log</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
@@ -572,7 +587,7 @@ fit_tune_trees &lt;- map(grid_tree$num_tree, ~ {
  ) 
 })
 toc()</code></pre>
-<pre><code>## 351.981 sec elapsed</code></pre>
+<pre><code>## 350.758 sec elapsed</code></pre>
 <p>Below are the results of the tuned models:</p>
 <pre class="r"><code>fit_tune_tree_log &lt;- map_df(fit_tune_trees, ~{
   .x$evaluation_log %&gt;% 
@@ -630,7 +645,7 @@ fit_tune_learn1 &lt;- map(grid_learn$learn_rate, ~ {
  ) 
 })
 toc()</code></pre>
-<pre><code>## 512.223 sec elapsed</code></pre>
+<pre><code>## 527.418 sec elapsed</code></pre>
 <p>Below are the results of the tuned models:</p>
 <pre class="r"><code>fit_tune_learn1_log &lt;- map_df(fit_tune_learn1, ~{
   .x$evaluation_log %&gt;% 
@@ -673,7 +688,7 @@ ggplot(fit_tune_learn1_log, aes(iter, mean)) +
 <li>use optimal number of trees</li>
 <li>use optimal learning rate</li>
 </ul>
-<p>Defined as <code>max_depth</code> in <code>XGBoost</code> This parameter determines the maximum number of splits for each tree</p>
+<p>Defined as <code>max_depth</code> in <code>XGBoost</code></p>
 <pre class="r"><code>grid_depth &lt;- expand.grid(tree_depth = seq(1,6))
 
 tic()
@@ -691,7 +706,7 @@ fit_tune_depth &lt;- map(grid_depth$tree_depth, ~ {
  ) 
 })
 toc()</code></pre>
-<pre><code>## 631.986 sec elapsed</code></pre>
+<pre><code>## 649.268 sec elapsed</code></pre>
 <p>Below are the results of the tuned models:</p>
 <pre class="r"><code>fit_tune_depth_log &lt;- map_df(fit_tune_depth, ~{
   .x$evaluation_log %&gt;% 
@@ -751,7 +766,7 @@ fit_tune_randcol &lt;- map(grid_randcol$colsample, ~ {
  ) 
 })
 toc()</code></pre>
-<pre><code>## 360.041 sec elapsed</code></pre>
+<pre><code>## 365.283 sec elapsed</code></pre>
 <p>Below are the results of the tuned models:</p>
 <pre class="r"><code>fit_tune_randcol_log &lt;- map_df(fit_tune_randcol, ~{
   .x$evaluation_log %&gt;% 
@@ -812,7 +827,7 @@ fit_tune_learn2 &lt;- map(grid_learn$learn_rate, ~ {
  ) 
 })
 toc()</code></pre>
-<pre><code>## 586.638 sec elapsed</code></pre>
+<pre><code>## 585.979 sec elapsed</code></pre>
 <p>Below are the results of the tuned models:</p>
 <pre class="r"><code>fit_tune_learn2_log &lt;- map_df(fit_tune_learn2, ~{
   .x$evaluation_log %&gt;% 
@@ -853,6 +868,7 @@ ggplot(fit_tune_learn2_log, aes(iter, mean)) +
 <h1>Fit the final model</h1>
 <div id="finalize-model" class="section level2">
 <h2>Finalize model</h2>
+<p>The final model using the optimal hyperparameters was trained on the training set.</p>
 <pre class="r"><code>tic()
 
 fit_final_xgb &lt;- xgboost(
@@ -868,10 +884,11 @@ fit_final_xgb &lt;- xgboost(
  ) 
 
 toc()</code></pre>
-<pre><code>## 19.416 sec elapsed</code></pre>
+<pre><code>## 19.568 sec elapsed</code></pre>
 </div>
 <div id="preprocess-test-split" class="section level2">
 <h2>Preprocess test split</h2>
+<p>The testing set was preprocessed using the same recipe as the training data.</p>
 <pre class="r"><code># Preprocess data
 test_baked &lt;- rec %&gt;% 
   prep() %&gt;% 
@@ -890,6 +907,7 @@ test_outcome &lt;- test_baked$score</code></pre>
 </div>
 <div id="test-final-model" class="section level2">
 <h2>Test final model</h2>
+<p>The final model was used to make predictions in the testing set. The performance of the model was evaluated using RMSE.</p>
 <pre class="r"><code># Make predictions
 predictions &lt;- predict(fit_final_xgb, test_data)
 
