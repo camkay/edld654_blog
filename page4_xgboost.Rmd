@@ -3,7 +3,7 @@ title: "Tensor Flo Ridas: A Journey in ML"
 output: 
   html_document:
     toc: TRUE
-    toc_depth: 1
+    toc_depth: 2
     toc_float: TRUE
     number_sections: FALSE
     code_folding: hide
@@ -292,7 +292,8 @@ ggplot(fit_tune_learn1_log, aes(iter, mean)) +
   labs(x = "Tree Iteration", y = "Mean RMSE") +
   scale_color_manual(values = c("#FFDB6D", "#00AFBB")) +
   theme_407() +
-  facet_wrap(~learn_rate, nrow = 2)
+  facet_wrap(~learn_rate, nrow = 2) +
+  theme(axis.text.x = element_text(size = 6))
 
 ```
 
@@ -314,6 +315,7 @@ best_learnrate1 <- tune_learn1_best$learning_rate[1]
 * use optimal learning rate
 
 Defined as `max_depth` in `XGBoost`
+This parameter determines the maximum number of splits for each tree
 
 ```{r}
 grid_depth <- expand.grid(tree_depth = seq(1,6))
@@ -377,7 +379,7 @@ best_depth<- tune_depth_best$tree_depth[1]
 * use optimal tree depth
 
 Defined as `colsample_bytree` in `XGBoost`
-This parameter will tune the number of features to sample for each new tree, similar to `mtry` in `tidymodels`.
+This parameter determines the number of features to sample for each new tree, similar to `mtry` in `tidymodels`.
 
 ```{r}
 grid_randcol <- expand.grid(colsample = seq(.1, 1, length.out = 5))
@@ -557,6 +559,6 @@ pred_tbl <- tibble(predictions, test_outcome)
 
 # Final thoughts
 
-The final RMSE on the assessment set was relatively good at `r round(test_rmse$.estimate,2)`. However, this isn't far off from the mean RMSE when cross-validating a boosted tree model using the default parameters, `r round(mt_rmse$test_rmse_mean,2)`. This finding suggests tuning did not add any predictive power to our model. Given that each tuning step took about 3 - 10 minutes, the change in RMSE does not seem worth the additional effort. Overall, though the boosted tree model demonstrated low variance and had relatively good predictive power, it was computationally inefficient.
+The final RMSE on the assessment set was relatively good at `r round(test_rmse$.estimate,2)`. However, this isn't far off from the mean RMSE when cross-validating a boosted tree model using the default parameters, `r round(mt_rmse$test_rmse_mean,2)`. This finding suggests tuning did not add any predictive power to our model. Given that each tuning step took about 3 - 10 minutes, the change in RMSE does not seem worth the additional effort. There are a number of other hyperparameters that can be tuned in boosted tree models, including minimum n for each node in a tree or thresholding the change in cost function before stopping a tree. It is possible these additional parameters would have improved the performance of our model. Overall, though the boosted tree model demonstrated low variance and had relatively good predictive power, it was computationally inefficient in terms of how many hyperparameters can be tuned and how long it takes to tune.
 
 ***

@@ -11,7 +11,7 @@
 
 
 
-<title>Tensor Flo Ridas: A Journey in Machine Learning</title>
+<title>Tensor Flo Ridas: A Journey in ML</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -435,7 +435,7 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Tensor Flo Ridas: A Journey in Machine Learning</h1>
+<h1 class="title toc-ignore">Tensor Flo Ridas: A Journey in ML</h1>
 
 </div>
 
@@ -514,8 +514,8 @@ fit_def_xgb &lt;- xgb.cv(
 )
 
 time_default &lt;- toc()</code></pre>
-<pre><code>## 30.311 sec elapsed</code></pre>
-<p>Note the cross-validated boosted tree model with default parameters took about 40.456 s. Will proceed with caution.</p>
+<pre><code>## 31.23 sec elapsed</code></pre>
+<p>Note the cross-validated boosted tree model with default parameters took about 43.022 s. Will proceed with caution.</p>
 <p>Below are the mean train and test metrics from each iteration (i.e. tree).</p>
 <pre class="r"><code>fit_def_xgb$evaluation_log</code></pre>
 <div data-pagedtable="false">
@@ -572,7 +572,7 @@ fit_tune_trees &lt;- map(grid_tree$num_tree, ~ {
  ) 
 })
 toc()</code></pre>
-<pre><code>## 356.186 sec elapsed</code></pre>
+<pre><code>## 351.981 sec elapsed</code></pre>
 <p>Below are the results of the tuned models:</p>
 <pre class="r"><code>fit_tune_tree_log &lt;- map_df(fit_tune_trees, ~{
   .x$evaluation_log %&gt;% 
@@ -591,7 +591,8 @@ ggplot(fit_tune_tree_log, aes(iter, mean)) +
   labs(x = &quot;Tree Iteration&quot;, y = &quot;Mean RMSE&quot;) +
   scale_color_manual(values = c(&quot;#FFDB6D&quot;, &quot;#00AFBB&quot;)) +
   theme_407() +
-  facet_grid(~num_tree) </code></pre>
+  facet_grid(~num_tree) +
+  theme(axis.text.x = element_text(size = 8))</code></pre>
 <p><img src="page4_xgboost_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
 <pre class="r"><code>(tune_tree_best &lt;- map_df(fit_tune_trees, ~{
   .x$evaluation_log %&gt;% 
@@ -629,7 +630,7 @@ fit_tune_learn1 &lt;- map(grid_learn$learn_rate, ~ {
  ) 
 })
 toc()</code></pre>
-<pre><code>## 511.272 sec elapsed</code></pre>
+<pre><code>## 512.223 sec elapsed</code></pre>
 <p>Below are the results of the tuned models:</p>
 <pre class="r"><code>fit_tune_learn1_log &lt;- map_df(fit_tune_learn1, ~{
   .x$evaluation_log %&gt;% 
@@ -649,7 +650,8 @@ ggplot(fit_tune_learn1_log, aes(iter, mean)) +
   labs(x = &quot;Tree Iteration&quot;, y = &quot;Mean RMSE&quot;) +
   scale_color_manual(values = c(&quot;#FFDB6D&quot;, &quot;#00AFBB&quot;)) +
   theme_407() +
-  facet_wrap(~learn_rate, nrow = 2)</code></pre>
+  facet_wrap(~learn_rate, nrow = 2) +
+  theme(axis.text.x = element_text(size = 6))</code></pre>
 <p><img src="page4_xgboost_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
 <pre class="r"><code>(tune_learn1_best &lt;- map_df(fit_tune_learn1, ~{
   .x$evaluation_log %&gt;% 
@@ -671,7 +673,7 @@ ggplot(fit_tune_learn1_log, aes(iter, mean)) +
 <li>use optimal number of trees</li>
 <li>use optimal learning rate</li>
 </ul>
-<p>Defined as <code>max_depth</code> in <code>XGBoost</code></p>
+<p>Defined as <code>max_depth</code> in <code>XGBoost</code> This parameter determines the maximum number of splits for each tree</p>
 <pre class="r"><code>grid_depth &lt;- expand.grid(tree_depth = seq(1,6))
 
 tic()
@@ -689,7 +691,7 @@ fit_tune_depth &lt;- map(grid_depth$tree_depth, ~ {
  ) 
 })
 toc()</code></pre>
-<pre><code>## 625.084 sec elapsed</code></pre>
+<pre><code>## 631.986 sec elapsed</code></pre>
 <p>Below are the results of the tuned models:</p>
 <pre class="r"><code>fit_tune_depth_log &lt;- map_df(fit_tune_depth, ~{
   .x$evaluation_log %&gt;% 
@@ -706,7 +708,8 @@ ggplot(fit_tune_depth_log, aes(iter, mean)) +
   labs(x = &quot;Tree Iteration&quot;, y = &quot;Mean RMSE&quot;) +
   scale_color_manual(values = c(&quot;#FFDB6D&quot;, &quot;#00AFBB&quot;)) +
   theme_407() +
-  facet_grid(~tree_depth)</code></pre>
+  facet_grid(~tree_depth) +
+  theme(axis.text.x = element_text(size = 6))</code></pre>
 <p><img src="page4_xgboost_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
 <pre class="r"><code>(tune_depth_best &lt;- map_df(fit_tune_depth, ~{
   .x$evaluation_log %&gt;% 
@@ -729,7 +732,7 @@ ggplot(fit_tune_depth_log, aes(iter, mean)) +
 <li>use optimal learning rate</li>
 <li>use optimal tree depth</li>
 </ul>
-<p>Defined as <code>colsample_bytree</code> in <code>XGBoost</code> This parameter will tune the number of features to sample for each new tree, similar to <code>mtry</code> in <code>tidymodels</code>.</p>
+<p>Defined as <code>colsample_bytree</code> in <code>XGBoost</code> This parameter determines the number of features to sample for each new tree, similar to <code>mtry</code> in <code>tidymodels</code>.</p>
 <pre class="r"><code>grid_randcol &lt;- expand.grid(colsample = seq(.1, 1, length.out = 5))
 
 tic()
@@ -748,7 +751,7 @@ fit_tune_randcol &lt;- map(grid_randcol$colsample, ~ {
  ) 
 })
 toc()</code></pre>
-<pre><code>## 357.425 sec elapsed</code></pre>
+<pre><code>## 360.041 sec elapsed</code></pre>
 <p>Below are the results of the tuned models:</p>
 <pre class="r"><code>fit_tune_randcol_log &lt;- map_df(fit_tune_randcol, ~{
   .x$evaluation_log %&gt;% 
@@ -767,7 +770,8 @@ ggplot(fit_tune_randcol_log, aes(iter, mean)) +
   labs(x = &quot;Tree Iteration&quot;, y = &quot;Mean RMSE&quot;) +
   scale_color_manual(values = c(&quot;#FFDB6D&quot;, &quot;#00AFBB&quot;)) +
   theme_407() +
-  facet_grid(~col_sample)</code></pre>
+  facet_grid(~col_sample) +
+  theme(axis.text.x = element_text(size = 6))</code></pre>
 <p><img src="page4_xgboost_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
 <pre class="r"><code>(tune_randcol_best &lt;- map_df(fit_tune_randcol, ~{
   .x$evaluation_log %&gt;% 
@@ -808,7 +812,7 @@ fit_tune_learn2 &lt;- map(grid_learn$learn_rate, ~ {
  ) 
 })
 toc()</code></pre>
-<pre><code>## 577.876 sec elapsed</code></pre>
+<pre><code>## 586.638 sec elapsed</code></pre>
 <p>Below are the results of the tuned models:</p>
 <pre class="r"><code>fit_tune_learn2_log &lt;- map_df(fit_tune_learn2, ~{
   .x$evaluation_log %&gt;% 
@@ -827,7 +831,8 @@ ggplot(fit_tune_learn2_log, aes(iter, mean)) +
   labs(x = &quot;Tree Iteration&quot;, y = &quot;Mean RMSE&quot;) +
   scale_color_manual(values = c(&quot;#FFDB6D&quot;, &quot;#00AFBB&quot;)) +
   theme_407() +
-  facet_grid(~learn_rate)</code></pre>
+  facet_grid(~learn_rate) +
+  theme(axis.text.x = element_text(size = 8))</code></pre>
 <p><img src="page4_xgboost_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
 <pre class="r"><code>(tune_learn2_best &lt;- map_df(fit_tune_learn2, ~{
   .x$evaluation_log %&gt;% 
@@ -848,17 +853,22 @@ ggplot(fit_tune_learn2_log, aes(iter, mean)) +
 <h1>Fit the final model</h1>
 <div id="finalize-model" class="section level2">
 <h2>Finalize model</h2>
-<pre class="r"><code>fit_final_xgb &lt;- xgboost(
+<pre class="r"><code>tic()
+
+fit_final_xgb &lt;- xgboost(
    data = features,
    label = outcome,
    nrounds = best_numtrees, # number of trees
    objective = &quot;reg:squarederror&quot;,
    early_stopping_rounds = 20, 
-   #params = list(eta = best_learnrate2,
-  #               max_depth = best_depth,
-   #              colsample_bytree = best_colsample),
+   params = list(eta = best_learnrate2,
+                 max_depth = best_depth,
+                 colsample_bytree = best_colsample),
    verbose = 0
- ) </code></pre>
+ ) 
+
+toc()</code></pre>
+<pre><code>## 19.416 sec elapsed</code></pre>
 </div>
 <div id="preprocess-test-split" class="section level2">
 <h2>Preprocess test split</h2>
@@ -888,14 +898,14 @@ pred_tbl &lt;- tibble(predictions, test_outcome)
 (test_rmse &lt;- yardstick::rmse(pred_tbl, predictions, test_outcome))</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[".metric"],"name":[1],"type":["chr"],"align":["left"]},{"label":[".estimator"],"name":[2],"type":["chr"],"align":["left"]},{"label":[".estimate"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"rmse","2":"standard","3":"99.04497"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[".metric"],"name":[1],"type":["chr"],"align":["left"]},{"label":[".estimator"],"name":[2],"type":["chr"],"align":["left"]},{"label":[".estimate"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"rmse","2":"standard","3":"85.75623"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
 </div>
 <div id="final-thoughts" class="section level1">
 <h1>Final thoughts</h1>
-<p>The final RMSE on the assessment set was relatively good at 99.04. However, this isn’t far off from the mean RMSE when cross-validating a boosted tree model using the default parameters, 85.34. This finding suggests tuning did not add any predictive power to our model. Given that each tuning step took about 3 - 10 minutes, the change in RMSE does not seem worth the additional effort. Overall, though the boosted tree model demonstrated low variance and had relatively good predictive power, it was computationally inefficient.</p>
+<p>The final RMSE on the assessment set was relatively good at 85.76. However, this isn’t far off from the mean RMSE when cross-validating a boosted tree model using the default parameters, 85.34. This finding suggests tuning did not add any predictive power to our model. Given that each tuning step took about 3 - 10 minutes, the change in RMSE does not seem worth the additional effort. There are a number of other hyperparameters that can be tuned in boosted tree models, including minimum n for each node in a tree or thresholding the change in cost function before stopping a tree. It is possible these additional parameters would have improved the performance of our model. Overall, though the boosted tree model demonstrated low variance and had relatively good predictive power, it was computationally inefficient in terms of how many hyperparameters can be tuned and how long it takes to tune.</p>
 <hr />
 </div>
 
@@ -950,7 +960,7 @@ $(document).ready(function ()  {
 
     // establish options
     var options = {
-      selectors: "h1",
+      selectors: "h1,h2",
       theme: "bootstrap3",
       context: '.toc-content',
       hashGenerator: function (text) {
