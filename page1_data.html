@@ -864,8 +864,8 @@ psych::describe(staff)</code></pre>
 </div>
 <div id="other-school-characteristics" class="section level2">
 <h2>Other school characteristics</h2>
-<p>Here, we sought to add three more predictors. The first, <code>titlei_status</code> refers to a given school’s Title I status. The premise of Title I is that schools with large numbers of low-income students will receive supplemental funds to help ensure that all children meet challenging state academic standards. Note schools may receive a classification other than being a Title I school or not being a Title I school. Schools may also be classified as Title I targeted assistance eligible schools, Title I school-wide eligible Title I targeted assistance schools, and more.</p>
-<p>The second predictor of interest was <code>nslp_status</code>, which reflects a given school’s National School Lunch Program (NSLP) status. The <a href="https://www.fns.usda.gov/nslp">NSLP</a> “is a federally assisted meal program operating in public and nonprofit private schools and residential child care institutions”. Children from families with incomes at or below 130 percent of the Federal Poverty Level (FPL) are eligible for free school meals, whereas children from families with incomes between 130 to 185 percent FPL qualify for reduced-price meals. Approximately <a href="https://frac.org/wp-content/uploads/cnnslp.pdf">95 percent</a> of public schools participate in NSLP in some way. Schools may fall under codes reflecting participation in NSLP without using any Provision or Community Eligibility Option, participation in NSLP under Community Eligibility Option, participation in NSLP under Provision 1, etc.</p>
+<p>Here, we sought to add three more predictors. The first, <code>titlei_status</code> refers to a given school’s Title I status. The premise of Title I is that schools with large numbers of low-income students will receive supplemental funds to help ensure that all children meet challenging state academic standards. Note schools may receive a classification other than being a Title I school or not being a Title I school. Schools may also be classified as Title I school-wide eligible + Title I targeted assistance program schools, Title I school-wide eligible + no program schools, and more.</p>
+<p>The second predictor of interest was <code>nslp_status</code>, which reflects a given school’s National School Lunch Program (NSLP) status. The <a href="https://www.fns.usda.gov/nslp">NSLP</a> “is a federally assisted meal program operating in public and nonprofit private schools and residential child care institutions”. Children from families with incomes at or below 130% of the Federal Poverty Level (FPL) are eligible for free school meals, whereas children from families with incomes between 130% to 185% FPL qualify for reduced-price meals. Approximately <a href="https://frac.org/wp-content/uploads/cnnslp.pdf">95%</a> of public schools participate in NSLP in some way. Schools may fall under codes reflecting participation in NSLP without using any Provision or Community Eligibility Option, participation in NSLP under Community Eligibility Option, participation in NSLP under Provision 1, etc.</p>
 <p>The final predictor, <code>virtual</code>, refers to a school’s virtual (online) status. Some schools may be fully virtual, not virtual at all, supplemental virtual, or virtual with face to face options.</p>
 <pre class="r"><code># read in school characteristics data
 school_chars &lt;- import(here(&quot;data&quot;, &quot;school_characteristics.csv&quot;), 
@@ -938,12 +938,12 @@ head(data)</code></pre>
 <h1>Data splitting process</h1>
 <div id="create-initial-splits" class="section level2">
 <h2>Create initial splits</h2>
-<p>The goal of machine learning is to predict results based on new (unseen) data. The simplest way to do this is to split our merged data into two parts: a training set and a test set.</p>
+<p>The goal of machine learning is to predict results based on new (unseen) data. The simplest way to do this is to split our merged data into two parts: a training set and a testing set. By default, <code>initial_split()</code> will randomly assign 75% of the merged data to the training set and 25% of the merged data to the testing set.</p>
 <ul>
-<li><p><strong>Training set</strong>: These data are used to develop feature sets, train our algorithms, tune hyperparameters, compare models, and all of the other activities required to choose a final model (e.g., the model we want to put into production). See <a href="https://bradleyboehmke.github.io/HOML/process.html">here</a> for more details.</p></li>
-<li><p><strong>Test set</strong>: These data are used to estimate an unbiased assessment of the final model’s performance.</p></li>
+<li><p><strong>Training set</strong>: These data are used to train our algorithms, tune hyperparameters, compare models, and all of the other tasks necessary to select a final model (e.g., the model we want to put into production). See <a href="https://bradleyboehmke.github.io/HOML/process.html">here</a> for more details.</p></li>
+<li><p><strong>Testing set</strong>: These data are used to estimate an unbiased assessment of the final model’s performance.</p></li>
 </ul>
-<p>We will eventually fit a series of models (a <a href="page2_linear.html">linear</a> model, <a href="page3_rf.html">random forest</a> model, and a <a href="page4_xgboost.html">boosted tree</a> model) to the training set and predict the results of the test set.</p>
+<p>Note that after the <code>initial_split()</code>, we use two more <a href="https://rsample.tidymodels.org/">rsample</a> functions to create data frames for our training and testing sets. We will eventually fit a series of models (a <a href="page2_linear.html">linear</a> model, <a href="page3_rf.html">random forest</a> model, and a <a href="page4_xgboost.html">boosted tree</a> model) to the training set and predict the results of the testing set.</p>
 <pre class="r"><code>set.seed(3000)
 data_split &lt;- initial_split(data)
 data_train &lt;- training(data_split)
@@ -952,7 +952,7 @@ data_test  &lt;- testing(data_split)</code></pre>
 </div>
 <div id="resample-training-set" class="section level2">
 <h2>Resample training set</h2>
-<p>After the <code>initial split</code>, we need to resample our training set to create subsets of “new” data samples that we can train the model on. The most common method–which we use here–is 10-fold cross-validation. Using <code>vfold_cv()</code>, we randomly split the training data into 10 distinct samples (i.e., folds) of approximately equal size. Importantly, each fold contains a sample in which none of the observations are repeated in other folds. And within each fold, a random 10% (1/10) of training data are sampled for an assessment (test) set, whereas the remaining 90% of the training data serve as the analysis (training) set.</p>
+<p>Now we need to resample our training set, <code>data_train</code>, to create subsets of “new” data samples that we can train the models on. The most common method–which we use here–is 10-fold cross-validation. Using <code>vfold_cv()</code>, we randomly split the training data into 10 distinct samples (i.e., folds) of approximately equal size. Importantly, each fold contains a sample in which none of the observations are repeated in other folds. And, within each fold, a random 10% of data are sampled for the <em>assessment/testing</em> set (i.e., used to validate model performance), whereas the remaining 90% of the data serve as the <em>analysis/training</em> set in the fold.</p>
 <pre class="r"><code>set.seed(3000)
 data_train_cv &lt;- vfold_cv(data_train)</code></pre>
 <p><span class="math inline">\(~\)</span></p>
@@ -1026,7 +1026,8 @@ ggplot(hist_data, aes(x = value)) +
 </div>
 <div id="build-the-preliminary-recipe" class="section level2">
 <h2>Build the preliminary recipe</h2>
-<p>Recipes allow us to make modifications to the data before conducting any formal analysis. Basically, recipes serve as a blueprint <em>outlining</em> any operations we want to apply to a given dataset without actually <em>applying</em> any operations. We then iteratively apply this “blueprint” across sets of data (e.g., folds) during training as well as on new, unseen testing data that has the same variables. This process helps avoid <a href="https://nervous-golick-ef3308.netlify.app/basics-of-recipes.html">data leakage</a>.</p>
+<p><a href="https://www.tidymodels.org/start/recipes/">Recipes</a> help us preprocess the data by allowing us to make modifications to our data before conducting any formal analysis. Basically, recipes serve as a blueprint <em>outlining</em> any operations we want to apply to a given dataset without actually <em>applying</em> any operations. We then iteratively apply this “blueprint” across sets of data (e.g., folds) during training as well as on new, unseen testing data that has the same variables. This process helps avoid <a href="https://nervous-golick-ef3308.netlify.app/basics-of-recipes.html">data leakage</a>.</p>
+<p>Considering missing data are present, we specified a recipe that used median imputation for missing numerical data. For missing nominal/categorical data, we added an unknown factor level (i.e., role) for said data. Non-normal distributions will be transformed with a box cox transformation. See below where we <code>prep()</code> our recipe for a description of all features of our recipe.</p>
 <pre class="r"><code>recipe_1 &lt;- recipe(score ~ ., data_train) %&gt;%  
     step_mutate(tst_dt = lubridate::mdy_hm(tst_dt)) %&gt;%
     update_role(contains(&quot;id&quot;), ncessch, sch_name, new_role = &quot;id vars&quot;) %&gt;%
@@ -1064,11 +1065,11 @@ prepped_rec</code></pre>
 ## Median Imputation for enrl_grd, lat, lon, ... [trained]
 ## Dummy variables from gndr, ethnic_cd, tst_bnch, migrant_ed_fg, ... [trained]
 ## Zero variance filter removed gndr_new, gndr_unknown, ... [trained]</code></pre>
-<p>Our recipe applied the following operations to our training data:</p>
+<p>Using the function <code>prep()</code> allows us to actually <em>apply</em> our recipe to the data. This gives us a better sense of whether the recipe did what we wanted it to. The recipe outlined above applied the following operations to our training data:</p>
 <ul>
-<li>Set <code>score</code> as the outcome variable, and models all other variables in the dataset</li>
+<li>Set <code>score</code> as the outcome variable, and models all other variables in the training set</li>
 <li>Converted <code>tst_dt</code> to a date variable</li>
-<li>Sets the role of ID variables (including <code>ncessch</code> and <code>sch_name</code>) to something other than a predictor or an outcome variable</li>
+<li>Set the role of ID variables (including <code>ncessch</code> and <code>sch_name</code>) to something other than a predictor or an outcome variable (i.e., when we specify the ID variables, we’re not including them in the model as predictors)</li>
 <li>Added novel factor level assignment to any new categories (e.g., <code>gndr</code>, <code>ethnic_cd</code>, <code>calc_admn_cd</code>, <code>tst_bnch</code>)</li>
 <li>Added an unknown factor level (i.e., role) for missing nominal/categorical data (e.g., <code>gndr</code>, <code>ethnic_cd</code>, <code>calc_admn_cd</code>)</li>
 <li>Removed variables with zero variance (e.g., <code>calc_admn_cd</code>, <code>tst_dt</code>)</li>
@@ -1078,10 +1079,10 @@ prepped_rec</code></pre>
 <li>Dummy coded nominal/categorical variables (e.g., <code>gndr</code>, <code>ethnic_cd</code>, <code>tst_bnch</code>, <code>migrant_ed_fg</code>, <code>ind_ed_fg</code>, <code>sp_ed_fg</code>)</li>
 <li>Removed variables with new dummy coded variables with zero variance (e.g., <code>gndr_new</code>, <code>gndr_unknown</code>, <code>ethnic_cd_new</code>)</li>
 </ul>
-<p>Now we are FINALLY ready to fit some preliminary models! :)</p>
+<p>Overall, everything looks good. Considering the <a href="https://nervous-golick-ef3308.netlify.app/transformations.html#box-cox-and-similar-transformations">box-cox transformation</a> was not successfully applied to any variables, we may want to consider testing other transformations. Otherwise, we are FINALLY ready to fit some preliminary models! :)</p>
 <hr />
 <center>
-<em>Last updated: December 6th, 2020.</em>
+<em>Last updated: December 8th, 2020.</em>
 </center>
 </div>
 </div>
