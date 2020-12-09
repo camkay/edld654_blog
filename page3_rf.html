@@ -445,11 +445,11 @@ div.tocify {
 <div id="introduction-to-random-forest-models" class="section level1">
 <h1>Introduction to Random Forest Models</h1>
 <p>On this page, we provide an overview of how to fit and tune a random forest model. But, before we can get into fitting and tuning any models, it is important to describe what exactly a random forest model is. Before we can do that, however, we must also describe what decision trees and bootstrap aggregation (bagging) are.</p>
-<p>An intuitive way to think of a decision tree is in terms of the parlor game <a href="https://en.wikipedia.org/wiki/Twenty_Questions">Twenty Questions</a> (see <a href="https://www.youtube.com/watch?v=pqrQJUY2_s8">Lecture 5 from Data Science Decal</a> for an extended discussion of this analogy). In <a href="https://en.wikipedia.org/wiki/Twenty_Questions">Twenty Questions</a>, one person (i.e., the answerer) thinks of a person, place, or thing (e.g., a computer), and the other other players (i.e., the askers) are allowed to ask 20 “yes” or “no” questions about the person, place, or thing (e.g., “Is it living?”). If the askers cannot guess what the person, place, or thing is after asking their 20 questions, the answerer wins. If they can, the askers win and the answerer loses.</p>
+<p>An intuitive way to think of a decision tree is in terms of the parlor game <a href="https://en.wikipedia.org/wiki/Twenty_Questions">Twenty Questions</a> (see <a href="https://www.youtube.com/watch?v=pqrQJUY2_s8">Lecture 5 from Data Science Decal</a> for an extended discussion of this analogy). In <a href="https://en.wikipedia.org/wiki/Twenty_Questions">Twenty Questions</a>, one person (i.e., the answerer) thinks of a person, place, or thing (e.g., a computer), and the other other players (i.e., the askers) are allowed to ask 20 “yes” or “no” questions about the person, place, or thing (e.g., “Is it living?”). If the askers cannot guess what the person, place, or thing is after asking their 20 questions, the answerer wins. If they can guess what the person, place, or thing, the askers win and the answerer loses.</p>
 <p>With decision trees, the computer essentially does the same thing as the askers in Twenty Questions. It uses yes or no questions about the predictors in a dataset to try to “guess” (predict) some categorical or continuous outcome variable of interest. For example, in predicting how much coffee a person drinks, the model might first split its prediction based on the person’s age (e.g., “Are they older than 18?”) and then, from there, split the prediction for those who are over 18 years of age by location (e.g., “Are they from Oregon or not?”). If the answer to those two questions is “yes”, then the computer may predict that a person drinks considerably more coffee than if the answer to those two questions is “no”. Moreover, by doing this splitting recursively, the computer is able to capture the interactions between these variables, such that the computer can provide a different prediction for a person who is over 18 <em>and</em> from Oregon than a person who is just over 18 or just from Oregon.</p>
 <p>The primary problem with a decision tree is that it can easily be overfit. If the tree is just left to grow deeper and deeper it will eventually be able to predict the outcome in the present data well (i.e., it would have low bias) but not be generalizable to other datasets (i.e., it would have high variance).</p>
 <p>One could stop growing the tree early or prune the tree back when it has grown too deep to address this overfitting, but another option is to use bagging. With bagging, multiple decision trees are created on bootstrap resamples of the training data and then the predictions are averaged together (if the outcome is continuous) or the most frequently predicted value across the trees is used (if the outcome is categorical). In doing so, a bagged model will have lower variance than a single decision tree alone. Moreover, since it has fuzzier decision boundaries (resulting from averaging predictions together), a bagged model will also generally have lower bias than a single decision tree.</p>
-<p>This reduction in bias and variance is, however, only possible if the trees are different from each other. If every tree was exactly the same, the averaged predictions would be exactly the same as a single decision tree. Random forests attempt to make bagged decision trees more dissimilar by only including a subset of the available predictors in each tree. Returning to the example from above, it seems plausible that, even operating on a bootstrapped subsample of the data, whether a person is older than 18 or not will generally be more telling of how much coffee a person drinks than if they are from Oregon or not. By providing only a subset of the predictors to each tree—such as in the case of a Random Forest model—some of the decision trees will not have age as a predictor and will, therefore, have to rely on different predictors to generate their predictions. By adding this additional random component, a Random Forest model is able to more effectively reduce its variance (and may also help reduce it bias) than a bagged model alone.</p>
+<p>This reduction in bias and variance is, however, only possible if the trees are sufficiently different from each other. If every tree was exactly the same, the averaged predictions would be exactly the same as a single decision tree. Random forests attempt to make bagged decision trees more dissimilar by only including a subset of the available predictors at each split. Returning to the example from above, it seems plausible that, even operating on a bootstrapped subsample of the data, whether a person is older than 18 or not will generally be more telling of how much coffee a person drinks than if they are from Oregon or not. By providing only a subset of the predictors at each split—such as in the case of a Random Forest model—some of the decision trees will not have age as a predictor at the root node and will, therefore, have to rely on different predictors for the initial split. By adding this additional random component, a Random Forest model is able to more effectively reduce its variance (and, potentially, bias) than a bagged model alone.</p>
 </div>
 <div id="fitting-an-untuned-random-forest-model" class="section level1">
 <h1>Fitting an untuned random forest model</h1>
@@ -475,7 +475,7 @@ workflow_rf &lt;- workflow() %&gt;%
 </div>
 <div id="fitting-the-model" class="section level2">
 <h2>Fitting the model</h2>
-<p>Now all that is left to do is to fit our model using <code>fit_resamples</code>. Here we used <code>metrics = yardstick::metric_set(rmse, rsq)</code> to request calculation of the average <em>Root Mean Square Error</em> (RMSE) and <span class="math inline">\(R^2\)</span> for the model. We also used the arguments <code>tic()</code> and <code>toc()</code> from the aptly named <code>{tictoc}</code> package to measure how long it takes the model to run.</p>
+<p>Now all that is left to do is to fit our model using <code>fit_resamples</code>. Here we used <code>metrics = yardstick::metric_set(rmse, rsq)</code> to request calculation of the average <em>Root Mean Square Error</em> (RMSE) and <span class="math inline">\(R^2\)</span> for the model. We also used <code>extract_model()</code> to extract the model that was created during each resampling. This will allow us to illustrate the most important predictors using the <code>vip()</code> function (see the section on <a href="#eip">Extracting Important Predictors</a> below). We also used the arguments <code>tic()</code> and <code>toc()</code> from the aptly named <code>{tictoc}</code> package to measure how long it takes the model to run.</p>
 <pre class="r"><code># start timer
 tictoc::tic()
 
@@ -490,11 +490,11 @@ fit_rf &lt;- fit_resamples(
 
 # end timer
 time1 &lt;- tictoc::toc()</code></pre>
-<pre><code>## 158.566 sec elapsed</code></pre>
+<pre><code>## 154.771 sec elapsed</code></pre>
 </div>
 <div id="checking-model-metrics" class="section level2">
 <h2>Checking model metrics</h2>
-<p>Whew! It only took 158.566 seconds to run.</p>
+<p>Whew! It only took 154.771 seconds to run.</p>
 <p>Now we can check the fit using the <code>collect_metrics()</code> function.</p>
 <pre class="r"><code>collect_metrics(fit_rf) # 86.17</code></pre>
 <div data-pagedtable="false">
@@ -504,7 +504,7 @@ time1 &lt;- tictoc::toc()</code></pre>
 </div>
 <p>We can see that it had an RMSE of 86.17 and a <span class="math inline">\(R^2\)</span> of 0.44. In other words, our predictors explained an average of 43.82% of the variability in the total scores. Going forward, we will use only RMSE to evaluate model performance.</p>
 </div>
-<div id="extracting-important-predictors" class="section level2">
+<div id="eip" class="section level2">
 <h2>Extracting important predictors</h2>
 <p>We can also check the most important predictors in our trees using the <code>vip()</code> argument.</p>
 <pre class="r"><code>pluck(fit_rf, &quot;.extracts&quot;, 1, &quot;.extracts&quot;, 1) %&gt;%
@@ -512,12 +512,12 @@ time1 &lt;- tictoc::toc()</code></pre>
   labs(x = &quot;Predictor&quot;) + 
   theme_407()</code></pre>
 <p><img src="page3_rf_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
-<p>As we can see, the students enrollment grade (<code>enrl_grade</code>) was one of the most important predictors when it came to predicting a student’s <code>score</code>. You might also notice that the graph of the important predictors has quite a long tail. If we had simply used bagging, the tail would have been a lot shorter. This is because, in Random Forest models, only a subset of the predictors is available when fitting each tree, resulting in some trees being fit without the strongest predictors that would generally serve as the root of the trees.</p>
+<p>As we can see, the student enrollment grade (<code>enrl_grade</code>) was one of the most important predictors when it came to predicting a student’s <code>score</code>. You might also notice that the graph of the important predictors has quite a long tail. If we had simply used bagging, the tail would have been a lot shorter. This is because, in Random Forest models, only a subset of the predictors is available when fitting each tree, resulting in some trees being fit without the strongest predictors that would generally serve as the root of the trees.</p>
 </div>
 </div>
 <div id="fitting-a-tuned-random-forest-model" class="section level1">
 <h1>Fitting a tuned random forest model</h1>
-<p>With random forest models, there are three hyperparameters that can be tuned. The first is the number of <code>trees</code>, which we set to <code>500</code> in the previous model. With random forest models, people just have to ensure that there are enough trees to stabilize error rates (there are no issues, other than increased computation times, with the number of trees fit). As a result, people commonly only tune the minimum node size (<code>min_n</code>) and the number of predictors to be included in each tree (<code>mtry</code>). The <code>min_n</code> hyperparameter controls how deep a tree will grow. A larger value will result in shallower trees, and a smaller value will result in deeper trees. The deeper a tree, the more likely it is to have high variance, whereas, the shallower a tree, the more likely it is to have high bias. The <code>mtry</code> hyperparameter, on the other hand, essentially controls how correlated a given set of trees will be. A higher value would be appropriate when a dataset has few relevant predictors (as it increases the chances that those predictors will be chosen), and a lower value would be appropriate when there are a large number of relevant predictors (as it allows predictors that are less strong but still relevant to form the base of the trees).To keep computation times down, we only provide an example of how to tune <code>min_n</code> here, but the process is quite similar for tuning <code>mtry</code>.</p>
+<p>With random forest models, there are three hyperparameters that can be tuned. The first is the number of <code>trees</code>, which we set to <code>500</code> in the previous model. With random forest models, people just have to ensure that there are enough trees to stabilize error rates. After the error rates are sufficiently stabilized, there are no other advantages of increasing the number of trees (and more trees will linearly increase computation times). As a result, people commonly only tune the minimum node size (<code>min_n</code>) and the number of predictors to be sampled at each split (<code>mtry</code>). The <code>min_n</code> hyperparameter controls how deep a tree will grow. A larger value will result in shallower trees, and a smaller value will result in deeper trees. The deeper a tree, the more likely it is to have high variance, whereas, the shallower a tree, the more likely it is to have high bias. The <code>mtry</code> hyperparameter, on the other hand, essentially controls how correlated a given set of trees will be. A higher value would be appropriate when a dataset has few relevant predictors (as it increases the chances that those predictors will be chosen), and a lower value would be appropriate when there are a large number of relevant predictors (as it allows predictors that are less strong but still relevant to form the base of the trees). To keep computation times down, we only provide an example of how to tune <code>min_n</code> here, but the process is quite similar for tuning <code>mtry</code>.</p>
 <p>Below we add <code>min_n = tune()</code> to <code>set_args()</code> to tune the <code>min_n</code> hyperparameter.</p>
 <div id="creating-the-model-1" class="section level2">
 <h2>Creating the model</h2>
@@ -561,13 +561,13 @@ fit_rf_tune &lt;- tune_grid(
 
 # end timer
 time2 &lt;- tictoc::toc()</code></pre>
-<pre><code>## 763.591 sec elapsed</code></pre>
+<pre><code>## 791.777 sec elapsed</code></pre>
 </div>
 <div id="checking-model-metrics-1" class="section level2">
 <h2>Checking model metrics</h2>
-<p>This time, it took 763.591 seconds to run. It is not surprising that it took longer, because we fit five times as many models as before.</p>
+<p>This time, it took 791.777 seconds to run. It is not surprising that it took longer, because we fit five times as many models as before.</p>
 <p>Now we can use the <code>show_best()</code> function to examine our best fitting models.</p>
-<pre class="r"><code>show_best(fit_rf_tune, metric = &quot;rmse&quot;, n = 10) # 85.77</code></pre>
+<pre class="r"><code>show_best(fit_rf_tune, metric = &quot;rmse&quot;, n = 5) # 85.77</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["min_n"],"name":[1],"type":["int"],"align":["right"]},{"label":[".metric"],"name":[2],"type":["chr"],"align":["left"]},{"label":[".estimator"],"name":[3],"type":["chr"],"align":["left"]},{"label":["mean"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["n"],"name":[5],"type":["int"],"align":["right"]},{"label":["std_err"],"name":[6],"type":["dbl"],"align":["right"]},{"label":[".config"],"name":[7],"type":["chr"],"align":["left"]}],"data":[{"1":"10","2":"rmse","3":"standard","4":"85.76636","5":"10","6":"0.5799668","7":"Model5"},{"1":"7","2":"rmse","3":"standard","4":"85.98384","5":"10","6":"0.5916483","7":"Model4"},{"1":"5","2":"rmse","3":"standard","4":"86.20442","5":"10","6":"0.5866762","7":"Model3"},{"1":"3","2":"rmse","3":"standard","4":"86.39005","5":"10","6":"0.5752793","7":"Model2"},{"1":"1","2":"rmse","3":"standard","4":"86.58000","5":"10","6":"0.5888000","7":"Model1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -608,8 +608,8 @@ fit_rf_tune_2 &lt;- tune_grid(
 
 # end timer
 time3 &lt;- tictoc::toc()</code></pre>
-<pre><code>## 1218.745 sec elapsed</code></pre>
-<p>The new model took 1218.745 seconds to fit. Again, it makes sense that this would be longer, because we are now testing <code>10</code> hyperparameters instead of <code>5</code>.</p>
+<pre><code>## 1341.648 sec elapsed</code></pre>
+<p>The new model took 1341.648 seconds to fit. Again, it makes sense that this would be longer, because we are now testing <code>10</code> hyperparameters instead of <code>5</code>.</p>
 <p>We can then look at the metrics again…</p>
 <pre class="r"><code>show_best(fit_rf_tune_2, metric = &quot;rmse&quot;, n = 10) # 85.3</code></pre>
 <div data-pagedtable="false">
@@ -643,8 +643,8 @@ fit_rf_final &lt;- last_fit(workflow_rf_final, split = data_split)
 
 # end timer
 time4 &lt;- tictoc::toc()</code></pre>
-<pre><code>## 13.962 sec elapsed</code></pre>
-<p>Unsurprisingly, the model fit much faster than our previous model, coming in at 13.962 seconds.</p>
+<pre><code>## 15.035 sec elapsed</code></pre>
+<p>Unsurprisingly, the model fit much faster than our previous model, coming in at 15.035 seconds.</p>
 <pre class="r"><code>collect_metrics(fit_rf_final) # 87.25</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
@@ -659,7 +659,7 @@ time4 &lt;- tictoc::toc()</code></pre>
 <p>With respect to tuning <code>min_n</code>, even when only using <code>500</code> <code>trees</code>, testing only <code>15</code> different values for the minimum node size (i.e., <code>min_n</code>), and using only <code>10</code>% of the data, the tuning models took over <code>35</code> minutes to run on a computer with 12 2.90GHz cores (hyper-threaded) with 16.00 of RAM. Moreover, the model RMSE only improved by 0.86. At least for this data, recipe, and model, the marginal improvement in the RMSE does not seem to outweigh the additional time required to tune <code>min_n</code>.</p>
 <hr />
 <center>
-<em>Last updated: December 8th, 2020.</em>
+<em>Last updated: December 9th, 2020.</em>
 </center>
 </div>
 
