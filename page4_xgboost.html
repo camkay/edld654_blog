@@ -446,14 +446,14 @@ div.tocify {
 <div id="what-are-boosted-trees" class="section level2">
 <h2>What are boosted trees?</h2>
 <p>The third model we chose to build was a boosted tree model. Similar to random forest, the boosted tree model builds decision trees over a number of iterations. While the random forest utilizes bootstrap resampling (i.e. bagging) and aggregates the predictions across samples, boosted trees learn sequentially. On each iteration, a tree is built to predict the residuals from the tree before, resulting in a slow learning process.</p>
-<p>Boosted trees can lead to overfitting of the data if not tuned properly and can be computational inefficient. A benefit to the boosted tree model, however, is that the model can be stopped when learning does not surpass a specified threshold, preventing it from overfitting. In fact, boosted trees are known for having some of the best out-of-box performance when predicting tabular data. For this reason, we will give it a try.</p>
+<p>Boosted trees can lead to overfitting of the data if not tuned properly and can be computationally inefficient. A benefit to the boosted tree model, however, is that the model can be stopped when learning does not surpass a specified threshold, preventing it from overfitting. In fact, boosted trees are known for having some of the best out-of-box performance when predicting tabular data. For this reason, we will give it a try.</p>
 </div>
 </div>
 <div id="data" class="section level1">
 <h1>Data</h1>
 <div id="import-data" class="section level2">
 <h2>Import data</h2>
-<p>Only 1% of the training data was used was used so the model tuning wasn’t too computationally demanding. The subset data was split into a training set and a testing set. The training set was used to tune the cross-validated models, while the testing set was used to evaluate it’s performance.</p>
+<p>Only 1% of the training data was used so the model tuning wasn’t too computationally demanding. The subset data was split into a training set and a testing set. The training set was used to tune the cross-validated models, while the testing set was used to evaluate it’s performance.</p>
 <pre class="r"><code># Import joined data file
 data &lt;- import(here(&quot;data&quot;,&quot;data.csv&quot;),
                setclass = &quot;tbl_df&quot;)
@@ -529,8 +529,8 @@ fit_def_xgb &lt;- xgb.cv(
 )
 
 time_default &lt;- toc()</code></pre>
-<pre><code>## 30.581 sec elapsed</code></pre>
-<p>Note the cross-validated boosted tree model with default parameters took about 40.616 s. Will proceed with caution.</p>
+<pre><code>## 32.344 sec elapsed</code></pre>
+<p>Note the cross-validated boosted tree model with default parameters took about 42.467 s. Will proceed with caution.</p>
 <p>Below are the mean train and test metrics from each iteration (i.e. tree). The model is evaluated using root mean squared error (RMSE).</p>
 <pre class="r"><code>fit_def_xgb$evaluation_log</code></pre>
 <div data-pagedtable="false">
@@ -587,7 +587,7 @@ fit_tune_trees &lt;- map(grid_tree$num_tree, ~ {
  ) 
 })
 toc()</code></pre>
-<pre><code>## 350.758 sec elapsed</code></pre>
+<pre><code>## 350.766 sec elapsed</code></pre>
 <p>Below are the results of the tuned models:</p>
 <pre class="r"><code>fit_tune_tree_log &lt;- map_df(fit_tune_trees, ~{
   .x$evaluation_log %&gt;% 
@@ -645,7 +645,7 @@ fit_tune_learn1 &lt;- map(grid_learn$learn_rate, ~ {
  ) 
 })
 toc()</code></pre>
-<pre><code>## 527.418 sec elapsed</code></pre>
+<pre><code>## 516.128 sec elapsed</code></pre>
 <p>Below are the results of the tuned models:</p>
 <pre class="r"><code>fit_tune_learn1_log &lt;- map_df(fit_tune_learn1, ~{
   .x$evaluation_log %&gt;% 
@@ -706,7 +706,7 @@ fit_tune_depth &lt;- map(grid_depth$tree_depth, ~ {
  ) 
 })
 toc()</code></pre>
-<pre><code>## 649.268 sec elapsed</code></pre>
+<pre><code>## 629.672 sec elapsed</code></pre>
 <p>Below are the results of the tuned models:</p>
 <pre class="r"><code>fit_tune_depth_log &lt;- map_df(fit_tune_depth, ~{
   .x$evaluation_log %&gt;% 
@@ -766,7 +766,7 @@ fit_tune_randcol &lt;- map(grid_randcol$colsample, ~ {
  ) 
 })
 toc()</code></pre>
-<pre><code>## 365.283 sec elapsed</code></pre>
+<pre><code>## 358.136 sec elapsed</code></pre>
 <p>Below are the results of the tuned models:</p>
 <pre class="r"><code>fit_tune_randcol_log &lt;- map_df(fit_tune_randcol, ~{
   .x$evaluation_log %&gt;% 
@@ -827,7 +827,7 @@ fit_tune_learn2 &lt;- map(grid_learn$learn_rate, ~ {
  ) 
 })
 toc()</code></pre>
-<pre><code>## 585.979 sec elapsed</code></pre>
+<pre><code>## 577.299 sec elapsed</code></pre>
 <p>Below are the results of the tuned models:</p>
 <pre class="r"><code>fit_tune_learn2_log &lt;- map_df(fit_tune_learn2, ~{
   .x$evaluation_log %&gt;% 
@@ -884,7 +884,7 @@ fit_final_xgb &lt;- xgboost(
  ) 
 
 toc()</code></pre>
-<pre><code>## 19.568 sec elapsed</code></pre>
+<pre><code>## 19.097 sec elapsed</code></pre>
 </div>
 <div id="preprocess-test-split" class="section level2">
 <h2>Preprocess test split</h2>
@@ -923,7 +923,7 @@ pred_tbl &lt;- tibble(predictions, test_outcome)
 </div>
 <div id="final-thoughts" class="section level1">
 <h1>Final thoughts</h1>
-<p>The final RMSE on the assessment set was relatively good at 85.76. However, this isn’t far off from the mean RMSE when cross-validating a boosted tree model using the default parameters, 85.34. This finding suggests tuning did not add any predictive power to our model. Given that each tuning step took about 3 - 10 minutes, the change in RMSE does not seem worth the additional effort. There are a number of other hyperparameters that can be tuned in boosted tree models, including minimum n for each node in a tree or thresholding the change in cost function before stopping a tree. It is possible these additional parameters would have improved the performance of our model. Overall, though the boosted tree model demonstrated low variance and had relatively good predictive power, it was computationally inefficient in terms of how many hyperparameters can be tuned and how long it takes to tune.</p>
+<p>The final RMSE on the assessment set was relatively good at 85.76. However, this isn’t far off from the mean RMSE when cross-validating a boosted tree model using the default parameters, 85.34. This finding suggests tuning did not add any predictive power to our model. Given that each tuning step took about 3 - 10 minutes, the change in RMSE does not seem worth the additional effort. There are a number of other hyperparameters that can be tuned in boosted tree models, including minimum n for each node in a tree or thresholding the change in cost function before stopping a tree. It is possible these additional parameters would have improved the performance of our model. Overall, though the boosted tree model demonstrated low variance and had relatively good predictive power, it was computationally inefficient in terms of how many hyperparameters can be tuned and how long it takes to tune, even with just 10% of the data.</p>
 <hr />
 </div>
 

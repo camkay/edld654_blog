@@ -60,13 +60,13 @@ theme_407 <- function() {
 
 The third model we chose to build was a boosted tree model. Similar to random forest, the boosted tree model builds decision trees over a number of iterations. While the random forest utilizes bootstrap resampling (i.e. bagging) and aggregates the predictions across samples, boosted trees learn sequentially. On each iteration, a tree is built to predict the residuals from the tree before, resulting in a slow learning process. 
 
-Boosted trees can lead to overfitting of the data if not tuned properly and can be computational inefficient. A benefit to the boosted tree model, however, is that the model can be stopped when learning does not surpass a specified threshold, preventing it from overfitting. In fact, boosted trees are known for having some of the best out-of-box performance when predicting tabular data. For this reason, we will give it a try.
+Boosted trees can lead to overfitting of the data if not tuned properly and can be computationally inefficient. A benefit to the boosted tree model, however, is that the model can be stopped when learning does not surpass a specified threshold, preventing it from overfitting. In fact, boosted trees are known for having some of the best out-of-box performance when predicting tabular data. For this reason, we will give it a try.
 
 # Data
 
 ## Import data
 
-Only 1% of the training data was used was used so the model tuning wasn't too computationally demanding. The subset data was split into a training set and a testing set. The training set was used to tune the cross-validated models, while the testing set was used to evaluate it's performance.
+Only 1% of the training data was used so the model tuning wasn't too computationally demanding. The subset data was split into a training set and a testing set. The training set was used to tune the cross-validated models, while the testing set was used to evaluate it's performance.
 
 ```{r import_data}
 # Import joined data file
@@ -581,6 +581,6 @@ pred_tbl <- tibble(predictions, test_outcome)
 
 # Final thoughts
 
-The final RMSE on the assessment set was relatively good at `r round(test_rmse$.estimate,2)`. However, this isn't far off from the mean RMSE when cross-validating a boosted tree model using the default parameters, `r round(mt_rmse$test_rmse_mean,2)`. This finding suggests tuning did not add any predictive power to our model. Given that each tuning step took about 3 - 10 minutes, the change in RMSE does not seem worth the additional effort. There are a number of other hyperparameters that can be tuned in boosted tree models, including minimum n for each node in a tree or thresholding the change in cost function before stopping a tree. It is possible these additional parameters would have improved the performance of our model. Overall, though the boosted tree model demonstrated low variance and had relatively good predictive power, it was computationally inefficient in terms of how many hyperparameters can be tuned and how long it takes to tune.
+The final RMSE on the assessment set was relatively good at `r round(test_rmse$.estimate,2)`. However, this isn't far off from the mean RMSE when cross-validating a boosted tree model using the default parameters, `r round(mt_rmse$test_rmse_mean,2)`. This finding suggests tuning did not add any predictive power to our model. Given that each tuning step took about 3 - 10 minutes, the change in RMSE does not seem worth the additional effort. There are a number of other hyperparameters that can be tuned in boosted tree models, including minimum n for each node in a tree or thresholding the change in cost function before stopping a tree. It is possible these additional parameters would have improved the performance of our model. Overall, though the boosted tree model demonstrated low variance and had relatively good predictive power, it was computationally inefficient in terms of how many hyperparameters can be tuned and how long it takes to tune, even with just 10% of the data.
 
 ***

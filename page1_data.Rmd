@@ -152,9 +152,9 @@ $~$
 
 ## Other school characteristics
 
-Here, we sought to add three more predictors. The first, `titlei_status` refers to a given school's Title I status. The premise of Title I is that schools with large numbers of low-income students will receive supplemental funds to help ensure that all children meet challenging state academic standards. Note schools may receive a classification other than being a Title I school or not being a Title I school. Schools may also be classified as Title I targeted assistance eligible schools, Title I school-wide eligible Title I targeted assistance schools, and more. 
+Here, we sought to add three more predictors. The first, `titlei_status` refers to a given school's Title I status. The premise of Title I is that schools with large numbers of low-income students will receive supplemental funds to help ensure that all children meet challenging state academic standards. Note schools may receive a classification other than being a Title I school or not being a Title I school. Schools may also be classified as Title I school-wide eligible + Title I targeted assistance program schools, Title I school-wide eligible + no program schools, and more. 
 
-The second predictor of interest was `nslp_status`, which reflects a given school's National School Lunch Program (NSLP) status. The [NSLP](https://www.fns.usda.gov/nslp) "is a federally assisted meal program operating in public and nonprofit private schools and residential child care institutions". Children from families with incomes at or below 130 percent of the Federal Poverty Level (FPL) are eligible for free school meals, whereas children from families with incomes between 130 to 185 percent FPL qualify for reduced-price meals. Approximately [95 percent](https://frac.org/wp-content/uploads/cnnslp.pdf) of public schools participate in NSLP in some way. Schools may fall under codes reflecting participation in NSLP without using any Provision or Community Eligibility Option, participation in NSLP under Community Eligibility Option, participation in NSLP under Provision 1, etc.
+The second predictor of interest was `nslp_status`, which reflects a given school's National School Lunch Program (NSLP) status. The [NSLP](https://www.fns.usda.gov/nslp) "is a federally assisted meal program operating in public and nonprofit private schools and residential child care institutions". Children from families with incomes at or below 130% of the Federal Poverty Level (FPL) are eligible for free school meals, whereas children from families with incomes between 130% to 185% FPL qualify for reduced-price meals. Approximately [95%](https://frac.org/wp-content/uploads/cnnslp.pdf) of public schools participate in NSLP in some way. Schools may fall under codes reflecting participation in NSLP without using any Provision or Community Eligibility Option, participation in NSLP under Community Eligibility Option, participation in NSLP under Provision 1, etc.
 
 The final predictor, `virtual`, refers to a school's virtual (online) status. Some schools may be fully virtual, not virtual at all, supplemental virtual, or virtual with face to face options.
 
@@ -224,13 +224,13 @@ $~$
 
 ## Create initial splits
 
-The goal of machine learning is to predict results based on new (unseen) data. The simplest way to do this is to split our merged data into two parts: a training set and a test set. 
+The goal of machine learning is to predict results based on new (unseen) data. The simplest way to do this is to split our merged data into two parts: a training set and a testing set. By default, `initial_split()` will randomly assign 75% of the merged data to the training set and 25% of the merged data to the testing set.
 
-+ **Training set**: These data are used to develop feature sets, train our algorithms, tune hyperparameters, compare models, and all of the other activities required to choose a final model (e.g., the model we want to put into production). See [here](https://bradleyboehmke.github.io/HOML/process.html) for more details.
++ **Training set**: These data are used to train our algorithms, tune hyperparameters, compare models, and all of the other tasks necessary to select a final model (e.g., the model we want to put into production). See [here](https://bradleyboehmke.github.io/HOML/process.html) for more details.
 
-+ **Test set**: These data are used to estimate an unbiased assessment of the final model’s performance.
++ **Testing set**: These data are used to estimate an unbiased assessment of the final model’s performance.
 
-We will eventually fit a series of models (a [linear](page2_linear.html) model, [random forest](page3_rf.html) model, and a [boosted tree](page4_xgboost.html) model) to the training set and predict the results of the test set. 
+Note that after the `initial_split()`, we use two more [rsample](https://rsample.tidymodels.org/) functions to create data frames for our training and testing sets. We will eventually fit a series of models (a [linear](page2_linear.html) model, [random forest](page3_rf.html) model, and a [boosted tree](page4_xgboost.html) model) to the training set and predict the results of the testing set. 
 
 ```{r initial_split}
 set.seed(3000)
@@ -243,7 +243,7 @@ $~$
 
 ## Resample training set
 
-After the `initial split`, we need to resample our training set to create subsets of "new" data samples that we can train the model on. The most common method--which we use here--is 10-fold cross-validation. Using `vfold_cv()`, we randomly split the training data into 10 distinct samples (i.e., folds) of approximately equal size. Importantly, each fold contains a sample in which none of the observations are repeated in other folds. And within each fold, a random 10% (1/10) of training data are sampled for an assessment (test) set, whereas the remaining 90% of the training data serve as the analysis (training) set.
+Now we need to resample our training set, `data_train`, to create subsets of "new" data samples that we can train the models on. The most common method--which we use here--is 10-fold cross-validation. Using `vfold_cv()`, we randomly split the training data into 10 distinct samples (i.e., folds) of approximately equal size. Importantly, each fold contains a sample in which none of the observations are repeated in other folds. And, within each fold, a random 10% of data are sampled for the *assessment/testing* set (i.e., used to validate model performance), whereas the remaining 90% of the data serve as the *analysis/training* set in the fold.
 
 ```{r cv_split}
 set.seed(3000)
@@ -327,7 +327,9 @@ $~$
 
 ## Build the preliminary recipe
 
-Recipes allow us to make modifications to the data before conducting any formal analysis. Basically, recipes serve as a blueprint *outlining* any operations we want to apply to a given dataset without actually *applying* any operations. We then iteratively apply this "blueprint" across sets of data (e.g., folds) during training as well as on new, unseen testing data that has the same variables. This process helps avoid [data leakage](https://nervous-golick-ef3308.netlify.app/basics-of-recipes.html).
+[Recipes](https://www.tidymodels.org/start/recipes/) help us preprocess the data by allowing us to make modifications to our data before conducting any formal analysis. Basically, recipes serve as a blueprint *outlining* any operations we want to apply to a given dataset without actually *applying* any operations. We then iteratively apply this "blueprint" across sets of data (e.g., folds) during training as well as on new, unseen testing data that has the same variables. This process helps avoid [data leakage](https://nervous-golick-ef3308.netlify.app/basics-of-recipes.html).
+
+Considering missing data are present, we specified a recipe that used median imputation for missing numerical data. For missing nominal/categorical data, we added an unknown factor level (i.e., role) for said data. Non-normal distributions will be transformed with a box cox transformation. See below where we `prep()` our recipe for a description of all features of our recipe.
 
 ```{r rec_1}
 recipe_1 <- recipe(score ~ ., data_train) %>%  
@@ -347,11 +349,11 @@ prepped_rec <- prep(recipe_1)
 prepped_rec
 ```
 
-Our recipe applied the following operations to our training data:
+Using the function `prep()` allows us to actually *apply* our recipe to the data. This gives us a better sense of whether the recipe did what we wanted it to. The recipe outlined above applied the following operations to our training data:
 
-+ Set `score` as the outcome variable, and models all other variables in the dataset
++ Set `score` as the outcome variable, and models all other variables in the training set
 + Converted `tst_dt` to a date variable
-+ Sets the role of ID variables (including `ncessch` and `sch_name`) to something other than a predictor or an outcome variable
++ Set the role of ID variables (including `ncessch` and `sch_name`) to something other than a predictor or an outcome variable (i.e., when we specify the ID variables, we're not including them in the model as predictors)
 + Added novel factor level assignment to any new categories (e.g., `gndr`, `ethnic_cd`, `calc_admn_cd`, `tst_bnch`)
 + Added an unknown factor level (i.e., role) for missing nominal/categorical data (e.g., `gndr`, `ethnic_cd`, `calc_admn_cd`)
 + Removed variables with zero variance (e.g., `calc_admn_cd`, `tst_dt`)
@@ -361,10 +363,10 @@ Our recipe applied the following operations to our training data:
 + Dummy coded nominal/categorical variables (e.g., `gndr`, `ethnic_cd`, `tst_bnch`, `migrant_ed_fg`, `ind_ed_fg`, `sp_ed_fg`)
 + Removed variables with new dummy coded variables with zero variance (e.g., `gndr_new`, `gndr_unknown`, `ethnic_cd_new`)
 
-Now we are FINALLY ready to fit some preliminary models! :)
+Overall, everything looks good. Considering the [box-cox transformation](https://nervous-golick-ef3308.netlify.app/transformations.html#box-cox-and-similar-transformations) was not successfully applied to any variables, we may want to consider testing other transformations. Otherwise, we are FINALLY ready to fit some preliminary models! :)
 
 ***
 
 <center>
-*Last updated: December 6th, 2020.*
+*Last updated: December 8th, 2020.*
 </center>
